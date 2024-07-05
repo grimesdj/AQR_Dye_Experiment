@@ -1,0 +1,51 @@
+clear all
+close all
+% full path
+releaseNumber  = 1;
+%ctdSerialNumber=234870;
+rootDir  = sprintf('/Users/derekgrimes/Library/CloudStorage/OneDrive-UNC-Wilmington/KELP-vingilote/data/Release%d/',releaseNumber);
+rawDir    = [rootDir,filesep,'raw'];
+L0Dir    = [rootDir,filesep,'L0'];
+fileRoot = '*.rsk';
+files    = dir([rawDir,filesep,fileRoot]);
+for jj  = 1:length(files)
+    fin = [rawDir,filesep,files(jj).name];
+    SN  = split(files(jj).name,'_');
+    fout= [L0Dir,filesep,SN{1},'_L0.mat'];
+    % open the file
+    rsk = RSKopen(fin);
+    %
+    rsk = RSKreaddata(rsk);
+    %  mat = RSK2MAT(rsk);
+    serialNum = rsk.instruments.serialID;
+% $$$ time      = rsk.data.tstamp;
+% $$$ pres      = rsk.data.values;
+    time = rsk.data.tstamp;
+    data = rsk.data.values;
+    %
+    %
+    cond     = data(:,1);
+    temp     = data(:,2);
+    pres_abs = data(:,3);
+    dye_raw  = data(:,4);
+    %
+    %
+    figure, plot(time,pres_abs)
+    title({'zoom into region before deployment'; 'press \CR (return/enter) when finished'})
+    pause()
+    title({'select times bounding when instrument was in the air'})
+    inAir = ginput(2);
+    %
+    %
+    iAir  = find(time>=inAir(1,1) & time<=inAir(2,1));
+    pres0 = mean(pres_abs(iAir))
+    %
+    pres    = pres_abs-pres0;
+    oowFlag = (pres<0.02);
+    %
+    cond(oowFlag)=nan;
+    temp(oowFlag)=nan;
+    pres(oowFlag)=nan;
+    dye_raw(oowFlag)=nan;
+    save(fout,'time','cond','temp','pres','dye_raw')
+end
