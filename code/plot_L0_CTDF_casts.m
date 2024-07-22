@@ -1,6 +1,7 @@
+clear all
 % full path
-releaseNumber  = 1;
-ctdSerialNumber=234870;
+releaseNumber  = 2;
+ctdSerialNumber=234869;
 rootDir  = '/Users/derekgrimes/Library/CloudStorage/OneDrive-UNC-Wilmington/KELP-vingilote/'
 dataDir  = sprintf('%s/data/Release%d/',rootDir,releaseNumber);
 L0Dir    = [dataDir,filesep,'L0',];
@@ -9,6 +10,7 @@ files    = dir([L0Dir,filesep,fileRoot]);
 for jj  = 1:length(files)
     SN  = split(files(jj).name,'_');
     fin= [L0Dir,filesep,SN{1},'_L0.mat'];
+    load(fin);
     %
 % $$$     figure, scatter(dye,pres, 10,temp,'filled')
 % $$$     figure, plot(temp,dye_raw,'.')
@@ -20,7 +22,7 @@ for jj  = 1:length(files)
     %    
     figure,
     scatter(temp_sort,pres_sort,15,log2(dye_sort),'filled'), set(gca,'ydir','reverse','ticklabelinterpreter','latex'), colormap(cm), caxis([0 8])
-    xline(14,'--r','linewidth',2)
+    xline(15,'--r','linewidth',2)
     xlabel('Temp [C]','interpreter','latex')
     ylabel('Depth [m]','interpreter','latex')
     cb0=colorbar;
@@ -31,7 +33,7 @@ for jj  = 1:length(files)
     if ~exist(figdir,'dir')
         eval(['!mkdir -p ',figdir])
     end
-    figname = [figdir,sprintf('%d_depth_temp_scatter_dye_colormap.png',serialNum)];
+    figname = [figdir,sprintf('%d_depth_temp_scatter_dye_colormap.png',ctdSerialNumber)];
     exportgraphics(gcf,figname)
     %    
     %
@@ -44,7 +46,7 @@ for jj  = 1:length(files)
     ticks = get(cb1,'ytick');
     set(cb1,'yticklabel', cellfun(@num2str,num2cell(2.^ticks)','uniformoutput',0),'ticklabelinterpreter','latex')
     ylabel(cb1,'Dye [ppb]','interpreter','latex')
-    yline(ax1,6,'--r','linewidth',2)       
+    yline(ax1,8,'--r','linewidth',2)       
     ax2 = subplot(2,1,2);
     scatter(datetime(time,'convertfrom','datenum'),pres,20,temp,'filled'),
     ylabel('Depth [m]','interpreter','latex')
@@ -52,7 +54,7 @@ for jj  = 1:length(files)
     colormap(ax2,cmocean('thermal')), caxis(ax2,[12 19])
     cb2 = colorbar; set(cb2,'ticklabelinterpreter','latex')
     ylabel(cb2,'Temp [C]','interpreter','latex')       
-    yline(ax2,6,'--r','linewidth',2)
-    figname = [figdir,sprintf('%d_depth_time_scatter_vs_dye_temp_colormaps.png',serialNum)];
+    yline(ax2,8,'--r','linewidth',2)
+    figname = [figdir,sprintf('%d_depth_time_scatter_vs_dye_temp_colormaps.png',ctdSerialNumber)];
     exportgraphics(gcf,figname)
 end
