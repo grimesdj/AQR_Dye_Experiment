@@ -1,7 +1,7 @@
 clear all
 % full path
-releaseNumber  = 2;
-ctdSerialNumber=234869;
+releaseNumber  = 3;
+ctdSerialNumber=234870;
 rootDir  = '/Users/derekgrimes/Library/CloudStorage/OneDrive-UNC-Wilmington/KELP-vingilote/'
 dataDir  = sprintf('%s/data/Release%d/',rootDir,releaseNumber);
 L0Dir    = [dataDir,filesep,'L0',];
