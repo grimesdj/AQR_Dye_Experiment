@@ -1,0 +1,43 @@
+function dye = despike_SA(dyeraw,dt);
+%
+% USAGE: dye = despike_SA(dyeraw,dt);
+%
+% dyeraw is a vector in ppb and dt is the sample interval in seconds. 
+% the function looks for isolated spikes of .02*dt*(1+dye/4) up or down, and
+% any incidence of slopes >.05*dt*(1+dye/12) and nans them (threshold of
+% approx. 1 counts and 3 counts per second, respectively at dye=0;
+% and approx. 4 & 7 counts per second, respectively at dye=10;
+% and approx. 30 & 40 counts per second, respectively at dye = 100). 
+
+d_ = dyeraw;
+[m,n] = size(d_);
+
+% $$$ % get order of dye
+% $$$ ord = [.01 .1 1 10 25 50 75 100];
+% $$$ ord_2 = repmat(ord,m,1);
+% $$$ [r,c] = size(ord);
+% $$$ 
+% $$$ d_2 = repmat(d_,1,c);
+% $$$ [~,col_d_ord] = min(abs((d_2./ord_2-1)),[],2);
+% $$$ scale = ord(col_d_ord(1:end-1))';
+
+% remove isolated up spikes
+i1 = find(diff(d_(2:end))./dt./(1+d_(2:end-1)./10)>.02);% was .02
+i2 = find(diff(d_(2:end))./dt./(1+d_(1:end-2)./10)<-.02);
+i3 = intersect(i1+1,i2)+1;
+
+% remove isolated down spikes
+i4 = find(diff(d_(1:end-1))./dt./(1+d_(1:end-2)./10)<-.02);
+i5 = find(diff(d_(1:end-1))./dt./(1+d_(2:end-1)./10)>.02);
+i6 = intersect(i4+1,i5);
+
+i = union(i3,i6);
+d_(i+1) = nan;
+
+% remove residuals
+i1 = find(diff(d_)./dt./(1+d_(1:end-1)./10)>.05);% was .05
+i2 = find(diff(d_)./dt./(1+d_(1:end-1)./10)<-.05);
+i = union(i1,i2);
+d_(i+1) = nan;
+
+dye = d_;
