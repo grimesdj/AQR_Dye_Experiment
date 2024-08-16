@@ -111,6 +111,9 @@ for i = 1:Ninst
         time= datenum('Jan 01 1970')+SS/86400;
         RWT = dat{4};
         dt  = 300/86400;
+        if SN==339378
+            time = time + (datenum('30-Jun-2024 22:45:00') - datenum('28-Jun-2024 05:45:00'));
+        end
       case 'YSI'
         format = '%s %s %s %s %s %f %f %f %f %f %f %f %f %f %f %f %f %f %f';
         fin = sprintf([fluoRoot,filesep,'SN_%04d.csv'],SN);
@@ -198,7 +201,7 @@ for i = 1:Ninst
     logERR(i)    = ERR;
 end
 %
-fout = [fluoRoot, 'sensor_calibration_coefficients.csv'];
+fout = [fluoRoot, 'fluorometer_calibration_coefficients.csv'];
 tmp  = cell(Ninst+1,4);
 tmp(1,:) = {'Serial Number', 'Offset', 'Slope', 'Temperature'};
 tmp(2:Ninst+1,:) = mat2cell([double(bucket_SN(:)), logOFFSET(:), logSLOPE(:), nanmean(logTEMP,2)],ones(Ninst,1),ones(1,4));
@@ -233,7 +236,7 @@ plot(flag.*calib_ppb',(flag.*D),'.r',flag.*calib_ppb_avg',(flag.*D),'.k',calib_p
 err = abs((flag.*D)'-calib_ppb_avg);
 ERR = nanmean(nanmean(err(4:end),2));
 title(' All Instruments ','interpreter','latex')
-text(10,450,{sprintf('Avg. Error: %2.2f',ERR);},'interpreter','latex')
+text(10,450,{sprintf('Avg. Error: %2.2f ppb',ERR);},'interpreter','latex')
 xlabel('bucket concentration [ppb]','interpreter','latex')
 ylabel('sensor [ppb]','interpreter','latex')
 h   = legend('Target Bucket [ppb]','Estimated Bucket [ppb]');
@@ -241,3 +244,61 @@ set(h,'location','southeast','interpreter','latex')
 set(ax,'xlim',[calib_ppb(1) calib_ppb(end)],'ylim',[min(0,nanmin(bktRWTavg)) max(500,nanmax(bktRWTavg))],'ticklabelinterpreter','latex','tickdir','out')
 figname = sprintf('%sAll_Instrument_calibration_curve.png',figRoot);
 exportgraphics(fig,figname)
+%
+%
+%
+% now re-do the fits
+valid_cal  = calib_ppb_avg>=0 & (calib_ppb_avg-calib_ppb)./(0.1+calib_ppb)<1;
+N          = sum(valid_cal);
+redoOFFSET = nan(Ninst,1);
+redoSLOPE  = nan(Ninst,1);
+for i = 1:Ninst
+    X     = [ones(N,1), logRWTavg(i,find(valid_cal))'];
+    L2FIT = X\calib_ppb_avg(valid_cal);
+    redoOFFSET(i) = -L2FIT(1)/L2FIT(2);
+    redoSLOPE(i)  = L2FIT(2);
+end
+%
+%
+%
+% now reconstruct the entire calibration 
+X = logRWTavg - redoOFFSET;
+D2 = X.*redoSLOPE;
+%
+% now get mean, and remove points outside 2-std
+D2avg = nanmean(D2,1);
+D2std = nanstd(D2,[],1);
+valid = D2>=ones(Ninst,1)*(D2avg-D2std) & D2<=ones(Ninst,1)*(D2avg+D2std);
+valid(find(sum(valid,2)<10),:) = 0;
+flag = double(valid); flag(flag==0)=nan;
+% 7) re-plot results, log slope/offset and temp_avg of buckets
+xm = 2.5;
+ym = 2.5;
+pw = 10;
+ph = 10*(range([min(0,nanmin(bktRWTavg)) max(500,nanmax(bktRWTavg))])/range(calib_ppb));
+ppos = [xm ym pw ph];
+ps   = [2*xm+pw, 2*ym+ph];
+fig  = figure('units','centimeters');
+pos  = get(fig,'position');
+pos(3:4)=ps; set(fig,'position',pos,'papersize',ps,'paperposition',[0 0 ps])
+ax   = axes('units','centimeters','position',ppos);
+plot(flag.*calib_ppb_avg',(flag.*D),'.r',flag.*calib_ppb_avg',(flag.*D2),'.k',calib_ppb,calib_ppb,'--k','markersize',8)
+err2 = abs((flag.*D2)'-calib_ppb_avg);
+ERR2 = nanmean(nanmean(err2(4:end),2));
+title(' All Instruments ','interpreter','latex')
+text(10,450,{sprintf('Avg. Error: %2.2f ppb',ERR2);},'interpreter','latex')
+xlabel('bucket concentration [ppb]','interpreter','latex')
+ylabel('sensor [ppb]','interpreter','latex')
+h   = legend('Preliminary Fit','Secondary Fit');
+set(h,'location','southeast','interpreter','latex')
+set(ax,'xlim',[calib_ppb(1) calib_ppb(end)],'ylim',[min(0,nanmin(bktRWTavg)) max(500,nanmax(bktRWTavg))],'ticklabelinterpreter','latex','tickdir','out')
+figname = sprintf('%sAll_Instrument_calibration_curve_v2.png',figRoot);
+exportgraphics(fig,figname)
+%
+%
+%
+A = struct('calibration_data_directory',fluoRoot,'calibration_data_filenames',char(cal_file_names),'calibration_start_date_UTC',cal_start_day_str,'calibration_serial_number_and_times_file',calibration_times_file,'calibration_bucket_target_concentration_ppb',calib_ppb,'calibration_bucket_serial_number',bucket_SN,'calibration_bucket_times',bucket_times,'calibration_bucket_estimated_concentration_ppb',calib_ppb_avg,'fluorometer_serial_number_and_type_filename',fluorometer_info_file,'fluorometer_measured_average_concentrations',logRWTavg,'fluorometer_measured_standard_deviation_concentration',logRWTstd,'thermistor_info_filename',thermistor_info_file,'thermistor_serial_number',therm_SN,'thermistor_bucket_target_concentration_ppb',therm_ppb,'thermistor_measured_average_temperature',logTEMP,'estimated_offset',logOFFSET,'estimated_slope',logSLOPE)
+%
+cd(fluoRoot)
+ncfile = ['fluorometer_calibration.nc'];
+struct2nc(A,ncfile,'NETCDF4')

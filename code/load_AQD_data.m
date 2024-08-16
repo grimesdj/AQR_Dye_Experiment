@@ -39,12 +39,20 @@ while ~feof(fid);
         coords = value(1:3);
     elseif strcmp(string,'Serial number') & ~exist('sn','var')
         sn = deblank(value);
+    elseif strcmp(string,'Transformation matrix')
+        T(1,1:3)  = str2num(value);
+        line      = fgetl(fid);
+        value     = line(39:end);
+        T(2,1:3)  = str2num(value);
+        line      = fgetl(fid);
+        value     = line(39:end);
+        T(3,1:3)  = str2num(value);
     end
 clear line string value i
 end
 
 meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
-                   'Nbins',nbins,'binSize',binsize,'blank',blank,'coords',coords);
+                   'Nbins',nbins,'binSize',binsize,'blank',blank,'coords',coords,'transform_matrix',T);
 fclose(fid);
 %
 %% Extracts date, temp, pressure, heading, pitch, roll
@@ -86,9 +94,45 @@ A.a3 = a3(:,bin1:end);
 v1 = load(strcat(fileName,'.v1'));
 v2 = load(strcat(fileName,'.v2'));
 v3 = load(strcat(fileName,'.v3'));
-A.v1 = v1(:,bin1:end);
-A.v2 = v2(:,bin1:end);
-A.v3 = v3(:,bin1:end);
+switch coords
+  case {'XYZ','ENU'}
+    A.v1 = v1(:,bin1:end);
+    A.v2 = v2(:,bin1:end);
+    A.v3 = v3(:,bin1:end);
+  case {'BEA'}
+    b1 = v1(:,bin1:end);
+    b2 = v2(:,bin1:end);
+    b3 = v3(:,bin1:end);
+    shape = size(b1);
+    XYZ= T*[b1(:)'; b2(:)'; b3(:)'];
+    A.v1 = reshape(XYZ(1,:)',shape);
+    A.v2 = reshape(XYZ(2,:)',shape);
+    A.v3 = reshape(XYZ(3,:)',shape);
+    A.b1 = b1;
+    A.b2 = b2;
+    A.b3 = b3;
+end
+%
+if ~strcmp(coords,'ENU')
+    % rotate to EW, need to work out the pitch/roll matrices
+    hh = reshape(pi*(head-90)/180,1,1,nsamples);
+    pp = reshape(pi*pitch/180,1,1,nsamples);
+    rr = reshape(pi*roll/180,1,1,nsamples);
+    H = [ cos(hh) sin(hh) 0*hh;...
+         -sin(hh) cos(hh) 0*hh;...
+          0*hh      0*hh  0*hh+1];
+    P = [cos(pp) -sin(pp).*sin(rr) -cos(rr).*sin(pp);...
+          0*pp       cos(rr)         -sin(rr)   ;...
+         sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
+    shape = size(A.v1);
+    for j = 1:nsamples
+     R   = H(:,:,j)*P(:,:,j);
+     ENU = R*[A.v1(j,:)';A.v2(j,:)';A.v3(j,:)'];
+     A.east (j,:) = ENU(1,:);
+     A.north(j,:) = ENU(2,:);
+     A.up   (j,:) = ENU(1,:);    
+    end
+end
 %
 c1 = load(strcat(fileName,'.c1'));
 c2 = load(strcat(fileName,'.c2'));
