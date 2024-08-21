@@ -99,6 +99,16 @@ switch coords
     A.v1 = v1(:,bin1:end);
     A.v2 = v2(:,bin1:end);
     A.v3 = v3(:,bin1:end);
+    if strcmp(coords,'XYZ')
+        shape = size(A.v1);
+        BEAM  = inv(T)*[A.v1(:)'; A.v2(:)'; A.v3(:)'];
+        A.b1  = reshape(BEAM(1,:)',shape);
+        A.b2  = reshape(BEAM(2,:)',shape);
+        A.b3  = reshape(BEAM(3,:)',shape);
+    end        
+    A.east = A.v1;
+    A.north= A.v2;
+    A.up   = A.v3;
   case {'BEA'}
     b1 = v1(:,bin1:end);
     b2 = v2(:,bin1:end);
@@ -127,10 +137,10 @@ if ~strcmp(coords,'ENU')
     shape = size(A.v1);
     for j = 1:nsamples
      R   = H(:,:,j)*P(:,:,j);
-     ENU = R*[A.v1(j,:)';A.v2(j,:)';A.v3(j,:)'];
+     ENU = R*[A.v1(j,:);A.v2(j,:);A.v3(j,:)];
      A.east (j,:) = ENU(1,:);
      A.north(j,:) = ENU(2,:);
-     A.up   (j,:) = ENU(1,:);    
+     A.up   (j,:) = ENU(3,:);    
     end
 end
 %
@@ -141,5 +151,5 @@ A.c1 = c1(:,bin1:end);
 A.c2 = c2(:,bin1:end);
 A.c3 = c3(:,bin1:end);
 %
-A.dbins = blank:binsize:((nbins-1)*binsize)+blank;
+A.dbins = blank + binsize*[1:nbins];
 % 

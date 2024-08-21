@@ -32,7 +32,7 @@ A.pressureOffset = mean(pres(round(l(1,1)):round(l(2,1))));
 disp('pick start/end points of deployment')
 l = ginput(2);
 valid = [round(l(1,1)):round(l(2,1))]';
-vars  = {'date','volt','seconds','sspeed','head','pitch','roll','pres','temp','a1','a2','a3','v1','v2','v3','c1','c2','c3'};
+vars  = {'date','volt','seconds','sspeed','head','pitch','roll','pres','temp','a1','a2','a3','v1','v2','v3','c1','c2','c3','b1','b2','b3','east','north','up'};
 for jj = 1:length(vars)
     eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
 end
@@ -43,7 +43,7 @@ ylims      = [0 min(max(A.maxRange),max(A.dbins))];
 dum1       = A.maxRange.*ones(1,nbins);
 dum2       = ones(nsamples,1)*A.dbins;
 qcFlag0    =  (dum2<=dum1);
-A.qcFlag   =  (dum2<=dum1) & min(A.a1,min(A.a2,A.a3))>75 & min(A.c1,min(A.c2,A.c3))>30;
+A.qcFlag   =  double( (dum2<=dum1) & min(A.a1,min(A.a2,A.a3))>75 & min(A.c1,min(A.c2,A.c3))>30 );
 %
 time = datetime(A.date,'convertFrom','datenum');
 % make a few quick plots
@@ -178,6 +178,16 @@ A.VelZAvg   = Wz;
 %
 save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
 %
+% add the config info to the structure A to quick save as netcdf4
+fieldNames = fields(A.config);
+originalFields = fields(A);
+%
+for j = 1:length(fieldNames)
+ A.(fieldNames{j}) = A.config.(fieldNames{j});
+end
+A = orderfields(A,cat(1,fieldNames,originalFields));
+ncfile = [L0Dir,'/',L0Name,'.nc'];
+struct2nc(A,ncfile,'NETCDF4');
 %
 %
 v1bar = nansum( A.v1.*A.qcFlag ,2)./sum(A.qcFlag,2);
