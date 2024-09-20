@@ -136,7 +136,7 @@ senFile = sprintf(['%s',filesep,'%s.sen'], inputDir,inputFile);
 fid     = fopen(senFile,'r');
 format  = '%f %f %f %f %f %f %s %s %f %f %f %f %f %f %d %d';
 sen     = textscan(fid,format);
-date    = datenum(sen{3},sen{1},sen{2},sen{4},sen{5},sen{6});
+date    = datenum(sen{3},sen{1},sen{2},sen{4},sen{5},sen{6})+tos/24;
 Ndt     = length(date);
 % $$$ time    = [0:(meta_data.sample_rate-1)]'/86400+date';
 % $$$ time    = reshape(time,meta_data.sample_rate*Ndt,1);
@@ -183,7 +183,7 @@ switch coords
     east = v1;
     north= v2;
     up   = v3;
-  case {'BEA'}
+  case {'BEA','BEAM'}
     b1 = v1;
     b2 = v2;
     b3 = v3;
@@ -197,7 +197,9 @@ end
 if ~strcmp(coords,'ENU')
     fixedHead = input('Do you want to manually enter heading? (1=yes, 0=no) \n');
     if fixedHead
-        fixedHead = input('Input a constant heading in degrees magnetic (nautical convention)\n');
+        if ~exist('headingOffset','var')
+            headingOffset = input('Input a constant heading in degrees magnetic (nautical convention)\n');
+        end
         hh = pi*headingOffset/180;
         H = [ cos(hh) sin(hh) 0*hh;...
              -sin(hh) cos(hh) 0*hh;...
@@ -233,9 +235,8 @@ A.sensor    = sensor_data;
 A.sspeed    = sspeed;
 A.seconds   = seconds;
 A.pressure  = pressure;
-A.head      = head;
 if fixedHead
-    A.fixed_heading = fixedHead;
+    A.fixed_heading = headingOffset;
 end
 A.v1    = v1;
 A.v2    = v2;

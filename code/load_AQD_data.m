@@ -61,20 +61,21 @@ fid = fopen(senFile,'r');
 A = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %*[^\n]');
 fclose(fid)
 A1 = [A{:,1}, A{:,2}, A{:,3}, A{:,4}, A{:,5}, A{:,6}, A{:,7}, A{:,8}, A{:,9}, A{:,10}, A{:,11}, A{:,12} A{:,13}, A{:,14}, A{:,15} A{:,16} A{:,17}];
-date = datenum(A1(:,3),A1(:,1),A1(:,2),A1(:,4),A1(:,5),A1(:,6))+tos/24;
+time = datenum(A1(:,3),A1(:,1),A1(:,2),A1(:,4),A1(:,5),A1(:,6))+tos/24;
 volt = A1(:,11);
 sspeed = A1(:,12);
-head = A1(:,13);pitch = A1(:,14);roll = A1(:,15);
-pres = A1(:,16);
-temp = A1(:,17);
+heading = A1(:,13);pitch = A1(:,14);roll = A1(:,15);
+pressure = A1(:,16);
+temperature = A1(:,17);
 clear A A1
 %
 A.config= meta_data;
-A.date  = date;A.volt = volt;
-A.seconds= (date-date(1))*86400;
+A.date  = datestr(time(1));
+A.time  = time;A.volt = volt;
+A.seconds= (time-time(1))*86400;
 A.sspeed= sspeed;
-A.head  = head;A.pitch = pitch;A.roll = roll;
-A.pres  = pres;A.temp = temp;
+A.heading  = heading;A.pitch = pitch;A.roll = roll;
+A.pressure  = pressure;A.temperature = temperature;
 A.fname = fileName;
 %
 %% load beam amplitudes and velocities (may be in beam coords or ENU, see A.config)
@@ -125,7 +126,7 @@ end
 %
 if ~strcmp(coords,'ENU')
     % rotate to EW, need to work out the pitch/roll matrices
-    hh = reshape(pi*(head-90)/180,1,1,nsamples);
+    hh = reshape(pi*(heading-90)/180,1,1,nsamples);
     pp = reshape(pi*pitch/180,1,1,nsamples);
     rr = reshape(pi*roll/180,1,1,nsamples);
     H = [ cos(hh) sin(hh) 0*hh;...

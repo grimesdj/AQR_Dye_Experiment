@@ -40,8 +40,15 @@ for l=1:layers
             vshape= size(var);
             ndims = length(vshape);
             vlen  = length(var(:));
+            if sum(vshape)==0
+                continue
+            end
     switch vtype;
-        case {'double','single','int32','uint8'},
+      case {'double','single','int32','uint8','uint64','logical'},
+        if strcmp(vtype,'logical')
+            x(l).(vname) = double(x(l).(vname));
+            vtype = 'double';
+        end
             if vlen==1,
                 nccreate(ncfile,uname,...
                     'Datatype',vtype,'format',ncfiletype);
@@ -106,7 +113,7 @@ end
 end
 %write all the data at the end
 for l=1:layers
-for i=1:length(vnames)
-    ncwrite(ncfile,unames{i},x(l).(vnames{i}));
-end
+    for i=1:length(vnames)
+        ncwrite(ncfile,unames{i},x(l).(vnames{i}));
+    end
 end

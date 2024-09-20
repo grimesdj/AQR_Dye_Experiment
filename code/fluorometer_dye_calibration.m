@@ -4,7 +4,7 @@ close all
 % 1) load the calibration info (serial numbers, times, thermistors)
 infoRoot = '~/OneDriveUNCW/KELP-vingilote/info/dye_mixing_cals_and_releases/';
 fluoRoot = '~/OneDriveUNCW/KELP-vingilote/data/dye_calibrations/';
-thrmRoot = '~/OneDriveUNCW/KELP-vingilote/data/FullExperiment/SBE56s/';
+thrmRoot = '~/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/SBE56s/';
 figRoot  = '/Users/derekgrimes/Library/CloudStorage/OneDrive-UNC-Wilmington/KELP-vingilote/figures/calibrations/';
 %
 calibration_times_file = [infoRoot,'dye_bucket_times_vs_serial_number.csv'];
@@ -81,7 +81,7 @@ for i = 1:Ninst
     % now load the fluorometer data
     switch FL_type
       case {'ECO','ECO-BIO','ECO-T'}
-        format = '%s %s %f %f %f %f %f %f %f';% !!!!stopped here!!!!
+        format = '%s %s %f %f %f %f %f %f %f';% 
         if all(strcmp(FL_type,'ECO-T'))
             format = cat(2,format,' %f');
         end
@@ -110,6 +110,8 @@ for i = 1:Ninst
         SS  = dat{1};
         time= datenum('Jan 01 1970')+SS/86400;
         RWT = dat{4};
+% $$$         gain= dat{5};
+% $$$         RWT = RWT.*gain;
         dt  = 300/86400;
         if SN==339378
             time = time + (datenum('30-Jun-2024 22:45:00') - datenum('28-Jun-2024 05:45:00'));

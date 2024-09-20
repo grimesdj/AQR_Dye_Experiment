@@ -1,61 +1,84 @@
 clear all
 close all
 % Enter input /directory/ and fileName root without file extension
-inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
-inputFile = 'KELP1_AquadoppHR';
+inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release2/raw';
+inputFile = 'KELP2_Aquadopp';
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
 outputDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
-outputName= [inputFile,'_raw'];
+outputName= [inputFile,'HR_raw'];
 % Enter processed output fileName without .mat
 L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/L0';
 L0Name  = [inputFile,'_L0'];
-% Enter time when instrument was in air for pressure offset
-atmTime = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00')];
-depTime = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
 % Enter path to save figures
 figDir = [inputDir,'/../figures/'];
 if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
 %
-% Enter time-offset (UTC->EDT) tos = -4 hours
+%
+% Enter time-period for estimating the atmospheric pressure offset and deployment
+atmosphTime = [datetime('08-Jul-2024 16:00:00'), datetime('08-Jul-2024 16:30:00')];
+deployTime  = [datetime('08-Jul-2024 18:30:00'), datetime('11-Jul-2024 19:30:00')];
+%
+% time offset, if necessary
 tos = 0;
 %
 % returns structure A with all aquadopp data
 load_AQD_data
+% need to convert from beam coords to (x,y) 
 save([outputDir,'/',outputName,'.mat'],'-struct','A')
 %
+time = datetime(A.time,'convertFrom','datenum');
 %
+if ~exist('atmosphTime','var')
 % plot some stuff
-if ~exist('atmTime','var')
-    disp('pick 2 points bounding when out of water for ATM pressure offset')
-    plot(pressure)
-    l = ginput(2);
-    l = round(l(:,1));
-    atmTime = [A.time(l(1)), A.time(l(2))];
-    fprintf('atmTime = \n')
-    fprintf('%s --- %s', datestr(atmTime(1)), datestr(atmTime(2)));
-else
-    l = find(A.time>=atmTime(1) & A.time<=atmTime(2));
+disp('pick 2 points bounding when out of water for ATM pressure offset')
+plot(pressure)
+l = ginput(2);
+atmosphTime = [time(l(1,1)) time(l(2,1))]
 end
-A.pressureOffset = mean(pressure(l(1):l(2)));
-%
-if ~exist('depTime','var')
-    % now trim the data to when it was in the water
-    disp('pick start/end points of deployment')
-    l = ginput(2);
-    l = round(l(:,1));
-    depTime = [A.time(l(1)), A.time(l(2))];
-    fprintf('depTime = \n')
-    fprintf('%s --- %s', datestr(depTime(1)), datestr(depTime(2)));
-else
-    valid = find(A.time>=depTime(1) & A.time<=depTime(2));
+if ~exist('deployTime','var')
+% now trim the data to when it was in the water
+disp('pick start/end points of deployment')
+plot(pressure)
+l = ginput(2);
+deployTime = [time(l(1,1)) time(l(2,1))]
 end
+iATM = find(time>=atmosphTime(1) & time<=atmosphTime(2));
+iDEP = find(time>=deployTime(1) & time<=deployTime(2));
+%    
+A.pressureOffset = mean(pressure(iATM));
 %
-vars  = {'time','volt','seconds','sspeed','heading','pitch','roll','pressure','temperature','a1','a2','a3','v1','v2','v3','c1','c2','c3','b1','b2','b3','east','north','up'};
+vel_valid = iDEP;
+vars  = {'volt','seconds','sspeed','heading','pitch','roll','pressure','temperature','a1','a2','a3','v1','v2','v3','c1','c2','c3','b1','b2','b3','east','north','up'};
+%
+% create monotonic time vector and interpolate valid data
+time_interp = datenum([deployTime(1):dt/86400:deployTime(2)]');
 for jj = 1:length(vars)
-    eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
+    eval(['A.',vars{jj},' = interp1(A.time(vel_valid),A.',vars{jj},'(vel_valid,:),time_interp);'])
 end
-nsamples = length(valid);
+time     = datetime(time_interp,'convertfrom','datenum');
+A.time   = time;
+nsamples = length(time);
+%
+% $$$ sen_valid = find(time>=deployTime(1) &...
+% $$$                  time<=deployTime(2));
+% $$$ 
+% $$$ %
+% $$$ % plot some stuff
+% $$$ disp('pick 2 points bounding when out of water for ATM pressure offset')
+% $$$ plot(pres)
+% $$$ l = ginput(2);
+% $$$ A.pressureOffset = mean(pres(round(l(1,1)):round(l(2,1))));
+% $$$ %
+% $$$ % now trim the data to when it was in the water
+% $$$ disp('pick start/end points of deployment')
+% $$$ l = ginput(2);
+% $$$ valid = [round(l(1,1)):round(l(2,1))]';
+% $$$ vars  = {'time','volt','seconds','sspeed','head','pitch','roll','pres','temp','a1','a2','a3','v1','v2','v3','c1','c2','c3','b1','b2','b3','east','north','up'};
+% $$$ for jj = 1:length(vars)
+% $$$     eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
+% $$$ end
+% $$$ nsamples = length(valid);
 %
 A.maxRange = (A.pressure-A.pressureOffset).*cosd(20)-1*binsize;
 ylims      = [0 min(max(A.maxRange),max(A.dbins))];
@@ -63,37 +86,6 @@ dum1       = A.maxRange.*ones(1,nbins);
 dum2       = ones(nsamples,1)*A.dbins;
 qcFlag0    =  (dum2<=dum1);
 A.qcFlag   =  double( (dum2<=dum1) & min(A.a1,min(A.a2,A.a3))>75 & min(A.c1,min(A.c2,A.c3))>30 );
-%
-time = datetime(A.time,'convertFrom','datenum');
-%
-% use acceleration and jolt to filter bad data
-u1   = A.b1;
-d1   = gradientDG(u1)/dt;
-dd1  = gradientDG(d1)/dt;
-u2   = A.b2;
-d2   = gradientDG(u2)/dt;
-dd2  = gradientDG(d2)/dt;
-u3   = A.b3;
-d3   = gradientDG(u3)/dt;
-dd3  = gradientDG(d3)/dt;
-%
-r01  =  nanstd(u1(:));
-r02  =  nanstd(u2(:));
-r03  =  nanstd(u3(:));
-R0   = (u1./r01).^2 + (u2./r02).^2 + (u3./r03).^2;
-%
-r11  = nanstd(d1(:));
-r12  = nanstd(d2(:));
-r13  = nanstd(d3(:));
-R1   = (d1./r11).^2 + (d2./r12).^2 + (d3./r13).^2;
-%
-r21  = nanstd(dd1(:));
-r22  = nanstd(dd2(:));
-r23  = nanstd(dd3(:));
-R2   = (dd1./r21).^2 + (dd2./r22).^2 + (dd3./r23).^2;
-%
-valid = (R0<0.5);% & (R1<5) & (R2<10);
-A.qcFlag = A.qcFlag & valid;
 %
 % make a few quick plots
 fig0 = figure;
@@ -111,8 +103,8 @@ exportgraphics(fig0,figName)
 %
 %
 % quick convolution running mean filter
-np1 = round(0.3/A.config.binSize);% 10 cm vertical 
-np2 = 31;% 5min for 1Hz data
+np1 = round(0.1/A.config.binSize);% 10 cm vertical 
+np2 = 301/dt;% 5min for 1Hz data
 f1 = hamming(np1);f1 = f1./sum(f1);
 f2 = hamming(np2);f2 = f2./sum(f2);
 % do a nan-mean filter, keep track of normalization
@@ -203,6 +195,7 @@ V2(~A.qcFlag')=nan;
 V3(~A.qcFlag')=nan;
 flag = sum(A.qcFlag,1) > 0.50*nsamples;
 % Uz = time averegd; U = depth & time averaged
+%
 Uz = nanmean(V1,2); U = nanmean(Uz); Uz(~flag)=nan;
 Vz = nanmean(V2,2); V = nanmean(Vz); Vz(~flag)=nan;
 Wz = nanmean(V3,2); W = nanmean(Wz); Wz(~flag)=nan;
@@ -217,17 +210,16 @@ set(gca,'ticklabelinterpreter','latex','tickdir','out')
 figName = [figDir,'/',inputFile,'_mean_velocity.png'];
 exportgraphics(fig3,figName)
 %
-A.VelX = V1;
-A.VelY= V2;
-A.VelZ   = V3;
+eval(['A.VelX_',num2str((np2-1)/60),'min = V1;'])
+eval(['A.VelY_',num2str((np2-1)/60),'= V2;'])
+eval(['A.VelZ_',num2str((np2-1)/60),'= V3;'])
 %
-A.VelXAvg = Uz;
-A.VelYAvg= Vz;
-A.VelZAvg   = Wz;
+A.VelX_Avg = Uz;
+A.VelY_Avg= Vz;
+A.VelZ_Avg   = Wz;
 %
 save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
 %
-% add the config info to the structure A to quick save as netcdf4
 fieldNames = fields(A.config);
 originalFields = fields(A);
 %
@@ -237,7 +229,7 @@ end
 A = orderfields(A,cat(1,fieldNames,originalFields));
 ncfile = [L0Dir,'/',L0Name,'.nc'];
 if exist(ncfile,'file')
-    eval(['!rm ',ncfile])
+    system(['rm ',ncfile]);
 end
 struct2nc(A,ncfile,'NETCDF4');
 %
@@ -280,14 +272,3 @@ figName = [figDir,'/',inputFile,'_depth_avg_vel_XYrot60deg_histograms.png'];
 exportgraphics(gcf,figName)
 %
 %
-%
-%
-b1bar = nansum( A.b1.*A.qcFlag ,2)./sum(A.qcFlag,2);
-b2bar = nansum( A.b2.*A.qcFlag ,2)./sum(A.qcFlag,2);
-b3bar = nansum( A.b3.*A.qcFlag ,2)./sum(A.qcFlag,2);
-figure, plot(b1bar,b2bar,'.')
-hold on, plot(1.5*[-cosd(60) cosd(60)],1.5*[-sind(60) sind(60)],'--r')
-xlabel('$\bar{v}_X$','interpreter','latex')
-ylabel('$\bar{v}_Y$','interpreter','latex')
-figName = [figDir,'/',inputFile,'_depth_avg_Beam1Beam2_checker_pattern.png'];
-exportgraphics(gcf,figName)

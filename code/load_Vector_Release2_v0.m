@@ -1,77 +1,60 @@
 clear all
 close all
 % Enter input /directory/ and fileName root without file extension
-inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
-inputFile = 'KELP1_Vector';
-headingOffset = 331.4;% based on heading from AquodoppHR_KELP1
+inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release2/raw';
+inputFile = 'KELP2_Vector';
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
-outputDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
+outputDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release2/raw';
 outputName= [inputFile,'_raw'];
 % Enter processed output fileName without .mat
-L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/L0';
+L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release2/L0';
 L0Name  = [inputFile,'_L0'];
 % Enter path to save figures
 figDir = [inputDir,'/../figures/'];
 if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
 %
-% Enter time-period for estimating the atmospheric pressure offset and deployment
-atmosphTime = [datetime('03-Jul-2024 17:30:00'), datetime('03-Jul-2024 18:10:00')];
-deployTime  = [datetime('03-Jul-2024 18:30:00'), datetime('03-Jul-2024 22:30:00')];
-%
-% time offset if necessary
+% Enter time-offset (UTC->EDT) tos = -4 hours
 tos = 0;
 %
-% returns structure A with all vector data
+% returns structure A with all aquadopp data
 load_VECTOR_data
 save([outputDir,'/',outputName,'.mat'],'-struct','A')
 %
-date = datetime(A.sensor.date,'convertFrom','datenum');
-time = datetime(A.sensor.date(1)+A.seconds/86400,'convertFrom','datenum');
 %
-if ~exist('atmosphTime','var')
 % plot some stuff
 disp('pick 2 points bounding when out of water for ATM pressure offset')
 plot(pressure)
 l = ginput(2);
-atmosphTime = [time(l(1,1)) time(l(2,1))]
-end
-if ~exist('deployTime','var')
+A.pressureOffset = mean(pressure(round(l(1,1)):round(l(2,1))));
+%
 % now trim the data to when it was in the water
 disp('pick start/end points of deployment')
-plot(pressure)
 l = ginput(2);
-deployTime = [time(l(1,1)) time(l(2,1))]
-end
-iATM = find(time>=atmosphTime(1) & time<=atmosphTime(2));
-iDEP = find(time>=deployTime(1) & time<=deployTime(2));
-%    
-A.pressureOffset = mean(pressure(iATM));
-%
-vel_valid = iDEP;
-vars  = {'seconds','pressure','a1','a2','a3','v1','v2','v3','c1','c2','c3','SNR1','SNR2','SNR3','b1','b2','b3','east','north','up'};
+valid = [round(l(1,1)):round(l(2,1))]';
+vars  = {'seconds','pressure','a1','a2','a3','v1','v2','v3','c1','c2','c3','SNR1','SNR2','SNR3'};
 for jj = 1:length(vars)
-    eval(['A.',vars{jj},' = A.',vars{jj},'(vel_valid);'])
+    eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
 end
-nsamples = length(vel_valid);
-time     = time(vel_valid);
-A.time   = datenum(time);
+nsamples = length(valid);
 %
-sen_valid = find(date>=deployTime(1) &...
-                  date<=deployTime(2));
+date_valid = find(A.sensor.date>=A.sensor.date(1)+valid(1)/A.config.sample_rate/86400 &...
+                  A.sensor.date<=A.sensor.date(1)+valid(end)/A.config.sample_rate/86400);
 vars  = {'date','battery_voltage','sound_speed','heading','pitch','roll','temperature'};
 for jj = 1:length(vars)
-    eval(['A.',vars{jj},' = A.sensor.',vars{jj},'(sen_valid);'])
+    eval(['A.sensor.',vars{jj},' = A.sensor.',vars{jj},'(date_valid);'])
 end
 A.seconds = A.seconds-A.seconds(1);
-date = date(sen_valid);
 %
-A.qcFlag   =  min(A.a1,min(A.a2,A.a3))>60 & min(A.c1,min(A.c2,A.c3))>50 & min(A.SNR1,min(A.SNR2,A.SNR3))>15;
+A.qcFlag   =  min(A.a1,min(A.a2,A.a3))>130 & min(A.c1,min(A.c2,A.c3))>75 & min(A.SNR1,min(A.SNR2,A.SNR3))>15;
+%
+date = datetime(A.sensor.date,'convertFrom','datenum');
+time = datetime(A.sensor.date(1)+A.seconds/86400,'convertFrom','datenum');
 %
 % make a few quick plots
 fig0 = figure;
 ax1 = subplot(2,1,1);
-plot(date,A.temperature)
+plot(date,A.sensor.temperature)
 ylabel(ax1,'$T$ [$^\circ$]','interpreter','latex')
 set(ax1,'xticklabel','','ticklabelinterpreter','latex','tickdir','out')
 ax2 = subplot(2,1,2);
@@ -82,72 +65,6 @@ set(ax2,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
 figName = [figDir,'/',inputFile,'_temp_pres.png'];
 exportgraphics(fig0,figName)
 %
-%
-% use acceleration and jolt to filter bad data
-utot = sqrt( A.v1.^2 + A.v2.^2 + A.v3.^2);
-du   = gradient(utot)/dt;
-ddu  = gradient(du)/dt;
-%
-r0   =  8*nanstd(utot);
-r1   =  5*nanstd(du);
-r2   =  4*nanstd(ddu);
-%
-valid = (utot/r0).^2 + (du/r1).^2 + (ddu/r2).^2 <= 1;
-A.qcFlag = A.qcFlag & valid;
-%
-% need to apply this mask before conducting analysis
-% make a few quick plots
-fig0 = figure;
-ax1 = subplot(3,1,1);
-plot(time,A.east.*valid.*A.qcFlag,'.')
-ylabel(ax1,'$v_\mathrm{\scriptscriptstyle{E}}$ [m/s]','interpreter','latex')
-set(ax1,'xticklabel','','ticklabelinterpreter','latex','tickdir','out')
-ax2 = subplot(3,1,2);
-plot(time,A.north.*valid.*A.qcFlag,'.')
-ylabel(ax2,'$v_\mathrm{\scriptscriptstyle{N}}$ [m/s]','interpreter','latex')
-xlabel(ax2,'time','interpreter','latex')
-set(ax2,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
-ax3 = subplot(3,1,3);
-plot(time,A.north.*valid.*A.qcFlag,'.')
-ylabel(ax3,'$v_\mathrm{\scriptscriptstyle{U}}$ [m/s]','interpreter','latex')
-xlabel(ax3,'time','interpreter','latex')
-set(ax3,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
-figName = [figDir,'/',inputFile,'_velocity_ENU.png'];
-exportgraphics(fig0,figName)
-%
-save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
-%
-% add the config info to the structure A to quick save as netcdf4
-fieldNames = fields(A.config);
-originalFields = fields(A);
-%
-for j = 1:length(fieldNames)
- A.(fieldNames{j}) = A.config.(fieldNames{j});
-end
-A = orderfields(A,cat(1,fieldNames,originalFields));
-ncfile = [L0Dir,'/',L0Name,'.nc'];
-if exist(ncfile,'file')
-    system(['rm ',ncfile]);
-end
-struct2nc(A,ncfile,'NETCDF4');
-%
-% $$$ fig0 = figure;
-% $$$ ax1 = subplot(2,1,1);
-% $$$ scatter(date,A.sensor.temperature)
-% $$$ ylabel(ax1,'$T$ [$^\circ$]','interpreter','latex')
-% $$$ set(ax1,'xticklabel','','ticklabelinterpreter','latex','tickdir','out')
-% $$$ ax2 = subplot(2,1,2);
-% $$$ plot(time,A.pressure)
-% $$$ ylabel(ax2,'$P$ [m]','interpreter','latex')
-% $$$ xlabel(ax2,'time','interpreter','latex')
-% $$$ set(ax2,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
-% $$$ figName = [figDir,'/',inputFile,'_temp_pres.png'];
-% $$$ exportgraphics(fig0,figName)
-
-
-
-
-
 %
 % $$$ % quick convolution running mean filter
 % $$$ np1 = round(0.3/A.config.binSize);% 10 cm vertical 
