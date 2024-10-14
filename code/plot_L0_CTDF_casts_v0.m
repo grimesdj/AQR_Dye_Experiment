@@ -1,6 +1,6 @@
 clear all
 % full path
-releaseNumber  = 1;
+releaseNumber  = 3;
 ctdSerialNumber=234870;
 rootDir  = '/Users/derekgrimes/Library/CloudStorage/OneDrive-UNC-Wilmington/KELP-vingilote/'
 dataDir  = sprintf('%s/data/Release%d/',rootDir,releaseNumber);
@@ -12,16 +12,12 @@ for jj  = 1:length(files)
     fin= [L0Dir,filesep,SN{1},'_L0.mat'];
     load(fin);
     %
-    time      = time_grid;
-    pres      = pres_grid;
-    time_grid = repmat(time,size(temp_grid,1),1);
-    pres_grid = repmat(pres_grid,1,size(temp_grid,2));
 % $$$     figure, scatter(dye,pres, 10,temp,'filled')
 % $$$     figure, plot(temp,dye_raw,'.')
     %
-    [dye_sort,srt] = sort(dye_grid(:),'ascend');
-    temp_sort = temp_grid(srt);
-    pres_sort = pres_grid(srt);
+    [dye_sort,srt] = sort(dye_raw,'ascend');
+    temp_sort = temp(srt);
+    pres_sort = pres(srt);
     [cm,conc] = make_DYE_colormap([0 8],1);
     %    
     figure,
@@ -43,7 +39,7 @@ for jj  = 1:length(files)
     %
     figure,
     ax1 = subplot(2,1,1);
-    scatter(datetime(time_grid(:),'convertfrom','datenum'),pres_grid(:),20,log2(dye_grid(:)),'filled'),
+    scatter(datetime(time,'convertfrom','datenum'),pres,20,log2(dye_raw),'filled'),
     set(ax1,'ydir','reverse','ticklabelinterpreter','latex'), colormap(ax1,cm), caxis(ax1,[0 8]),
     ylabel('Depth [m]','interpreter','latex')
     cb1=colorbar;
@@ -52,7 +48,7 @@ for jj  = 1:length(files)
     ylabel(cb1,'Dye [ppb]','interpreter','latex')
     yline(ax1,8,'--r','linewidth',2)       
     ax2 = subplot(2,1,2);
-    scatter(datetime(time_grid(:),'convertfrom','datenum'),pres_grid(:),20,temp_grid(:),'filled'),
+    scatter(datetime(time,'convertfrom','datenum'),pres,20,temp,'filled'),
     ylabel('Depth [m]','interpreter','latex')
     set(ax2,'ydir','reverse','ticklabelinterpreter','latex'),
     colormap(ax2,cmocean('thermal')), caxis(ax2,[12 19])
@@ -61,8 +57,4 @@ for jj  = 1:length(files)
     yline(ax2,8,'--r','linewidth',2)
     figname = [figdir,sprintf('%d_depth_time_scatter_vs_dye_temp_colormaps.png',ctdSerialNumber)];
     exportgraphics(gcf,figname)
-    %
-    %
-    %
-    % convert lat/lon to (cross,along) shore
 end

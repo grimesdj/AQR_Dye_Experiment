@@ -6,6 +6,10 @@ function dye = convert_fluorometer_counts_to_ppb(SN0,dye0,temp0,dye_cal_file);
 % equation is: dye = slope*(dye0-offset),
 % with an exponential correction to the slope: slope = slope*exp(0.027*(temp0-temp_cal))
 
+if ~exist('dye_cal_file','var')
+    dye_cal_file      = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/dye_calibrations/fluorometer_calibration_coefficients.csv';
+end
+
 % load calibration data
 format = '%f %f %f %f';
 fid    = fopen(dye_cal_file);
