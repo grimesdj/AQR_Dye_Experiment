@@ -205,7 +205,7 @@ for i = 1:Ninst
     logERR(i)    = ERR;
 end
 %
-fout = [fluoRoot, 'raw_fluorometer_calibration_coefficients.csv'];
+fout = [fluoRoot, 'fluorometer_calibration_coefficients.csv'];
 tmp  = cell(Ninst+1,4);
 tmp(1,:) = {'Serial Number', 'Offset', 'Slope', 'Temperature'};
 tmp(2:Ninst+1,:) = mat2cell([double(bucket_SN(:)), logOFFSET(:), logSLOPE(:), nanmean(logTEMP,2)],ones(Ninst,1),ones(1,4));

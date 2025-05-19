@@ -11,8 +11,6 @@ dt  = 1/8;% sample rate Hz
 N   = tau/dt;
 f   = hanning(N); f = f./sum(f);
 pres_avg = conv(pres,f,'same');
-dpres     = gradient(pres);
-d2pres    = gradient(dpres);
 dpres_avg = gradient(pres_avg);
 %
 %
@@ -48,10 +46,8 @@ for jj = 1:Ncasts
     this_cast = find(downcast>=cast_start(jj) & downcast<=cast_end(jj));
     [~,inds]  = unique(pres(downcast(this_cast)));
     time_grid(1,jj) = time(downcast(this_cast(inds(1))));
-% $$$     latlon          = gps(1).latitude + sqrt(-1)*gps(1).longitude;
-% $$$     latlon_grid     = interp1(gps(1).time,latlon,time_grid(1,jj),'linear','extrap');
-    latitude_grid(1,jj)  = interp1(gps(1).time,gps(1).latitude,time_grid(1,jj));% real(latlon_grid);
-    longitude_grid(1,jj) = interp1(gps(1).time,gps(1).longitude,time_grid(1,jj));% imag(latlon_grid);
+    latitude_grid(1,jj)  = interp1(gps(1).time,gps(1).latitude,time_grid(1,jj));
+    longitude_grid(1,jj) = interp1(gps(1).time,gps(1).longitude,time_grid(1,jj));
     temp_grid(:,jj) = interp1(pres(downcast(this_cast(inds))),temp(downcast(this_cast(inds))),pres_grid);
     try cond_grid(:,jj) = interp1(pres(downcast(this_cast(inds))),cond(downcast(this_cast(inds))),pres_grid);
     catch
@@ -64,8 +60,3 @@ for jj = 1:Ncasts
 end
 %
 dye_grid( dye_grid<0 | dye_grid>max(dye_raw) ) = nan;
-%
-mask = cond_grid<30 | temp_grid>25 | temp_grid<5;
-dye_grid(mask) = nan;
-temp_grid(mask) = nan;
-cond_grid(mask)= nan;

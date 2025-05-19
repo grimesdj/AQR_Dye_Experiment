@@ -65,7 +65,6 @@ for jj  = 1:length(files)
     exportgraphics(gcf,figname)
     %
     %
-    %
     % convert lat/lon to (cross,along) shore
     latitude = latitude_grid;
     longitude= longitude_grid;
