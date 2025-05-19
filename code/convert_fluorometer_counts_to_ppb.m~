@@ -1,0 +1,27 @@
+function dye = convert_fluorometer_counts_to_ppb(dye0,temp0,dye_cal_file);
+%
+% usage: dye = convert(dye0,dye_cal_file);
+
+% load calibration data
+format = '%f %f %f %f';
+fid    = fopen(dye_cal_file);
+header = fgetl(fid);
+header_vars = split(header,',');
+
+cal_data = textscan(fid,format,'delimiter',',');
+% parse variables
+SN     = cal_data{1};
+offset = cal_data{2};
+slope  = cal_data{3};
+temp   = cal_data{4};
+
+% convert based on slope/offset
+dye  = slope.*(dye0-offset);
+
+% correct for thermal effects
+dye  = dye.*exp(0.027*(temp0-temp));
+
+% zero-out negative dye
+dye(dye<=0)=0;
+
+% note: I'm not correcting for turbidity!

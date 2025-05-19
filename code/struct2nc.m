@@ -30,7 +30,7 @@ k=0;
 for l=1:layers
     for i=1:length(s)
         vname=char(s(i));
-        if l==1
+        if l>1
            uname=[vname,num2str(l-1)];
         else
            uname=vname;
@@ -40,8 +40,15 @@ for l=1:layers
             vshape= size(var);
             ndims = length(vshape);
             vlen  = length(var(:));
+            if sum(vshape)==0
+                continue
+            end
     switch vtype;
-        case {'double','single'},
+      case {'double','single','int32','uint8','uint64','logical'},
+        if strcmp(vtype,'logical')
+            x(l).(vname) = double(x(l).(vname));
+            vtype = 'double';
+        end
             if vlen==1,
                 nccreate(ncfile,uname,...
                     'Datatype',vtype,'format',ncfiletype);
@@ -81,14 +88,24 @@ for l=1:layers
                     disp('Skipping variable with more than 3 dimensions');
                 end
             end
-        case {'char'},
+       case {'char'},
+         if min(vshape)==1,
             nccreate(ncfile,uname,...
                 'Datatype',vtype,...
                 'Dimensions',{[uname '1'] vlen},.....
                 'format',ncfiletype);
             k=k+1;
             vnames{k}=vname;
-            unames{k}=uname;            
+            unames{k}=uname;
+         elseif ndims==2,
+             nccreate(ncfile,uname,...
+                      'Datatype',vtype,...
+                      'Dimensions',{[uname '1'] vshape(1) [uname '2'] vshape(2)},...
+                      'format',ncfiletype);
+             k=k+1;
+             vnames{k}=vname;
+             unames{k}=uname;                    
+         end
         otherwise,
             disp(['skipping ' vname])
     end
@@ -96,7 +113,7 @@ end
 end
 %write all the data at the end
 for l=1:layers
-for i=1:length(vnames)
-    ncwrite(ncfile,unames{i},x(l).(vnames{i}));
-end
+    for i=1:length(vnames)
+        ncwrite(ncfile,unames{i},x(l).(vnames{i}));
+    end
 end

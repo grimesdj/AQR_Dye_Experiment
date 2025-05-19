@@ -1,0 +1,6 @@
+clear all
+close all
+%
+%
+% 1) for each release, estimate the sigma2_x, sigma2_y, sigma_xy,
+% 2) for each release, estimate the vertical and thermal width of the plume. 

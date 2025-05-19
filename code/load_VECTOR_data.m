@@ -106,14 +106,18 @@ while ~feof(fid);
         i = strfind(value,'kHz');        
         head_freq = str2num(value(1:i-1));
     elseif strcmp(string,'Transformation matrix')
-        temp = textscan(value,'%f %f %f');
-        data = cell2mat(temp);
-        line = fgetl(fid);  value = line(39:end);
-        temp = textscan(value,'%f %f %f');
-        data(2,:) = cell2mat(temp);        
-        line = fgetl(fid);  value = line(39:end);
-        temp = textscan(value,'%f %f %f');
-        data(3,:) = cell2mat(temp);        
+        temp   = textscan(value,'%f %f %f');
+        T      = cell2mat(temp);
+        line   = fgetl(fid);  value = line(39:end);
+        temp   = textscan(value,'%f %f %f');
+        T(2,:) = cell2mat(temp);        
+        line   = fgetl(fid);  value = line(39:end);
+        temp   = textscan(value,'%f %f %f');
+        T(3,:) = cell2mat(temp);
+        updwn  = input('was the instrument facing up (1) or down (0)?\n');
+        if updwn
+            T(2:3,:) = -T(2:3,:);
+        end
     end
 clear line string value i
 end
@@ -122,7 +126,7 @@ meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
                    'coords',coords,'sample_rate',sample_rate,'velocity_scale',vel_scale,...
                    'sample_volume',sample_vol,'transmit_length',transmit_length,...
                    'receive_length',receive_length,'pulse_distance',pulse_distance,...
-                   'salinity',salinity,'head_frequency_kHz',head_freq,'transformation_matrix',data);
+                   'salinity',salinity,'head_frequency_kHz',head_freq,'transformation_matrix',T);
 %
 fclose(fid);
 %
@@ -132,7 +136,7 @@ senFile = sprintf(['%s',filesep,'%s.sen'], inputDir,inputFile);
 fid     = fopen(senFile,'r');
 format  = '%f %f %f %f %f %f %s %s %f %f %f %f %f %f %d %d';
 sen     = textscan(fid,format);
-date    = datenum(sen{3},sen{1},sen{2},sen{4},sen{5},sen{6});
+date    = datenum(sen{3},sen{1},sen{2},sen{4},sen{5},sen{6})+tos/24;
 Ndt     = length(date);
 % $$$ time    = [0:(meta_data.sample_rate-1)]'/86400+date';
 % $$$ time    = reshape(time,meta_data.sample_rate*Ndt,1);
@@ -164,15 +168,85 @@ c2    = dat{13};
 c3    = dat{14};
 pressure = dat{15};
 %
+SENseconds = 0:60:60*(Ndt-1);
+headInterp = interp1(SENseconds,head,seconds);
+%
+switch coords
+  case {'XYZ','ENU'}
+    if strcmp(coords,'XYZ')
+        shape = size(v1);
+        BEAM  = inv(T)*[v1(:)'; v2(:)'; v3(:)'];
+        b1  = reshape(BEAM(1,:)',shape);
+        b2  = reshape(BEAM(2,:)',shape);
+        b3  = reshape(BEAM(3,:)',shape);
+    end        
+    east = v1;
+    north= v2;
+    up   = v3;
+  case {'BEA','BEAM'}
+    b1 = v1;
+    b2 = v2;
+    b3 = v3;
+    shape = size(b1);
+    XYZ= T*[b1(:)'; b2(:)'; b3(:)'];
+    v1 = reshape(XYZ(1,:)',shape);
+    v2 = reshape(XYZ(2,:)',shape);
+    v3 = reshape(XYZ(3,:)',shape);
+end
+%
+if ~strcmp(coords,'ENU')
+    fixedHead = input('Do you want to manually enter heading? (1=yes, 0=no) \n');
+    if fixedHead
+        if ~exist('headingOffset','var')
+            headingOffset = input('Input a constant heading in degrees magnetic (nautical convention)\n');
+        end
+        hh = pi*headingOffset/180;
+        H = [ cos(hh) sin(hh) 0*hh;...
+             -sin(hh) cos(hh) 0*hh;...
+              0*hh      0*hh  0*hh+1];
+        ENU = H*[v1';v2';v3'];
+        east  = ENU(1,:)';
+        north = ENU(2,:)';
+        up    = ENU(3,:)';    
+        
+    else
+    % rotate to EW, pitch/roll matrices don't work w cabled head
+    hh = reshape(pi*(headInterp)/180,1,1,nsamples);
+    % pp = reshape(pi*pitch/180,1,1,nsamples);
+    % rr = reshape(pi*roll/180,1,1,nsamples);
+    H = [ cos(hh) sin(hh) 0*hh;...
+         -sin(hh) cos(hh) 0*hh;...
+          0*hh      0*hh  0*hh+1];
+% $$$     P = [cos(pp) -sin(pp).*sin(rr) -cos(rr).*sin(pp);...
+% $$$           0*pp       cos(rr)         -sin(rr)   ;...
+% $$$          sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
+    for j = 1:nsamples
+     ENU = H*[v1(j);v2(j);v3(j)];
+     east (j) = ENU(1);
+     north(j) = ENU(2);
+     up   (j) = ENU(3);    
+    end
+    end
+end
 %
 A.config= meta_data;
 sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspeed,'heading',head,'pitch',pitch,'roll',roll,'temperature',temperature);
-A.sensor=sensor_data;
+A.sensor    = sensor_data;
+A.sspeed    = sspeed;
 A.seconds   = seconds;
 A.pressure  = pressure;
+if fixedHead
+    A.fixed_heading = headingOffset;
+end
 A.v1    = v1;
 A.v2    = v2;
 A.v3    = v3;
+A.b1    = b1;
+A.b2    = b2;
+A.b3    = b3;
+A.east  = east;
+A.north = north;
+A.up    = up;
 A.a1    = a1;
 A.a2    = a2;
 A.a3    = a3;
@@ -184,3 +258,4 @@ A.SNR2  = SNR2;
 A.SNR3  = SNR3;
 A.fname = fileName;
 %
+

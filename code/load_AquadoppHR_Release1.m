@@ -10,6 +10,9 @@ outputName= [inputFile,'_raw'];
 % Enter processed output fileName without .mat
 L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/L0';
 L0Name  = [inputFile,'_L0'];
+% Enter time when instrument was in air for pressure offset
+atmTime = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00')];
+depTime = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
 % Enter path to save figures
 figDir = [inputDir,'/../figures/'];
 if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
@@ -23,41 +26,87 @@ save([outputDir,'/',outputName,'.mat'],'-struct','A')
 %
 %
 % plot some stuff
-disp('pick 2 points bounding when out of water for ATM pressure offset')
-plot(pres)
-l = ginput(2);
-A.pressureOffset = mean(pres(round(l(1,1)):round(l(2,1))));
+if ~exist('atmTime','var')
+    disp('pick 2 points bounding when out of water for ATM pressure offset')
+    plot(pressure)
+    l = ginput(2);
+    l = round(l(:,1));
+    atmTime = [A.time(l(1)), A.time(l(2))];
+    fprintf('atmTime = \n')
+    fprintf('%s --- %s', datestr(atmTime(1)), datestr(atmTime(2)));
+else
+    l = find(A.time>=atmTime(1) & A.time<=atmTime(2));
+end
+A.pressureOffset = mean(pressure(l(1):l(2)));
 %
-% now trim the data to when it was in the water
-disp('pick start/end points of deployment')
-l = ginput(2);
-valid = [round(l(1,1)):round(l(2,1))]';
-vars  = {'date','volt','seconds','sspeed','head','pitch','roll','pres','temp','a1','a2','a3','v1','v2','v3','c1','c2','c3'};
+if ~exist('depTime','var')
+    % now trim the data to when it was in the water
+    disp('pick start/end points of deployment')
+    l = ginput(2);
+    l = round(l(:,1));
+    depTime = [A.time(l(1)), A.time(l(2))];
+    fprintf('depTime = \n')
+    fprintf('%s --- %s', datestr(depTime(1)), datestr(depTime(2)));
+else
+    valid = find(A.time>=depTime(1) & A.time<=depTime(2));
+end
+%
+vars  = {'time','volt','seconds','sspeed','heading','pitch','roll','pressure','temperature','a1','a2','a3','v1','v2','v3','c1','c2','c3','b1','b2','b3','east','north','up'};
 for jj = 1:length(vars)
     eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
 end
 nsamples = length(valid);
 %
-A.maxRange = (A.pres-A.pressureOffset).*cosd(20)-1*binsize;
+A.maxRange = (A.pressure-A.pressureOffset).*cosd(20)-1*binsize;
 ylims      = [0 min(max(A.maxRange),max(A.dbins))];
 dum1       = A.maxRange.*ones(1,nbins);
 dum2       = ones(nsamples,1)*A.dbins;
 qcFlag0    =  (dum2<=dum1);
-A.qcFlag   =  (dum2<=dum1) & min(A.a1,min(A.a2,A.a3))>75 & min(A.c1,min(A.c2,A.c3))>30;
+A.qcFlag   =  double( (dum2<=dum1) & min(A.a1,min(A.a2,A.a3))>75 & min(A.c1,min(A.c2,A.c3))>30 );
 %
-time = datetime(A.date,'convertFrom','datenum');
+time = datetime(A.time,'convertFrom','datenum');
+%
+% use acceleration and jolt to filter bad data
+u1   = A.b1;
+d1   = gradientDG(u1)/dt;
+dd1  = gradientDG(d1)/dt;
+u2   = A.b2;
+d2   = gradientDG(u2)/dt;
+dd2  = gradientDG(d2)/dt;
+u3   = A.b3;
+d3   = gradientDG(u3)/dt;
+dd3  = gradientDG(d3)/dt;
+%
+r01  =  nanstd(u1(:));
+r02  =  nanstd(u2(:));
+r03  =  nanstd(u3(:));
+R0   = (u1./r01).^2 + (u2./r02).^2 + (u3./r03).^2;
+%
+r11  = nanstd(d1(:));
+r12  = nanstd(d2(:));
+r13  = nanstd(d3(:));
+R1   = (d1./r11).^2 + (d2./r12).^2 + (d3./r13).^2;
+%
+r21  = nanstd(dd1(:));
+r22  = nanstd(dd2(:));
+r23  = nanstd(dd3(:));
+R2   = (dd1./r21).^2 + (dd2./r22).^2 + (dd3./r23).^2;
+%
+valid = (R0<0.5);% & (R1<5) & (R2<10);
+A.qcFlag = A.qcFlag & valid;
+%
 % make a few quick plots
 fig0 = figure;
 ax1 = subplot(2,1,1);
-plot(time,A.temp)
+plot(time,A.temperature)
 ylabel(ax1,'$T$ [$^\circ$]','interpreter','latex')
 set(ax1,'xticklabel','','ticklabelinterpreter','latex','tickdir','out')
 ax2 = subplot(2,1,2);
-plot(time,A.pres)
+plot(time,A.pressure)
 ylabel(ax2,'$P$ [m]','interpreter','latex')
 xlabel(ax2,'time [s]','interpreter','latex')
 set(ax2,'ticklabelinterpreter','latex','tickdir','out')
-figName = [figDir,'/',inputFile,'_temp_pres.png'];
+figName = [figDir,'/',inputFile,'_temperature_pressure.png'];
 exportgraphics(fig0,figName)
 %
 %
@@ -178,6 +227,19 @@ A.VelZAvg   = Wz;
 %
 save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
 %
+% add the config info to the structure A to quick save as netcdf4
+fieldNames = fields(A.config);
+originalFields = fields(A);
+%
+for j = 1:length(fieldNames)
+ A.(fieldNames{j}) = A.config.(fieldNames{j});
+end
+A = orderfields(A,cat(1,fieldNames,originalFields));
+ncfile = [L0Dir,'/',L0Name,'.nc'];
+if exist(ncfile,'file')
+    eval(['!rm ',ncfile])
+end
+struct2nc(A,ncfile,'NETCDF4');
 %
 %
 v1bar = nansum( A.v1.*A.qcFlag ,2)./sum(A.qcFlag,2);
@@ -215,4 +277,17 @@ bar(vbins, v3H./length(v1bar))
 ylabel('$p(\bar{v}_Z)$','interpreter','latex')
 xlabel('velocity')
 figName = [figDir,'/',inputFile,'_depth_avg_vel_XYrot60deg_histograms.png'];
+exportgraphics(gcf,figName)
+%
+%
+%
+%
+b1bar = nansum( A.b1.*A.qcFlag ,2)./sum(A.qcFlag,2);
+b2bar = nansum( A.b2.*A.qcFlag ,2)./sum(A.qcFlag,2);
+b3bar = nansum( A.b3.*A.qcFlag ,2)./sum(A.qcFlag,2);
+figure, plot(b1bar,b2bar,'.')
+hold on, plot(1.5*[-cosd(60) cosd(60)],1.5*[-sind(60) sind(60)],'--r')
+xlabel('$\bar{v}_X$','interpreter','latex')
+ylabel('$\bar{v}_Y$','interpreter','latex')
+figName = [figDir,'/',inputFile,'_depth_avg_Beam1Beam2_checker_pattern.png'];
 exportgraphics(gcf,figName)

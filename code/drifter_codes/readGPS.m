@@ -43,7 +43,7 @@ pdop = 0;
 hdop = 0;
 vdop = 0;
 
-count = 0
+count = 0;
 while ~feof(fid) % so lange Dateiende nicht erreicht ist
     count = count+1;
     line = fgetl(fid); % Zeile lesen
