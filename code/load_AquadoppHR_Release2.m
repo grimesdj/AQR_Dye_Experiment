@@ -5,10 +5,10 @@ inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release2/raw';
 inputFile = 'KELP2_Aquadopp';
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
-outputDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
+outputDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release2/raw';
 outputName= [inputFile,'HR_raw'];
 % Enter processed output fileName without .mat
-L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/L0';
+L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release2/L0';
 L0Name  = [inputFile,'_L0'];
 % Enter path to save figures
 figDir = [inputDir,'/../figures/'];
