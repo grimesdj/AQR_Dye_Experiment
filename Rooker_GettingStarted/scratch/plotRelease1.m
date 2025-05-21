@@ -6,26 +6,30 @@ load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP
 %values are velocity
 
 % Limit data to during dye release
-inds = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024 19:52:00')));
-
-% Define B, A, C, as matrix of seconds x beam:
-B = [b1(inds,1), b2(inds,1), b3(inds,1)];
-A = [a1(inds,1), a2(inds,1), a3(inds,1)];
-C = [c1(inds,1), c2(inds,1), c3(inds,1)];
-for x = 1:3
-% Generate a figure
-    figure('name',[ 'Beam ' num2str(x)]);
-% Create Axes using subplot
-    ax1 = subplot(3,1,1);
-    ax2 = subplot(3,1,2);
-    ax3 = subplot(3,1,3);
-% Plot data
-    plot(ax1,B(:,x),'b.')
-    ylim(ax1,[-0.5 0.5]);
-    ylabel(ax1, 'Velocity (m/s)')
-    plot(ax2,A(:,x),'r.')
-    ylabel(ax2, 'Amplitude')
-    plot(ax3,C(:,x),'g.')
-    ylabel(ax3, 'Correlation (%)')
-    xlabel(ax3, 'Time (s)')
+dye = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024 19:52:00')));
+for bindex = 1:size(b1,2)
+    % Define B, A, C, as matrix of seconds x beam:
+    B = [b1(dye,bindex), b2(dye,bindex), b3(dye,bindex)];
+    A = [a1(dye,bindex), a2(dye,bindex), a3(dye,bindex)];
+    C = [c1(dye,bindex), c2(dye,bindex), c3(dye,bindex)];
+    for beam = 1:3
+    % Generate a figure
+        figure('name',[ 'Beam ' num2str(beam)]);
+    % Create Axes using subplot
+        ax1 = subplot(3,1,1);
+        ax2 = subplot(3,1,2);
+        ax3 = subplot(3,1,3);
+    % Plot data
+        plot(ax1,B(:,beam),'b.');
+        ylim(ax1,[-0.5 0.5]);
+        ylabel(ax1, 'Velocity (m/s)');
+        plot(ax2,A(:,beam),'r.');
+        ylabel(ax2, 'Amplitude');
+        plot(ax3,C(:,beam),'g.');
+        ylabel(ax3, 'Correlation (%)');
+        xlabel(ax3, 'Time (s)');
+    % Export Figure
+        figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\timeseries\r1_beam" + beam + "_bin" + bindex + ".pdf"];
+        exportgraphics(gcf, figname);
+    end
 end
