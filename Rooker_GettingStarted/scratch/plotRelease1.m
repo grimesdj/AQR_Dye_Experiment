@@ -10,9 +10,9 @@ load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP
 
 
 dye = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024 19:52:00')));
- for bindex = 1:size(b1,2)
+ for bindex = 1:1
      % Define B, A, C, as matrix of seconds x beam:
-     B = [b1(dye,bindex), b2(dye,bindex), b3(dye,bindex)];
+     B = [v1(dye,bindex), v2(dye,bindex), v3(dye,bindex)];
      A = [a1(dye,bindex), a2(dye,bindex), a3(dye,bindex)];
      C = [c1(dye,bindex), c2(dye,bindex), c3(dye,bindex)];
      for beam = 1:3
