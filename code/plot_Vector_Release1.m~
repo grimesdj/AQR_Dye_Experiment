@@ -1,0 +1,15 @@
+clear all
+close all
+% Enter input /directory/ and fileName root without file extension
+inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
+inputFile = 'KELP1_Vector';
+headingOffset = 331.4;% based on heading from AquodoppHR_KELP1
+fileName  = [inputDir,'/',inputFile];
+% Enter raw output /directory/ and fileName without .mat
+outputDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
+outputName= [inputFile,'_raw'];
+% Enter processed output fileName without .mat
+L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/L0';
+L0Name  = [inputFile,'_L0'];
+% Enter path to save figures
+figDir = [inputDir,'/../figures/'];

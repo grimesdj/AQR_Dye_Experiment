@@ -23,8 +23,14 @@ deployTime  = [datetime('03-Jul-2024 18:30:00'), datetime('03-Jul-2024 22:30:00'
 tos = 0;
 %
 % returns structure A with all vector data
-load_VECTOR_data
-save([outputDir,'/',outputName,'.mat'],'-struct','A')
+if ~exist([outputDir,'/',outputName,'.mat'],'file')
+    load_VECTOR_data
+    save([outputDir,'/',outputName,'.mat'],'-struct','A')
+else
+    A = load([outputDir,'/',outputName,'.mat']);
+    pressure = A.pressure;
+    dt = A.seconds(2)-A.seconds(1);
+end
 %
 date = datetime(A.sensor.date,'convertFrom','datenum');
 time = datetime(A.sensor.date(1)+A.seconds/86400,'convertFrom','datenum');
