@@ -6,8 +6,10 @@ load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP
 %values are velocity
 
 % Limit data to during dye release
+
+%
 dye = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024 19:52:00')));
-for bindex = 1:75
+for bindex = 1:size(b1,2)
     % Define B, A, C, as matrix of seconds x beam:
     B = [b1(dye,bindex), b2(dye,bindex), b3(dye,bindex)];
     A = [a1(dye,bindex), a2(dye,bindex), a3(dye,bindex)];
@@ -29,7 +31,7 @@ for bindex = 1:75
         ylabel(ax3, 'Correlation (%)');
         xlabel(ax3, 'Time (s)');
     % Export Figure
-        figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\timeseries\r1_beam" + beam + "_bin" + bindex];
-    
+        figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\timeseries\r1_beam" + beam + "_bin" + bindex + ".pdf"];
+        exportgraphics(gcf, figname);
     end
 end

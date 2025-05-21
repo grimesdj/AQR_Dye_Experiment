@@ -6,7 +6,38 @@ load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP
 %values are velocity
 
 % Limit data to during dye release
+
+
 dye = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024 19:52:00')));
+% for bindex = 1:size(b1,2)
+%     % Define B, A, C, as matrix of seconds x beam:
+%     B = [b1(dye,bindex), b2(dye,bindex), b3(dye,bindex)];
+%     A = [a1(dye,bindex), a2(dye,bindex), a3(dye,bindex)];
+%     C = [c1(dye,bindex), c2(dye,bindex), c3(dye,bindex)];
+%     for beam = 1:3
+%     % Generate a figure
+%         figure('name',[ 'Beam ' num2str(beam)]);
+%     % Create Axes using subplot
+%         ax1 = subplot(3,1,1);
+%         ax2 = subplot(3,1,2);
+%         ax3 = subplot(3,1,3);
+%     % Plot data
+%         plot(ax1,B(:,beam),'b.');
+%         ylim(ax1,[-0.5 0.5]);
+%         ylabel(ax1, 'Velocity (m/s)');
+%         plot(ax2,A(:,beam),'r.');
+%         ylabel(ax2, 'Amplitude');
+%         plot(ax3,C(:,beam),'g.');
+%         ylabel(ax3, 'Correlation (%)');
+%         xlabel(ax3, 'Time (s)');
+%     % Export Figure
+%         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\timeseries\r1_beam" + beam + "_bin" + bindex + ".pdf"];
+%         exportgraphics(gcf, figname);
+%     end
+% end
+
+%code to make histogram figures
+
 for bindex = 1:size(b1,2)
     % Define B, A, C, as matrix of seconds x beam:
     B = [b1(dye,bindex), b2(dye,bindex), b3(dye,bindex)];
@@ -29,7 +60,7 @@ for bindex = 1:size(b1,2)
         ylabel(ax3, 'Correlation (%)');
         xlabel(ax3, 'Time (s)');
     % Export Figure
-        figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\timeseries\r1_beam" + beam + "_bin" + bindex + ".pdf"];
+        figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\histogram\r1_beam" + beam + "_bin" + bindex + ".pdf"];
         exportgraphics(gcf, figname);
     end
 end
