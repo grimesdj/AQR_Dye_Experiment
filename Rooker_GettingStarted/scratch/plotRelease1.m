@@ -5,9 +5,13 @@ load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP
 %columns are bins (depth), rows are time at 600 second intervals, and
 %values are velocity
 
-B = [b1(:,1), b2(:,1), b3(:,1)];
-A = [a1(:,1), a2(:,1), a3(:,1)];
-C = [c1(:,1), c2(:,1), c3(:,1)];
+% Limit data to during dye release
+inds = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024 19:52:00')));
+
+% Define B, A, C, as matrix of seconds x beam:
+B = [b1(inds,1), b2(inds,1), b3(inds,1)];
+A = [a1(inds,1), a2(inds,1), a3(inds,1)];
+C = [c1(inds,1), c2(inds,1), c3(inds,1)];
 for x = 1:3
 % Generate a figure
     figure('name',[ 'Beam ' num2str(x)]);
