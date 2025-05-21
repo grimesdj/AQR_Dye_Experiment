@@ -9,7 +9,8 @@ load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP
 
 
 dye = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024 19:52:00')));
- for bindex = 1:size(b1,2)
+ for bindex = 1:1
+ %for bindex = 1:size(b1,2)
      % Define B, A, C, as matrix of seconds x beam:
      B = [b1(dye,bindex), b2(dye,bindex), b3(dye,bindex)];
      A = [a1(dye,bindex), a2(dye,bindex), a3(dye,bindex)];
@@ -39,6 +40,8 @@ dye = find((date>=datenum('03-Jul-2024 18:38:00')) & (date>=datenum('03-Jul-2024
      % plot histogram
          figure(histfig);
          histogram(B(:,beam),[-0.75:0.01:0.75]);
+         ylabel('Counts')
+         xlabel('Velocity (m/s)')
      % Export Histogram
          figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\histogram\hist_r1_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);
