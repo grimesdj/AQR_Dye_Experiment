@@ -5,7 +5,7 @@ inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
 inputFile = 'KELP1_AquadoppHR';
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
-outputDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
+outputDir = '/Users/';
 outputName= [inputFile,'_raw'];
 % Enter processed output fileName without .mat
 L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/L0';
