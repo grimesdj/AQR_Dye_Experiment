@@ -68,14 +68,14 @@ time = datetime(A.time,'convertFrom','datenum');
 %
 % use acceleration and jolt to filter bad data
 u1   = A.b1;
-d1   = gradientDG(u1)/dt;
-dd1  = gradientDG(d1)/dt;
+d1   = gradient(u1)/dt;
+dd1  = gradient(d1)/dt;
 u2   = A.b2;
-d2   = gradientDG(u2)/dt;
-dd2  = gradientDG(d2)/dt;
+d2   = gradient(u2)/dt;
+dd2  = gradient(d2)/dt;
 u3   = A.b3;
-d3   = gradientDG(u3)/dt;
-dd3  = gradientDG(d3)/dt;
+d3   = gradient(u3)/dt;
+dd3  = gradient(d3)/dt;
 %
 r01  =  nanstd(u1(:));
 r02  =  nanstd(u2(:));
@@ -122,22 +122,24 @@ A1 = conv2(f1,f2,(A.a1.*A.qcFlag)','same')./on;
 A2 = conv2(f1,f2,(A.a2.*A.qcFlag)','same')./on;
 A3 = conv2(f1,f2,(A.a3.*A.qcFlag)','same')./on;
 %
+timeNum = datenum(time); % See if Error is in reading A.dbins'
 fig1 = figure;
 ax1 = subplot(3,1,1);
-imagesc(time,A.dbins',A1.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
-text(time(1),ylims(2),'X')
+imagesc(timeNum,A.dbins',A1.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
+text(timeNum(1),ylims(2),'X')
 set(ax1,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 title(ax1,'Amplitude')
 %
+
 ax2 = subplot(3,1,2);
-imagesc(time,A.dbins',A2.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
-text(time(1),ylims(2),'Y')
+imagesc(timeNum,A.dbins',A2.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
+text(timeNum(1),ylims(2),'Y')
 ylabel('mab','interpreter','latex')
 set(ax2,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 %
 ax3 = subplot(3,1,3);
-imagesc(time,A.dbins',A3.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
-text(time(1),ylims(2),'Z')
+imagesc(timeNum, A.dbins',A3.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
+text(timeNum(1),ylims(2),'Z')
 set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 xlabel('time [s]','interpreter','latex')
 figName = [figDir,'/',inputFile,'_amplitude.png'];
@@ -150,20 +152,20 @@ C3 = conv2(f1,f2,(A.c3.*A.qcFlag)','same')./on;
 %
 fig1 = figure;
 ax1 = subplot(3,1,1);
-imagesc(time,A.dbins',C1.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
-text(time(1),ylims(2),'X')
+imagesc(timeNum,A.dbins',C1.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
+text(timeNum(1),ylims(2),'X')
 set(ax1,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 title(ax1,'Correlation')
 %
 ax2 = subplot(3,1,2);
-imagesc(time,A.dbins',C2.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
-text(time(1),ylims(2),'Y')
+imagesc(timeNum,A.dbins',C2.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
+text(timeNum(1),ylims(2),'Y')
 ylabel('mab','interpreter','latex')
 set(ax2,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 %
 ax3 = subplot(3,1,3);
-imagesc(time,A.dbins',C3.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
-text(time(1),ylims(2),'Z')
+imagesc(timeNum,A.dbins',C3.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
+text(timeNum(1),ylims(2),'Z')
 set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 xlabel('time [s]','interpreter','latex')
 figName = [figDir,'/',inputFile,'_correlation.png'];
@@ -177,19 +179,19 @@ V3 = conv2(f1,f2,(A.v3.*A.qcFlag)','same')./on;
 %
 fig2 = figure;
 ax1 = subplot(3,1,1);
-imagesc(time,A.dbins',V1.*qcFlag0'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
-text(time(1),ylims(2),'X')
+imagesc(timeNum,A.dbins',V1.*qcFlag0'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
+text(timeNum(1),ylims(2),'X')
 %
 set(ax1,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 ax2 = subplot(3,1,2);
-imagesc(time,A.dbins',V2.*qcFlag0'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
-text(time(1),ylims(2),'Y')
+imagesc(timeNum,A.dbins',V2.*qcFlag0'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
+text(timeNum(1),ylims(2),'Y')
 set(ax2,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 ylabel('mab','interpreter','latex')
 %
 ax3 = subplot(3,1,3);
-imagesc(time,A.dbins',V3.*qcFlag0'),caxis([-0.125 0.125]),colormap(cmocean('balance')),colorbar
-text(time(1),ylims(2),'Z')
+imagesc(timeNum,A.dbins',V3.*qcFlag0'),caxis([-0.125 0.125]),colormap(cmocean('balance')),colorbar
+text(timeNum(1),ylims(2),'Z')
 set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 xlabel('time [s]','interpreter','latex')
 figName = [figDir,'/',inputFile,'_velocity.png'];
