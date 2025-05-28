@@ -5,10 +5,10 @@ inputDir  = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/ra
 inputFile = 'KELP1_AquadoppHR';
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
-outputDir = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/scratch/Release1/raw/';
+outputDir = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/raw/';
 outputName= [inputFile,'_raw'];
 % Enter processed output fileName without .mat
-L0Dir   = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/scratch/Release1/L0/';
+L0Dir   = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/L0';
 L0Name  = [inputFile,'_L0'];
 % Enter time when instrument was in air for pressure offset
 atmTime = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00')];
