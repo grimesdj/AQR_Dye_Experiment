@@ -119,6 +119,7 @@ ylabel(ax3,'$v_\mathrm{\scriptscriptstyle{U}}$ [m/s]','interpreter','latex')
 xlabel(ax3,'time','interpreter','latex')
 set(ax3,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
 figName = [figDir,'/',inputFile,'_velocity_ENU.png'];
+linkaxes([ax1, ax2, ax3],'x')
 exportgraphics(fig0,figName)
 %
 save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
