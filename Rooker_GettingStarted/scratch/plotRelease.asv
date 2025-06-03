@@ -41,12 +41,17 @@ end
 
 % Limit data to during dye release
 TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releasesdye_release_times.csv");
-if exist('date', 'var')
+if exist("date")
     time = date;
 end
 dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(TRange.EndTime_UTC_(releaseNum))));
 
 
+
+% load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\Release1\raw\KELP1_AquadoppHR_raw.mat")
+% load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP1_AquadoppHR_L0.mat")
+% load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Aquadopp_L0.mat")
+% load("C:\Users\jkr6136\OnecdDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat")
 
 
 % time to plot the b1:b3 data as speed vs time (remeber time is in decimal
