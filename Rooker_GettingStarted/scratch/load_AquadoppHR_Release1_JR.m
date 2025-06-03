@@ -27,6 +27,7 @@ tos = 0;
 % returns structure A with all aquadopp data
 load_AQD_data_JR
 save([outputDir,'/',outputName,'.mat'],'-struct','A')
+return
 %
 %
 % plot some stuff
