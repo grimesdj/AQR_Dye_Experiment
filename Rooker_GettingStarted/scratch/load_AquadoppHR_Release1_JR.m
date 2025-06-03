@@ -1,3 +1,7 @@
+
+
+%L0 output for this code is not accurate
+
 clear all
 close all
 % Enter input /directory/ and fileName root without file extension
