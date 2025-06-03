@@ -5,7 +5,7 @@ function plotRelease(releaseNum, version)
 %   version as raw/L@
 
 if nargin < 2
-    version = input('Version: ');
+    version = 'path';
 end
 
 % Load the data
@@ -14,10 +14,10 @@ end
 if releaseNum == 1
 
     if strcmp(version, 'raw')
-        load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat")
+        Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat");
         % Add time bounds here
     elseif strcmp(version, 'L0')
-        load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP1_AquadoppHR_L0.mat")
+        Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP1_AquadoppHR_L0.mat");
     else
         disp('Invalid Version')
     end
@@ -25,25 +25,28 @@ if releaseNum == 1
 elseif releaseNum == 2 || releaseNum == 3
 
     if strcmp(version, 'L0')
-        load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\2024_PROCESSED_DATA\M1\L0\ADCP\ADCP_M1_002.mat")
+        Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\2024_PROCESSED_DATA\M1\L0\ADCP\ADCP_M1_002.mat");
     elseif strcmp(version, 'L1')
-        load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\2024_PROCESSED_DATA\M1\L1\ADCP\ADCP_M1_L1.mat")
+        Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\2024_PROCESSED_DATA\M1\L1\ADCP\ADCP_M1_L1.mat");
     else
         disp('Invalid Version')   
     end    
         
-elseif strcmp(releaseNum, 'other')
-    path = input('Enter path: ');
-    load(path)
+else
+    Data = load(releaseNum);
 
 end
 
 
 % Limit data to during dye release
-TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releasesdye_release_times.csv");
-if exist('date', 'var')
-    time = date;
+TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
+
+if ~exist('Data.time', 'var')
+    time = Data.date;
+else 
+    time = Data.time;
 end
+date
 dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(TRange.EndTime_UTC_(releaseNum))));
 
 
@@ -54,16 +57,16 @@ dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(T
 % columns are bins (depth), rows are time at 600 second intervals, and
 % values are velocity
 
- for bindex = 1:size(b1,2)
+ for bindex = 1:size(Data.b1,2)
      % Define B, A, C, as matrix of seconds x beam:
-     B = [b1(dye,bindex), b2(dye,bindex), b3(dye,bindex)];
-     V = [v1(dye,bindex), v2(dye,bindex), v3(dye,bindex)];
-     A = [a1(dye,bindex), a2(dye,bindex), a3(dye,bindex)];
-     C = [c1(dye,bindex), c2(dye,bindex), c3(dye,bindex)];
+     B = [Data.b1(dye,bindex), Data.b2(dye,bindex), Data.b3(dye,bindex)];
+     V = [Data.v1(dye,bindex), Data.v2(dye,bindex), Data.v3(dye,bindex)];
+     A = [Data.a1(dye,bindex), Data.a2(dye,bindex), Data.a3(dye,bindex)];
+     C = [Data.c1(dye,bindex), Data.c2(dye,bindex), Data.c3(dye,bindex)];
      for beam = 1:3
      % Generate a figure
-         tsf = figure('name',[ 'Beam ' num2str(beam)],'Visible', 'off');
-         histfig = figure('name',[ 'Beam ' num2str(beam)]);
+         tsf = figure('name',[ 'Beam ' num2str(beam) 'Bin ' num2str(bindex)],'NumberTitle', 'off');
+         histfig = figure('name',[ 'Beam ' num2str(beam) 'Bin ' num2str(bindex)],'NumberTitle', 'off');
      % Create Axes using subplot
          figure(tsf);
          ax1 = subplot(4,1,1);
@@ -80,13 +83,14 @@ dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(T
          ylabel(ax2, 'Velocity (m/s)');
          
          plot(ax3,A(:,beam),'r.');
+         ylim(ax3,[0 200]);
          ylabel(ax3, 'Amplitude');
          
          plot(ax4,C(:,beam),'g.');
          ylabel(ax4, 'Correlation (%)');
          xlabel(ax4, 'Time (s)');
      % Export Figure
-         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release2\timeseries\ts_r2_beam" + beam + "_bin" + bindex + ".pdf"];
+         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\timeseries\"+ version + "_ts_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);
          close(gcf)
 
@@ -96,7 +100,7 @@ dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(T
          ylabel('Counts')
          xlabel('Velocity (m/s)')
      % Export Histogram
-         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release2\histogram\hist_r2_beam" + beam + "_bin" + bindex + ".pdf"];
+         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\histogram\" + version + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);
          close(gcf)
      end
