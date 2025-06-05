@@ -24,13 +24,16 @@ if releaseNum == 1
 elseif releaseNum == 2 || releaseNum == 3
 
     if strcmp(version, 'L0')
-        Data = load(%Release 2 path);
+        %Data = load(%Release 2 path);
     elseif strcmp(version, 'L1')
-        Data = load(%Release 2 path);
+        %Data = load(%Release 2 path);
     else
         disp('Invalid Version')   
-    end    
-        
+    end
+    
+elseif releaseNum == 0
+    Data = version;
+    version = 'out';
 else
     Data = load(releaseNum);
 
@@ -45,9 +48,11 @@ if ~exist('Data.time', 'var')
 else 
     time = Data.time;
 end
-dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(TRange.EndTime_UTC_(releaseNum))));
-
-
+if releaseNum > 0
+    dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(TRange.EndTime_UTC_(releaseNum))));
+else
+    dye = ':';
+end
 
 
 % time to plot the b1:b3 data as speed vs time (remeber time is in decimal
@@ -59,6 +64,7 @@ dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(T
      % Define B, A, C, as matrix of seconds x beam:
      B = [Data.b1(dye,bindex), Data.b2(dye,bindex), Data.b3(dye,bindex)];
      V = [Data.v1(dye,bindex), Data.v2(dye,bindex), Data.v3(dye,bindex)];
+     ENU = [Data.east(dye,bindex), Data.north(dye,bindex), Data.up(dye,bindex)];
      A = [Data.a1(dye,bindex), Data.a2(dye,bindex), Data.a3(dye,bindex)];
      C = [Data.c1(dye,bindex), Data.c2(dye,bindex), Data.c3(dye,bindex)];
      for beam = 1:3
@@ -72,9 +78,9 @@ dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(T
          ax3 = subplot(4,1,3);
          ax4 = subplot(4,1,4);
      % Plot data
-         plot(ax1,B(:,beam),'b.');
+         plot(ax1,ENU(:,beam),'b.');
          ylim(ax1,[-0.5 0.5]);
-         ylabel(ax1, 'Velocity (m/s)');
+         ylabel(ax1, 'ENU Velocity(m/s)');
          
          plot(ax2,B(:,beam),'m.');
          ylim(ax2,[-0.5 0.5]);
@@ -94,7 +100,7 @@ dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(T
 
      % plot histogram
          figure(histfig);
-         histogram(B(:,beam),[-0.75:0.01:0.75]);
+         histogram(ENU(:,beam),[-0.75:0.01:0.75]);
          ylabel('Counts')
          xlabel('Velocity (m/s)')
      % Export Histogram

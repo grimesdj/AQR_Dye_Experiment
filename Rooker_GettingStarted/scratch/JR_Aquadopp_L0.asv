@@ -11,5 +11,6 @@ flagC = find(minCor <= 70);
 flagind = unique([flagA' flagC']);
 flagind; %iterate through bins smh
 
-east(flagind) = NaN;
-plot(east()
+for strcmp(i, [a(1:3) b(1:3) c(1:3) v(1:3) east north up])
+    Data.i(flagind) = NaN;
+end
