@@ -32,7 +32,8 @@ elseif releaseNum == 2 || releaseNum == 3
     end
     
 elseif releaseNum == 0
-    % Null :)
+    Data = version;
+    version = 'out';
 else
     Data = load(releaseNum);
 
@@ -50,7 +51,7 @@ end
 if releaseNum > 0
     dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(TRange.EndTime_UTC_(releaseNum))));
 else
-    dye = [:];
+    dye = ':';
 end
 
 
@@ -79,7 +80,7 @@ end
      % Plot data
          plot(ax1,ENU(:,beam),'b.');
          ylim(ax1,[-0.5 0.5]);
-         ylabel(ax1, 'Velocity (m/s)');
+         ylabel(ax1, 'ENU Velocity(m/s)');
          
          plot(ax2,B(:,beam),'m.');
          ylim(ax2,[-0.5 0.5]);
@@ -93,17 +94,17 @@ end
          ylabel(ax4, 'Correlation (%)');
          xlabel(ax4, 'Time (s)');
      % Export Figure
-         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\timeseries\"+ version + "_ts_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
+         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\timeseries\"+ han + "ts_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);
          close(gcf)
 
      % plot histogram
          figure(histfig);
-         histogram(B(:,beam),[-0.75:0.01:0.75]);
+         histogram(ENU(:,beam),[-0.75:0.01:0.75]);
          ylabel('Counts')
          xlabel('Velocity (m/s)')
      % Export Histogram
-         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\histogram\" + version + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
+         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\histogram\" + han + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);
          close(gcf)
      end

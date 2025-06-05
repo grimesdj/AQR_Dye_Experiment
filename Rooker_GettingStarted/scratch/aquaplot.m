@@ -1,12 +1,9 @@
 
 % making new L0 data from the completed raw.mat
+function aquaplot(releaseNum, version)
 
-han = '';
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat"];
-
-releaseNum = input("Release Number: ");
-version = input("Version: ");
 
 Data = load(inputFiles(releaseNum));
 
@@ -32,7 +29,7 @@ elseif strcmp(version, 'L0')
     Data.east(flagind) = NaN;
     Data.north(flagind) = NaN;
     Data.up(flagind) = NaN;
-    han = 'L0';
+    
 else
     return
 end
@@ -41,6 +38,8 @@ end
 % Limit data to during dye release
 TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
 
-dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)));
+dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
 plotRelease_func
+
+end

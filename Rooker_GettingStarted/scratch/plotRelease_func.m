@@ -1,23 +1,4 @@
-
-% Limit data to during dye release
-TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
-
-if ~exist('Data.time', 'var')
-    time = Data.date;
-else 
-    time = Data.time;
-end
-if releaseNum > 0
-    dye = find((time>=datenum(TRange.StartTime_UTC_(releaseNum))) & (time<=datenum(TRange.EndTime_UTC_(releaseNum))));
-else
-    dye = ':';
-end
-
-
-% time to plot the b1:b3 data as speed vs time (remeber time is in decimal
-% days)
-% columns are bins (depth), rows are time at 600 second intervals, and
-% values are velocity
+ENUlabel = ['E' 'N' 'U'];
 
  for bindex = 1:size(Data.b1,2)
      % Define B, A, C, as matrix of seconds x beam:
@@ -28,8 +9,8 @@ end
      C = [Data.c1(dye,bindex), Data.c2(dye,bindex), Data.c3(dye,bindex)];
      for beam = 1:3
      % Generate a figure
-         tsf = figure('name',[ 'Beam ' num2str(beam) 'Bin ' num2str(bindex)],'NumberTitle', 'off');
-         histfig = figure('name',[ 'Beam ' num2str(beam) 'Bin ' num2str(bindex)],'NumberTitle', 'off');
+         tsf = figure('name',[ 'Beam ' num2str(beam) ' Bin ' num2str(bindex)],'NumberTitle', 'off');
+         histfig = figure('name',[ 'Beam ' num2str(beam) ' Bin ' num2str(bindex)],'NumberTitle', 'off');
      % Create Axes using subplot
          figure(tsf);
          ax1 = subplot(4,1,1);
@@ -39,17 +20,18 @@ end
      % Plot data
          plot(ax1,ENU(:,beam),'b.');
          ylim(ax1,[-0.5 0.5]);
-         ylabel(ax1, 'ENU Velocity(m/s)');
+         ylabel(ax1, ['Velocity, '  ENUlabel(beam)  '(m/s)']);
          
          plot(ax2,B(:,beam),'m.');
          ylim(ax2,[-0.5 0.5]);
          ylabel(ax2, 'Velocity (m/s)');
          
          plot(ax3,A(:,beam),'r.');
-         ylim(ax3,[0 200]);
+         ylim(ax3,[100 200]);
          ylabel(ax3, 'Amplitude');
          
          plot(ax4,C(:,beam),'g.');
+         ylim(ax4, [70 100])
          ylabel(ax4, 'Correlation (%)');
          xlabel(ax4, 'Time (s)');
      % Export Figure
