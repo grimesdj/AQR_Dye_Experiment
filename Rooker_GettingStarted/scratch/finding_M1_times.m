@@ -16,8 +16,8 @@ for i = 1:length(files)
         for  releaseNum = 1:3
             Num = sprintf('release%d', releaseNum);
             time.(Num) = datenum(TRange.StartTime_UTC_(releaseNum));
-            if contains(string(datenum(ADCP.(ind).Time)), string(time.(Num)))
-                M1.(releaseNum) = load([files(i).folder,filesep,files(i).name]);
+            if any(ADCP.M1_1.Time >= datenum(TRange.StartTime_UTC_(releaseNum)) & ADCP.M1_1.Time <= datenum(TRange.EndTime_UTC_(releaseNum)))
+                M1.(Num) = load([files(i).folder,filesep,files(i).name]);
             end
             
 
