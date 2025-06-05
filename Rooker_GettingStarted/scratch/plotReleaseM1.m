@@ -62,10 +62,10 @@ TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dy
 releaseNum = 'M1';
 
 version = 'out';
-Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\2024_PROCESSED_DATA\M1\L0\ADCP\ADCP_M1_002.mat");
+Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\2024_PROCESSED_DATA\M1\L0\ADCP\ADCP_M1_001.mat");
 dye = find((Data.Time>=datenum(TRange.StartTime_UTC_(1))) & (Data.Time<=datenum(TRange.EndTime_UTC_(1))));
 % else
- for bindex = 1:size(Data.Velocity_East,1)
+ for bindex = 1:3   %size(Data.Velocity_East,1)
      % Define B, A, C, as matrix of seconds x beam:
      %%B = [Data.b1(dye,bindex), Data.b2(dye,bindex), Data.b3(dye,bindex)];
      %V = [Data.Velocity_East(dye,bindex), Data.Velocity_North(dye,bindex), Data.Velocity_Up(dye,bindex)];

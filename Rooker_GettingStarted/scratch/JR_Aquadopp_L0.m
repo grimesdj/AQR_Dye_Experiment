@@ -3,6 +3,9 @@
 
 Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP2_AquadoppHR_raw.mat");
 
+find(datenum('03-Jul-2024 18:38:00'))
+
+return
 
 minAmp = min(Data.a1, min(Data.a2, Data.a3));
 minCor = min(Data.c1, min(Data.c2, Data.c3));
