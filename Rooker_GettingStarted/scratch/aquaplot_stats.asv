@@ -43,6 +43,8 @@ TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dy
 
 dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
-plotRelease_func
+mean
+
+%plotRelease_func
 
 end

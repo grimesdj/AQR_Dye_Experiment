@@ -1,6 +1,6 @@
 
 % making new L0 data from the completed raw.mat
-function aquaplot(releaseNum, version)
+function aquaplot_stats(releaseNum, version)
 
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat"];
@@ -43,6 +43,9 @@ TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dy
 
 dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
-plotRelease_func
+meanENU = mean([Data.east Data.north Data.up], 'omitnan');
+plot(dye, meanENU)
+
+%plotRelease_func
 
 end
