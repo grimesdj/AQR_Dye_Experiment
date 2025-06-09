@@ -7,6 +7,7 @@ inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release
 
 Data = load(inputFiles(releaseNum));
 
+
 if strcmp(version, 'raw')
     % do nothing
 elseif strcmp(version, 'L0')
@@ -30,6 +31,8 @@ elseif strcmp(version, 'L0')
     Data.north(flagind) = NaN;
     Data.up(flagind) = NaN;
     
+elseif strcmp(version, 'M1')
+    Data = fetch_M1(releaseNum)
 else
     return
 end

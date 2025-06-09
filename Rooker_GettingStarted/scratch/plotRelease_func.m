@@ -3,7 +3,7 @@ ENUlabel = ['E' 'N' 'U'];
  for bindex = 1:size(Data.b1,2)
      % Define B, A, C, as matrix of seconds x beam:
      B = [Data.b1(dye,bindex), Data.b2(dye,bindex), Data.b3(dye,bindex)];
-     V = [Data.v1(dye,bindex), Data.v2(dye,bindex), Data.v3(dye,bindex)];
+     %V = [Data.v1(dye,bindex), Data.v2(dye,bindex), Data.v3(dye,bindex)];
      ENU = [Data.east(dye,bindex), Data.north(dye,bindex), Data.up(dye,bindex)];
      A = [Data.a1(dye,bindex), Data.a2(dye,bindex), Data.a3(dye,bindex)];
      C = [Data.c1(dye,bindex), Data.c2(dye,bindex), Data.c3(dye,bindex)];
