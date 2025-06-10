@@ -30,6 +30,6 @@ Data.a3 = M1.Amplitude_Beam(:,:,3)';
 Data.c1 = M1.Correlation_Beam(:,:,1)';
 Data.c2 = M1.Correlation_Beam(:,:,2)';
 Data.c3 = M1.Correlation_Beam(:,:,3)';
-
+Data.pressure = M1.Pressure(2,:)';
 
 end

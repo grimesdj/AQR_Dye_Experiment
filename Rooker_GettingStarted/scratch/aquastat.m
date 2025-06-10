@@ -1,9 +1,10 @@
 
 % making new L0 data from the completed raw.mat
-function aquastat(releaseNum, version)
+function Stats = aquastat(releaseNum, version)
 
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat"];
+              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
+               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat"];
 
 Data = load(inputFiles(releaseNum));
 
@@ -33,6 +34,8 @@ elseif strcmp(version, 'L0')
     
 elseif strcmp(version, 'M1')
     Data = fetch_M1(releaseNum);
+    Data.east = Data.east(:,1:12); 
+    Data.north = Data.north(:, 1:12);
 else
     return
 end
@@ -43,10 +46,24 @@ TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dy
 
 dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
-meanENU = mean([Data.east(:, 1) Data.north(:, 1) Data.up(:, 1)], 'omitnan');
-disp(['Mean East: ' meanENU(:,1)])
-disp(['Mean North: ' meanENU(:,2)])
-meanENU
+
+statsPres = [mean(Data.pressure(dye, :),'all', 'omitnan'), std(Data.pressure(dye, :), 0, 'all', 'omitnan')]
+statsEast = [mean(Data.east(dye, :),'all', 'omitnan'), std(Data.east(dye, :), 0, 'all', 'omitnan')]
+statsNorth = [mean(Data.north(dye, :),'all', 'omitnan'), std(Data.north(dye, :), 0, 'all', 'omitnan')]
+theta = atan2d(statsEast(1), statsNorth(1))
+mag = (statsEast(1)^2 + statsNorth(1)^2)^0.5
+figure, plot(Data.time(dye), Data.pressure(dye), '.')
+
 %plotRelease_func
 
 end
+
+
+
+
+
+
+
+
+
+
