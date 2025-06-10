@@ -1,6 +1,6 @@
 ENUlabel = ['E' 'N' 'U'];
 
- for bindex = 1:size(Data.b1,2)
+ for bindex = binStart:binEnd
      % Define B, A, C, as matrix of seconds x beam:
      B = [Data.b1(dye,bindex), Data.b2(dye,bindex), Data.b3(dye,bindex)];
      %V = [Data.v1(dye,bindex), Data.v2(dye,bindex), Data.v3(dye,bindex)];
@@ -41,7 +41,7 @@ ENUlabel = ['E' 'N' 'U'];
 
      % plot histogram
          figure(histfig);
-         histogram(ENU(:,beam),[-0.75:0.01:0.75]);
+         histogram(B(:,beam),[-0.75:0.01:0.75]);
          ylabel('Counts')
          xlabel('Velocity (m/s)')
      % Export Histogram

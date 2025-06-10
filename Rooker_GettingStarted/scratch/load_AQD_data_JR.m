@@ -50,7 +50,7 @@ while ~feof(fid)
     end
 clear line string value i
 end
-
+return
 disp('Using the true Transformation matrix instead of Hdr file')
 Tinv = [sind(25), 0, cosd(25); sind(25)*cosd(120), -sind(25)*sind(120), cosd(25); sind(25)*cosd(240), -sind(25)*sind(240), cosd(25)];
 % Tinv is inverse of T (>_<) %

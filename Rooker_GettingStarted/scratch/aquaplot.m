@@ -1,12 +1,15 @@
 
 % making new L0 data from the completed raw.mat
-function aquaplot(releaseNum, version)
+function Stats = aquaplot(releaseNum, version, binStart, binEnd)
+
 
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat"];
 
 Data = load(inputFiles(releaseNum));
+
+
 
 
 if strcmp(version, 'raw')
@@ -34,15 +37,31 @@ elseif strcmp(version, 'L0')
     
 elseif strcmp(version, 'M1')
     Data = fetch_M1(releaseNum);
+elseif strcmp(version, 'Vector')
+    Data = load("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP1_Vector_L0.mat");
 else
     return
 end
 
+if nargin < 4
+    binStart = 1;
+    if nargin < 3
+        binEnd = size(Data.b1,2);
+    end
+end
 
 % Limit data to during dye release
 TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
 
 dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
+
+statsPres = [mean(Data.pressure(dye, :),'all', 'omitnan'), std(Data.pressure(dye, :), 0, 'all', 'omitnan')]
+statsEast = [mean(Data.east(dye, :),'all', 'omitnan'), std(Data.east(dye, :), 0, 'all', 'omitnan')]
+statsNorth = [mean(Data.north(dye, :),'all', 'omitnan'), std(Data.north(dye, :), 0, 'all', 'omitnan')]
+theta = atan2d(statsEast(1), statsNorth(1))
+statsMag = [(statsEast(1)^2 + statsNorth(1)^2)^0.5,(statsEast(2)^2 + statsNorth(2)^2)^0.5]  
+figure, plot(Data.time(dye), Data.pressure(dye), '.')
+
 
 plotRelease_func
 
