@@ -10,7 +10,7 @@ inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP1_Vector_L0.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Vector_L0.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Vector_L0.mat"];
-
+          
 Data = load(inputFiles(releaseNum));
 
 
@@ -46,6 +46,7 @@ elseif strcmp(version, 'Vector')
     AQD = Data;
     Data = load(inputFiles(releaseNum));    
     rotation
+    releaseNum = releaseNum-3;
 else
     return
 end
@@ -80,5 +81,7 @@ Stats = struct('Pres', Pres, 'East', East, 'North', North, 'theta', theta, 'Mag'
 
 if strcmp(plots, 'on')
     plotRelease_func
+
+
 end
 end
