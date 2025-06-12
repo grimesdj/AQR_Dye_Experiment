@@ -1,6 +1,6 @@
 
 % making new L0 data from the completed raw.mat
-function Stats = aquaplot(releaseNum, version, plots, binStart, binEnd)
+function Stats = plottingHPR(releaseNum, version, plots, binStart, binEnd)
 
 
 
@@ -80,7 +80,7 @@ Mag = [(East(1)^2 + North(1)^2)^0.5, (East(2)^2 + North(2)^2)^0.5]  ;
 Stats = struct('Pres', Pres, 'East', East, 'North', North, 'theta', theta, 'Mag', Mag, 'version', version);
 
 if strcmp(plots, 'on')
-    plotRelease_func
+    plotHPR
 
 
 end

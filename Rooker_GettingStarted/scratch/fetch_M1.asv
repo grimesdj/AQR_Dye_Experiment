@@ -31,7 +31,5 @@ Data.c1 = M1.Correlation_Beam(:,:,1)';
 Data.c2 = M1.Correlation_Beam(:,:,2)';
 Data.c3 = M1.Correlation_Beam(:,:,3)';
 Data.pressure = M1.Pressure(2,:)';
-Data.heading = M1.Heading(:, :)';
-Data.pitch = M1.Pitch(:,:)';
-Data.roll = M1.Roll(:,:)';
+Data.heading = M1.Heading(1, :)';
 end
