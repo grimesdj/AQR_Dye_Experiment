@@ -1,4 +1,6 @@
-releaseNum = 1
+releaseNum = 2
+qc         = 0;
+
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
@@ -15,44 +17,84 @@ TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dy
 dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
 % Get L0
+% warp = find(gradient(Data.time) > 0.001, 1, 'first');
+% if any(warp)
+%     Time = Data.time(1:warp);
+% else
+    Time = Data.time;
+% end
+if qc
+   minAmp = min(Data.a1, min(Data.a2, Data.a3));
+    minCor = min(Data.c1, min(Data.c2, Data.c3));
+    flagA = find(minAmp <= 30);
+    flagC = find(minCor <= 70);
+    flagind = unique([flagA' flagC']);
+    flagind; %iterate through bins smh
+    
+    Data.a1(flagind) = NaN;
+    Data.a2(flagind) = NaN;
+    Data.a3(flagind) = NaN;
+    Data.b1(flagind) = NaN;
+    Data.b2(flagind) = NaN;
+    Data.b3(flagind) = NaN;
+    Data.c1(flagind) = NaN;
+    Data.c2(flagind) = NaN;
+    Data.c3(flagind) = NaN;
+    Data.east(flagind) = NaN;
+    Data.north(flagind) = NaN;
+    Data.up(flagind) = NaN;
+end
+
 L0.East = Data.east(:,34);
 L0.North = Data.north(:,34);
-% Get M1
-M1 = fetch_M1(releaseNum);
-M1.East = M1.east(:, 11);
-M1.North = M1.north(:, 11);
-% Get Vector
-releaseNum = releaseNum+3;
-    AQD = Data;
-    Data = load(inputFiles(releaseNum));    
-    rotation
-    releaseNum = releaseNum-3;
 
-Vector = Data;
-Vector.East = Data.east;
-Vector.North = Data.north;
+
+% Get M1
+
+M1 = fetch_M1(releaseNum);
+
+M1.Einterp = interp1(M1.time', M1.east(:, 11), Time);
+M1.Ninterp = interp1(M1.time', M1.north(:, 11), Time);
+
+% Get Vector
+Vector = load(inputFiles(releaseNum+3));
+
+Vector.East = interp1(Vector.time, Vector.east, Time);
+Vector.North = interp1(Vector.time, Vector.north, Time);
+
+
 
 
 % Plot 
 
 tsf = figure;
 ax1 = subplot(2,1,1);
-plot(L0.East(dye, :), 'b')
-% ylim(ax1,[-360 360]);
-ylabel(ax1,'North');
+plot(Time(dye), L0.East(dye, :), 'b')
+ylim(ax1,[-1.5 1.5]);
+ylabel(ax1,'East');
+yline(-0.72/2)
+yline(0.72/2)
+
 hold on
-plot(M1.East(dye, :), 'r')
-plot(Vector.East(dye, :), 'g')
+Mplot = plot(Time(dye), M1.Einterp(dye), 'r');
+plot(Time(dye), Vector.East(dye), 'g')
+uistack(Mplot, 'bottom')
 hold off
 
 ax2 = subplot(2,1,2);
-plot(L0.North(dye, :), 'b')
-hold on
-plot(M1.North(dye, :), 'r')
-plot(Vector.North(dye, :), 'g')
-ylabel(ax2,'magnitude');
-hold off
+plot(Time(dye), L0.North(dye), 'b')
 
+hold on
+Mplot = plot(Time(dye), M1.Ninterp(dye), 'r');
+plot(Time(dye), Vector.North(dye), 'g')
+ylim(ax2,[-1.5 1.5]);
+ylabel(ax2,'North');
+yline(-0.72/2)
+yline(0.72/2)
+uistack(Mplot, 'bottom')
+
+hold off
+linkaxes([ax1,ax2],'x')
 
 
 
