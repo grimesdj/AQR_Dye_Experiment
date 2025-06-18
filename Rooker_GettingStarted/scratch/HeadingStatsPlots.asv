@@ -12,7 +12,7 @@ Data = load(inputFiles(releaseNum));
 
 TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
 
-dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
+dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum+1)));
 
 % Get L0
 L0.East = Data.east(:,34);
@@ -42,14 +42,14 @@ plot(L0.East(dye, :), 'b')
 ylabel(ax1,'North');
 hold on
 plot(M1.East(dye, :), 'r')
-plot(Vector.East(dye, :), 'g')
+plot(Vector.theta(dye, :), 'g')
 hold off
 
 ax2 = subplot(2,1,2);
 plot(L0.North(dye, :), 'b')
 hold on
 plot(M1.North(dye, :), 'r')
-plot(Vector.North(dye, :), 'g')
+plot(Vector.Mag(dye, :), 'g')
 ylabel(ax2,'magnitude');
 hold off
 
