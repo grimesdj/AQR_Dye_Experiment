@@ -1,8 +1,8 @@
 
 % making new L0 data from the completed raw.mat
-function Stats = aquaplot(releaseNum, version, plots, binStart, binEnd)
+function Stats = plottingHPR(releaseNum, version, plots, binStart, binEnd)
 
-warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
+
 
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
@@ -10,7 +10,7 @@ inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\L0\KELP1_Vector_L0.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Vector_L0.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Vector_L0.mat"];
-
+          
 Data = load(inputFiles(releaseNum));
 
 
@@ -72,15 +72,15 @@ dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <
 
 % Collect Stats
 Pres = [mean(Data.pressure(dye, :),'all', 'omitnan'), std(Data.pressure(dye, :), 0, 'all', 'omitnan')];
-East = [mean(Data.east(dye, binStart:binEnd),'all', 'omitnan'), std(Data.east(dye, binStart:binEnd), 0, 'all', 'omitnan')];
-North = [mean(Data.north(dye, binStart:binEnd),'all', 'omitnan'), std(Data.north(dye, binStart:binEnd), 0, 'all', 'omitnan')];
+East = [mean(Data.east(dye, :),'all', 'omitnan'), std(Data.east(dye, :), 0, 'all', 'omitnan')];
+North = [mean(Data.north(dye, :),'all', 'omitnan'), std(Data.north(dye, :), 0, 'all', 'omitnan')];
 theta = atan2d(East(1), North(1));
 Mag = [(East(1)^2 + North(1)^2)^0.5, (East(2)^2 + North(2)^2)^0.5]  ;
 
 Stats = struct('Pres', Pres, 'East', East, 'North', North, 'theta', theta, 'Mag', Mag, 'version', version);
 
 if strcmp(plots, 'on')
-    plotRelease_func
+    plotHPR
 
 
 end
