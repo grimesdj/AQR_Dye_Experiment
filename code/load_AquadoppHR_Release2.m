@@ -17,7 +17,7 @@ if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
 %
 % Enter time-period for estimating the atmospheric pressure offset and deployment
 atmosphTime = [datetime('08-Jul-2024 16:00:00'), datetime('08-Jul-2024 16:30:00')];
-deployTime  = [datetime('08-Jul-2024 18:30:00'), datetime('11-Jul-2024 19:30:00')];
+deployTime  = [datetime('08-Jul-2024 17:30:00'), datetime('11-Jul-2024 19:30:00')];
 %
 % time offset, if necessary
 tos = 0;

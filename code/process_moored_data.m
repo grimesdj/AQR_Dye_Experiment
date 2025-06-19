@@ -141,12 +141,13 @@ for ii = 1:length(moorings)
                 rbr_temp = rbr_data;
               case 'RBRduet'
                 disp('duet')
-                return
                 rbr_temp = rbr_data(:,1);
                 rbr_pres = rbr_data(:,2);                
             end
+            % pressure offset!
+            rbr_pres_offset = mean(rbr_pres(rbr_pres<10.5 & rbr_pres>9.5),'omitnan');
             % put info into structure array
-            rbr = struct('Time',rbr_time,'Temperature',rbr_temp,'Pressure',rbr_pres,'Latitude',out.Latitude,'Longitude',out.Longitude,'Time_deploy',out.Time_deploy,'Depth_deploy',out.Depth_deploy,'mab',mab);
+            rbr = struct('Time',rbr_time,'Temperature',rbr_temp,'Pressure',rbr_pres-rbr_pres_offset,'PressureOffset',rbr_pres_offset,'Latitude',out.Latitude,'Longitude',out.Longitude,'Time_deploy',out.Time_deploy,'Depth_deploy',out.Depth_deploy,'mab',mab);
             rbr_file = [archive_dir,filesep,deblank(moorings{ii}),filesep,'L0',filesep,'RBR_Temperature',filesep,num2str(SN,'%04d')];
             % save raw data to .nc and .mat in mooring dir
             save(rbr_file,'-struct','rbr')
