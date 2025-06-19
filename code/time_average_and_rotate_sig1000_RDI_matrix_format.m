@@ -42,6 +42,8 @@ for ii= 1:Nf
         vb2p = [];
         vb3p = [];
         vb4p = [];
+        aP   = [];
+        cP   = [];
         e1p  = [];
         e2p  = [];
         hP   = [];
@@ -82,6 +84,8 @@ for ii= 1:Nf
     vb2   = conv2(1, F, [vb2p, in.Velocity_North].*on,'same')./norm;
     vb3   = conv2(1, F, [vb3p, in.Velocity_Up   ].*on,'same')./norm;
     vb4   = conv2(1, F, [vb4p, in.Velocity_Error].*on,'same')./norm;
+    a     = conv2(1, F, [aP  , in.Amplitude_Minimum].*on,'same')./norm;
+    c     = conv2(1, F, [cP  , in.Correlation_Minimum].*on,'same')./norm;        
     head  = conv2(1, F, [hP  , in.Heading ]    ,'same')./norm0;
     pitch = conv2(1, F, [pP  , in.Pitch   ]    ,'same')./norm0;
     roll  = conv2(1, F, [rP  , in.Roll    ]    ,'same')./norm0;
@@ -93,7 +97,7 @@ for ii= 1:Nf
     end
     %
     %
-    avg = struct('Time',t1(Ns:Ns:Ns*(N-1)),'Velocity_East',vb1(:,Ns:Ns:Ns*(N-1)),'Velocity_North',vb2(:,Ns:Ns:Ns*(N-1)),'Velocity_Up',vb3(:,Ns:Ns:Ns*(N-1)),'Velocity_Error',vb4(:,Ns:Ns:Ns*(N-1)),'Heading',head(:,Ns:Ns:Ns*(N-1)),'Pitch',pitch(:,Ns:Ns:Ns*(N-1)),'Roll',pitch(:,Ns:Ns:Ns*(N-1)),'Pressure',P(Ns:Ns:Ns*(N-1)),'Temperature',T(Ns:Ns:Ns*(N-1)),'qcFlag',avgFlag(:,Ns:Ns:Ns*(N-1)),'HeadingOffset',in.HeadingOffset,'bin_mab',in.bin_mab);    
+    avg = struct('Time',t1(Ns:Ns:Ns*(N-1)),'Velocity_East',vb1(:,Ns:Ns:Ns*(N-1)),'Velocity_North',vb2(:,Ns:Ns:Ns*(N-1)),'Velocity_Up',vb3(:,Ns:Ns:Ns*(N-1)),'Velocity_Error',vb4(:,Ns:Ns:Ns*(N-1)),'Amplitude_Minimum',a(:,Ns:Ns:Ns*(N-1)),'Correlation_Minimum',c(:,Ns:Ns:Ns*(N-1)),'Heading',head(:,Ns:Ns:Ns*(N-1)),'Pitch',pitch(:,Ns:Ns:Ns*(N-1)),'Roll',pitch(:,Ns:Ns:Ns*(N-1)),'Pressure',P(Ns:Ns:Ns*(N-1)),'Temperature',T(Ns:Ns:Ns*(N-1)),'qcFlag',avgFlag(:,Ns:Ns:Ns*(N-1)),'HeadingOffset',in.HeadingOffset,'bin_mab',in.bin_mab);    
     %
     if echo_mode
         avg(1).bin_mab_Echo=in.bin_mab_Echo
@@ -126,6 +130,8 @@ for ii= 1:Nf
     vb2p = in.Velocity_North   (:,nt-Ns*(1+ns)+1:nt);
     vb3p = in.Velocity_Up      (:,nt-Ns*(1+ns)+1:nt);
     vb4p = in.Velocity_Error   (:,nt-Ns*(1+ns)+1:nt);
+    aP   = in.Amplitude_Minimum  (:,nt-Ns*(1+ns)+1:nt);
+    cP   = in.Correlation_Minimum(:,nt-Ns*(1+ns)+1:nt);    
     hP   = in.Heading    (nt-Ns*(1+ns)+1:nt);
     pP   = in.Pitch      (nt-Ns*(1+ns)+1:nt);
     rP   = in.Roll       (nt-Ns*(1+ns)+1:nt);
