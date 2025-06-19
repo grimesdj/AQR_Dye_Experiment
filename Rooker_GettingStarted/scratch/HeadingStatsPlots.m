@@ -1,5 +1,5 @@
 releaseNum = 2
-qc         = 0;
+qc         = 1;
 
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
@@ -27,7 +27,7 @@ if qc
    minAmp = min(Data.a1, min(Data.a2, Data.a3));
     minCor = min(Data.c1, min(Data.c2, Data.c3));
     flagA = find(minAmp <= 30);
-    flagC = find(minCor <= 70);
+    flagC = find(minCor <= 30);
     flagind = unique([flagA' flagC']);
     flagind; %iterate through bins smh
     
@@ -47,7 +47,7 @@ end
 
 L0.East = Data.east(:,34);
 L0.North = Data.north(:,34);
-
+fraction_of_goood_AQD_data = sum(~isnan(L0.East(dye)))/numel(L0.East(dye))
 
 % Get M1
 
