@@ -24,6 +24,9 @@
 	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and 	Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.  
 - [ ] draft readme's for each script worth its weight in salt. 
 
+
+
+
 ## Velocity Processing
 - Standardizing velocity variables and data files across instruments.
   - [ ] Time, Velocity_East, Velocity_North, Amplitude_Minimum, Correltation_Minimum, etc.
