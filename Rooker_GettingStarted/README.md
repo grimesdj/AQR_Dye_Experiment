@@ -7,15 +7,17 @@
   - Plots and figures for velocities are in '../Kelp_data/Summer2025/Rooker/figures/...'
   - Statistics table in '..Kelp_data/Summer2025/Rooker/Stats/...'
   - preliminary observations (R1,R2,R3): 
+data resembles R2
+
+- compare raw/L0 aquadopp with M1-signature 1000 (averaged over appropriate bin range)
+	- R1: Bin + Time averaged velocities are more than 90 degrees apart
+	- R2: Trajectories are similar, with AQD magnitude being smaller 
+	- R3: Trajectories are similar but further apart than R2, AQD magnitude is much smaller
+- compare all three at bin corresponding to Vector
 	- R1: Data from AquaDopp appears to be phase wrapped and is not usable in its current state. 
 		Vector and Sig1000 have average velocities nearly perpendicular to each other
 	- R2: Aquadopp data looks good and resembles Vector data. Vector and AQD average velocities are offset from Sig1000 average velocity
-	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. Avg data resembles R2
-
-- compare raw/L0 aquadopp with M1-signature 1000 (averaged over appropriate bin range)
-  - ...
-- compare all three at bin corresponding to Vector
-  - ...
+	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. Avg   - ...
 - [ ] draft readme's for each script worth its weight in salt. 
 
 ## Velocity Processing

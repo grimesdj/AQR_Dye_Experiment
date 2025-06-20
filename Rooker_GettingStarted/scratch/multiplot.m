@@ -52,16 +52,16 @@ if qc
     Data.up(flagind) = NaN;
 end
 
-L0.East = Data.east(:,34);
-L0.North = Data.north(:,34);
+L0.East = Data.east(:,35);
+L0.North = Data.north(:,35);
 fraction_of_goood_AQD_data = sum(~isnan(L0.East(dye)))/numel(L0.East(dye))
 
 % Get M1
 
 M1 = fetch_M1(releaseNum);
 
-M1.Einterp = interp1(M1.time', M1.east(:, 11), Time);
-M1.Ninterp = interp1(M1.time', M1.north(:, 11), Time);
+M1.Einterp = interp1(M1.time', M1.east(:, 6), Time);
+M1.Ninterp = interp1(M1.time', M1.north(:, 6), Time);
 
 % Get Vector
 Vector = load(inputFiles(releaseNum+3));
@@ -108,7 +108,7 @@ linkaxes([ax1,ax2],'x')
 % Export Plot
 figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\ENU\" + version + "_ENU_r" + releaseNum + ".pdf"];
 exportgraphics(gcf, figname);
-close(gcf)
+
 
 end
 
