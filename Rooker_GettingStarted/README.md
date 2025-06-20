@@ -1,12 +1,15 @@
 # Rooker Summer 2025 Project README
 
 ## Preliminary analysis of dye release lander velocity data
-- compare raw/L0 aquadopp velocity with Vector (at appropriate bin)
-  - multiplot.m plots East and North velocities for all three instruments
+
+
+  - multiplot.m plots East and North velocities for all three instruments at bin equivalent to vector height 
   - aquaplot.m plots ENU, beam velocity, beam amplitude, correlation, and statistics for all bins for a single instrument
   - Plots and figures for velocities are in '../Kelp_data/Summer2025/Rooker/figures/...'
   - Statistics table in '..Kelp_data/Summer2025/Rooker/Stats/...'
   - preliminary observations (R1,R2,R3): 
+
+- compare raw/L0 aquadopp velocity with Vector (at appropriate bin)
 
 - compare raw/L0 aquadopp with M1-signature 1000 (averaged over appropriate bin range)
 	- R1: Bin + Time averaged velocities are more than 90 degrees apart
@@ -18,11 +21,11 @@
 	- R1: Data from AquaDopp appears to be phase wrapped and is not usable in its current state. 
 		Vector and Sig1000 have average velocities nearly perpendicular to each other
 	- R2: All three instruments have time averaged currents of similar magnitude and direction.
-	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.  - ...
+	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and 	Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.  
 - [ ] draft readme's for each script worth its weight in salt. 
 
 ## Velocity Processing
-- Standardizing velocity variables and data files accross instruments.
+- Standardizing velocity variables and data files across instruments.
   - [ ] Time, Velocity_East, Velocity_North, Amplitude_Minimum, Correltation_Minimum, etc.
   - [ ] Convert script load/process algorithms to functions, e.g.,
      	```load_AquadoppHR_Release2.m```
