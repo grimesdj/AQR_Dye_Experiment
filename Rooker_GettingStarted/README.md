@@ -1,7 +1,7 @@
 # Rooker Summer 2025 Project README
 
 ## Preliminary analysis of dye release lander velocity data
-- compare raw/L0 aquadopp velocity with Vector (at approriate bin)
+- compare raw/L0 aquadopp velocity with Vector (at appropriate bin)
   - multiplot.m plots East and North velocities for all three instruments
   - aquaplot.m plots ENU, beam velocity, beam amplitude, correlation, and statistics for all bins for a single instrument
   - Plots and figures for velocities are in '../Kelp_data/Summer2025/Rooker/figures/...'
@@ -12,11 +12,13 @@
 	- R1: Bin + Time averaged velocities are more than 90 degrees apart
 	- R2: Trajectories are similar, with AQD magnitude being smaller 
 	- R3: Trajectories are similar but further apart than R2, AQD magnitude is much smaller
+
+
 - compare all three at bin corresponding to Vector
 	- R1: Data from AquaDopp appears to be phase wrapped and is not usable in its current state. 
 		Vector and Sig1000 have average velocities nearly perpendicular to each other
-	- R2: Aquadopp data looks good and resembles Vector data. Vector and AQD average velocities are offset from Sig1000 average velocity
-	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. Avg data resembles R2, with larger angle between them and a much smaller magnitude for AQD  - ...
+	- R2: All three instruments have time averaged currents of similar magnitude and direction.
+	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.  - ...
 - [ ] draft readme's for each script worth its weight in salt. 
 
 ## Velocity Processing
