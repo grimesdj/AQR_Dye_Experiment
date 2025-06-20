@@ -49,4 +49,4 @@ multiplot.m: make quick timeseries plots to compare East and North Velocities fo
 	releaseNum = [1 2 or 3] dye release designation
 	qc(optional)= 'on'/'off' quality control filter for AQD data
 	
-	outputs a figure with two plots of East and North velocities at 1.237 MAB
+	outputs a figure with two plots of East and North velocites at 1.237 MAB

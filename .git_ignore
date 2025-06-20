@@ -1,2 +1,4 @@
 *~
 *.kmz
+.DS_Store
+*.asv
