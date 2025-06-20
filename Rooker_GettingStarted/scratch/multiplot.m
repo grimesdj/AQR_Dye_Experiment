@@ -1,5 +1,7 @@
 function multiplot(releaseNum, qc)
 
+version = 'raw';
+
 if nargin < 2
     qc = 0;
 elseif strcmp(qc,'on')
@@ -8,6 +10,7 @@ else
     qc = 0;
 end
 
+% fetch Data
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
@@ -24,13 +27,10 @@ TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dy
 dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
 % Get L0
-% warp = find(gradient(Data.time) > 0.001, 1, 'first');
-% if any(warp)
-%     Time = Data.time(1:warp);
-% else
     Time = Data.time;
-% end
+
 if qc
+    version = 'L0';
    minAmp = min(Data.a1, min(Data.a2, Data.a3));
     minCor = min(Data.c1, min(Data.c2, Data.c3));
     flagA = find(minAmp <= 30);
@@ -104,6 +104,11 @@ hold off
 linkaxes([ax1,ax2],'x')
 
 
+
+% Export Plot
+figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\ENU\" + version + "_ENU_r" + releaseNum + ".pdf"];
+exportgraphics(gcf, figname);
+close(gcf)
 
 end
 

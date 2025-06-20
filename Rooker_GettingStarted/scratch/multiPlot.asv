@@ -1,12 +1,14 @@
-function multiPlot(releaseNum, qc)
+function multiplot(releaseNum, qc)
 
+version = 'raw';
 if nargin < 2
     qc = 0;
-elseif strcomp(qc,'on')
+elseif strcmp(qc,'on')
     qc = 1;
 else
     qc = 0;
 end
+
 inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
@@ -30,6 +32,7 @@ dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <
     Time = Data.time;
 % end
 if qc
+    version = 'L0';
    minAmp = min(Data.a1, min(Data.a2, Data.a3));
     minCor = min(Data.c1, min(Data.c2, Data.c3));
     flagA = find(minAmp <= 30);
@@ -103,6 +106,11 @@ hold off
 linkaxes([ax1,ax2],'x')
 
 
+
+% Export Plot
+figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\histogram\" + version + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
+exportgraphics(gcf, figname);
+close(gcf)
 
 end
 

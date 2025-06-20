@@ -2,9 +2,16 @@
 
 ## Preliminary analysis of dye release lander velocity data
 - compare raw/L0 aquadopp velocity with Vector (at approriate bin)
-  - what script does this?
-  - where to find the plots/stats
-  - preliminary observations (R1,R2,R3)
+  - multiplot.m plots East and North velocities for all three instruments
+  - aquaplot.m plots ENU, beam velocity, beam amplitude, correlation, and statistics for all bins for a single instrument
+  - Plots and figures for velocities are in '../Kelp_data/Summer2025/Rooker/figures/...'
+  - Statistics table in '..Kelp_data/Summer2025/Rooker/Stats/...'
+  - preliminary observations (R1,R2,R3): 
+	- R1: Data from AquaDopp appears to be phase wrapped and is not usable in its current state. 
+		Vector and Sig1000 have average velocities nearly perpendicular to each other
+	- R2: Aquadopp data looks good and resembles Vector data. Vector and AQD average velocities are offset from Sig1000 average velocity
+	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. Avg data resembles R2
+
 - compare raw/L0 aquadopp with M1-signature 1000 (averaged over appropriate bin range)
   - ...
 - compare all three at bin corresponding to Vector
