@@ -45,7 +45,7 @@ elseif strcmp(version, 'Vector')
     releaseNum = releaseNum+3;
     AQD = Data;
     Data = load(inputFiles(releaseNum));    
-    rotation
+    Data = Vector_rotation(Data, AQD);
     releaseNum = releaseNum-3;
 else
     return

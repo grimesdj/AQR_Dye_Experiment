@@ -65,7 +65,7 @@ M1.Ninterp = interp1(M1.time', M1.north(:, 6), Time);
 
 % Get Vector
 Vector = load(inputFiles(releaseNum+3));
-= rotation
+Vector = Vector_rotation(Vector, Data);
 Vector.East = interp1(Vector.time, Vector.east, Time);
 Vector.North = interp1(Vector.time, Vector.north, Time);
 
