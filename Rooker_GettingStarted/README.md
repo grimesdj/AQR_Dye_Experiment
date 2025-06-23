@@ -48,6 +48,7 @@ What scripts need to be changed?
 	[ ] load_and_process_sig1000_to_RDI_matrix_format.m
 	[ ] time_average_and_rotate_sig1000_RDI_matrix_format.m
 	[ ] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
+	[ ] rotation (add to multiplot)
 
 		- find out what each function is supposed to return and then set that to output in the same syntax as the wrapper function
 		- Keep load_Aquadopp_release1 and related functions as wrapper and make a new function that those the actual processing
@@ -57,6 +58,7 @@ What scripts need to be changed?
 		- double-check that release 2 L0 and raw makes it to the correct folder
 
 		- take a look at extended velocity range mode
+		rotation matrix fro vector
 ---------------------------------------------------------------------
 
 - [ ] (re) Make L0 files reflecting above changes.
