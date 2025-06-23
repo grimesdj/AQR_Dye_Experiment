@@ -48,6 +48,15 @@ What scripts need to be changed?
 	[ ] load_and_process_sig1000_to_RDI_matrix_format.m
 	[ ] time_average_and_rotate_sig1000_RDI_matrix_format.m
 	[ ] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
+
+		- find out what each function is supposed to return and then set that to output in the same syntax as the wrapper function
+		- Keep load_Aquadopp_release1 and related functions as wrapper and make a new function that those the actual processing
+			(e.g.) lAr1 is user input data and make 2 fuction calls.
+		- compare processing; can L0 for Vector be the same function as L0 for Vector?
+		- Leave .raws alone, but standardize structures for L0 output in above format.
+		- double-check that release 2 L0 and raw makes it to the correct folder
+
+		- take a look at extended velocity range mode
 ---------------------------------------------------------------------
 
 - [ ] (re) Make L0 files reflecting above changes.

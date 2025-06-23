@@ -12,14 +12,17 @@ AQD Dye Release Experiment Technical Reference:
 				Sample Rate: 1Hz
 				bin size: 3cm
 				# of bins: 75
-				blanking dist: 20cm		
+				blanking dist: 20cm	
+				Nominal Velocity Range: 0.72 m/s (Horizontal), 0.31 m/s (Vertical)	
 
 			Signature1000
 				Sample Rate: 4Hz
 				bin size: 20cm
 				# of bins: 71
 				blanking dist: 10cm
-			
+				Nominal Velocity Range: 
+
 			Vector
-				Sample Rate: 16Hz?
+				Sample Rate: 16Hz
 				Sample height: 1.237 MAB
+				Nominal Velocity Range: 7 m/s
