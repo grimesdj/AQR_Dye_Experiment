@@ -20,7 +20,7 @@ AQD Dye Release Experiment Technical Reference:
 				bin size: 20cm
 				# of bins: 71
 				blanking dist: 10cm
-				Nominal Velocity Range: 
+				Nominal Velocity Range: 5 m/s
 
 			Vector
 				Sample Rate: 16Hz
