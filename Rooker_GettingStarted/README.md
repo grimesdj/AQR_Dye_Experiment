@@ -21,7 +21,8 @@
 	- R1: Data from AquaDopp appears to be phase wrapped and is not usable in its current state. 
 		Vector and Sig1000 have average velocities nearly perpendicular to each other
 	- R2: All three instruments have time averaged currents of similar magnitude and direction.
-	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and 	Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.  
+	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and 	Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.
+  
 - [ ] draft readme's for each script worth its weight in salt. 
 
 
@@ -35,6 +36,20 @@
 	calls:
      	```load_AQD_data.m```
      	then does several other operations (qa/qc) and makes plots. Put that into an ```L0``` function?
+
+---------------------------------------------------------------------
+What scripts need to be changed?
+	[ ] load_AQD_data.m
+	[ ] make load_Aquadopp_release1 into function call
+	[ ] release 2
+	[ ] make load_Vector_release1 into function call
+	[ ] release 2
+	[ ] load_VECTOR_data.m
+	[ ] load_and_process_sig1000_to_RDI_matrix_format.m
+	[ ] time_average_and_rotate_sig1000_RDI_matrix_format.m
+	[ ] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
+---------------------------------------------------------------------
+
 - [ ] (re) Make L0 files reflecting above changes.
 - generate L1 files for subsequent analysis.
   - [ ] Make 5-min averaged fields for AQD and M1. See ```time_average_and_rotate_sig1000_RDI_matrix_format.m``` for example.
