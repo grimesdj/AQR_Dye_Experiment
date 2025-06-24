@@ -40,8 +40,8 @@
 ---------------------------------------------------------------------
 What scripts need to be changed?
 	[x] load_AQD_data.m
-	[ ] make load_Aquadopp_release1 into function call
-	[ ] release 2
+	[x] make load_Aquadopp_release1 into function call   ### ```load_Aquadopp_release1.m``` now calls ```load_AQD_data_function.m``` ```L0.m``` and ```L0_plots.m```
+		- still needs a little bit of work to get the plots and L0 processing untangled (qcFlag takes out big chunks of images plots (>_<)	
 	[ ] make load_Vector_release1 into function call
 	[ ] release 2
 	[ ] load_VECTOR_data.m
