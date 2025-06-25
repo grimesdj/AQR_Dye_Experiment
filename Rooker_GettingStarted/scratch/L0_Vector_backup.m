@@ -1,36 +1,6 @@
-clear all
-close all
-% Enter input /directory/ and fileName root without file extension
-inputDir  = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/raw';
-inputFile = 'KELP1_Vector';
-headingOffset = 331.4;% based on heading from AquodoppHR_KELP1
-fileName  = [inputDir,'/',inputFile];
-% Enter raw output /directory/ and fileName without .mat
-outputDir = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/raw';
-outputName= [inputFile,'_raw'];
-% Enter processed output fileName without .mat
-L0Dir   = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/L0';
-L0Name  = [inputFile,'_L0'];
-% Enter path to save figures
-figDir = [inputDir,'/../figures'];
-if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
-%
-% Enter time-period for estimating the atmospheric pressure offset and deployment
-atmosphTime = [datetime('03-Jul-2024 17:30:00'), datetime('03-Jul-2024 18:10:00')];
-deployTime  = [datetime('03-Jul-2024 18:30:00'), datetime('03-Jul-2024 22:30:00')];
-%
-% time offset if necessary
-tos = 0;
-%
-% returns structure A with all vector data
-if ~exist([outputDir,'/',outputName,'.mat'],'file')
-    A = load_VECTOR_data_function(inputDir, inputFile, fileName, tos);
-    save([outputDir,'/',outputName,'.mat'],'-struct','A')
-else
-    A = load([outputDir,'/',outputName,'.mat']);
-    pressure = A.pressure;
-    dt = A.seconds(2)-A.seconds(1);
-end
+
+function L0_Vector(A, atmosphTime, deployTime, inputFile, figDir);
+
 %
 date = datetime(A.sensor.date,'convertFrom','datenum');
 time = datetime(A.sensor.date(1)+A.seconds/86400,'convertFrom','datenum');
@@ -52,7 +22,7 @@ end
 iATM = find(time>=atmosphTime(1) & time<=atmosphTime(2));
 iDEP = find(time>=deployTime(1) & time<=deployTime(2));
 %    
-A.pressureOffset = mean(pressure(iATM));
+A.pressureOffset = mean(A.pressure(iATM));
 %
 vel_valid = iDEP;
 vars  = {'seconds','pressure','a1','a2','a3','v1','v2','v3','c1','c2','c3','SNR1','SNR2','SNR3','b1','b2','b3','east','north','up'};
@@ -85,15 +55,14 @@ plot(time,A.pressure)
 ylabel(ax2,'$P$ [m]','interpreter','latex')
 xlabel(ax2,'time','interpreter','latex')
 set(ax2,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim')) 
-figDir = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/raw/../figures'
 figName = [figDir,inputFile,'_temp_pres.png'];
 exportgraphics(fig0,figName)
 %
 %
 % use acceleration and jolt to filter bad data
 utot = sqrt( A.v1.^2 + A.v2.^2 + A.v3.^2);
-du   = gradient(utot)/dt;
-ddu  = gradient(du)/dt;
+du   = gradient(utot)/A.config.dt;
+ddu  = gradient(du)/A.config.dt;
 %
 r0   =  8*nanstd(utot);
 r1   =  5*nanstd(du);
@@ -123,21 +92,22 @@ figName = [figDir, inputFile,'_velocity_ENU.png'];
 linkaxes([ax1, ax2, ax3],'x')
 exportgraphics(fig0,figName)
 %
-save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
+
 %
 % add the config info to the structure A to quick save as netcdf4
-fieldNames = fields(A.config);
-originalFields = fields(A);
+%fieldNames = fields(A.config);
+%originalFields = fields(A);
 %
-for j = 1:length(fieldNames)
- A.(fieldNames{j}) = A.config.(fieldNames{j});
-end
-A = orderfields(A,cat(1,fieldNames,originalFields));
-ncfile = [L0Dir,'/',L0Name,'.nc'];
-if exist(ncfile,'file')
-    system(['rm ',ncfile]);
-end
-struct2nc(A,ncfile,'NETCDF4');
+%for j = 1:length(fieldNames)
+% A.(fieldNames{j}) = A.config.(fieldNames{j});
+%end
+%A = orderfields(A,cat(1,fieldNames,originalFields));
+%ncfile = [L0Dir,'/',L0Name,'.nc'];
+%if exist(ncfile,'file')
+ %   system(['del ',ncfile]);
+%end
+disp('skipping .nc file')
+%struct2nc(A,ncfile,'NETCDF4');
 %
 % $$$ fig0 = figure;
 % $$$ ax1 = subplot(2,1,1);
@@ -312,3 +282,4 @@ struct2nc(A,ncfile,'NETCDF4');
 % $$$ xlabel('velocity')
 % $$$ figName = [figDir,'/',inputFile,'_depth_avg_vel_XYrot60deg_histograms.png'];
 % $$$ exportgraphics(gcf,figName)
+end

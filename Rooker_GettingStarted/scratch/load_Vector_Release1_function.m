@@ -6,10 +6,10 @@ inputFile = 'KELP1_Vector';
 headingOffset = 331.4;% based on heading from AquodoppHR_KELP1
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
-outputDir = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/raw';
+outputDir = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/raw';
 outputName= [inputFile,'_raw'];
 % Enter processed output fileName without .mat
-L0Dir   = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/L0';
+L0Dir   = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/L0';
 L0Name  = [inputFile,'_L0'];
 % Enter path to save figures
 figDir = [inputDir,'/../figures'];
@@ -32,5 +32,8 @@ else
     dt = A.seconds(2)-A.seconds(1);
 end
 
-L0_Vector(A, atmosphTime, deployTime, inputFile, figDir)
-save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
+A = L0_Vector(A, atmosphTime, deployTime, inputFile, figDir)
+L0 = A.L0;
+
+save([L0Dir,'/',L0Name,'.mat'],'-struct','L0')
+

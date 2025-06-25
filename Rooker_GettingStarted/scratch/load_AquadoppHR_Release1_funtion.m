@@ -28,13 +28,11 @@ save([outputDir,'/',outputName,'.mat'],'-struct','A')
 % Generate L0
 A = L0_AQD(A, atmTime, depTime);
 % Save L0 data
-L0.Velocity_X = A.VelX;
-L0.Velocity_Y = A.VelY;
-L0.Velocity_Z = A.VelZ;
+L0 = A.L0;
 
-save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
+save([L0Dir,'/',L0Name,'.mat'],'-struct','L0')
 
 % Create Plots
-L0_plots(A, inputFile, figDir)
+%L0_plots(A, inputFile, figDir)
 
 

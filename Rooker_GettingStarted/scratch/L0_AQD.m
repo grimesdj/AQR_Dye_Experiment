@@ -1,5 +1,5 @@
 
-function A = L0(A, atmTime, depTime)
+function A = L0_AQD(A, atmTime, depTime)
 
 
 %
@@ -91,13 +91,39 @@ A.C1 = conv2(f1,f2,(A.c1.*A.qcFlag)','same')./on;
 A.C2 = conv2(f1,f2,(A.c2.*A.qcFlag)','same')./on;
 A.C3 = conv2(f1,f2,(A.c3.*A.qcFlag)','same')./on;
 %
+%for i = size(A.A1,1)
+%   for j = size(A.A1, 2)
+    Amin = min(A.A1, min(A.A2, A.A3));
+    Cmin = min(A.C1, min(A.C2, A.C3));
+%    end
+%end
+
+A.Amplitude_Minimum = Amin';
+A.Correlation_Minimum = Cmin';
+
 %
 % Now plot currents
 V1 = conv2(f1,f2,(A.v1.*A.qcFlag)','same')./on;
 V2 = conv2(f1,f2,(A.v2.*A.qcFlag)','same')./on;
 V3 = conv2(f1,f2,(A.v3.*A.qcFlag)','same')./on;
-%
 
+A.Velocity_East = (conv2(f1,f2,(A.east.*A.qcFlag)','same')./on)';
+A.Velocity_North = (conv2(f1,f2,(A.north.*A.qcFlag)','same')./on)';
+A.Velocity_Up = (conv2(f1,f2,(A.up.*A.qcFlag)','same')./on)';
+
+A.Velocity_East(~A.qcFlag')=nan;
+A.Velocity_North(~A.qcFlag')=nan;
+A.Velocity_Up(~A.qcFlag')=nan;
+%
+%
+%
+A.Velocity_Beam1 = (conv2(f1,f2,(A.b1.*A.qcFlag)','same')./on)';
+A.Velocity_Beam2 = (conv2(f1,f2,(A.b2.*A.qcFlag)','same')./on)';
+A.Velocity_Beam3 = (conv2(f1,f2,(A.b3.*A.qcFlag)','same')./on)';
+
+A.Velocity_Beam1(~A.qcFlag')=nan;
+A.Velocity_Beam2(~A.qcFlag')=nan;
+A.Velocity_Beam3(~A.qcFlag')=nan;
 
 % get the time-averaged current.
 % Note, this is not in depth normalized (sigma) coordinates.
@@ -113,13 +139,13 @@ Wz = nanmean(V3,2); W = nanmean(Wz); Wz(~flag)=nan;
 
 
 %
-A.VelX = V1;
-A.VelY= V2;
-A.VelZ   = V3;
+A.Velocity_X = V1';
+A.Velocity_Y = V2';
+A.Velocity_Z = V3';
 %
 A.VelXAvg = Uz;
-A.VelYAvg= Vz;
-A.VelZAvg   = Wz;
+A.VelYAvg = Vz;
+A.VelZAvg = Wz;
 %
 
 %
@@ -139,4 +165,11 @@ disp('skipping nc file')
 %struct2nc(A,ncfile,'NETCDF4');
 %
 %
+
+% Make the names match convention
+A.Time = A.time;
+A.Config = A.config;
+A.Pressure = A.pressure;
+fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure'};
+A.L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
 end

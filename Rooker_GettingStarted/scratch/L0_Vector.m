@@ -1,5 +1,5 @@
 
-function L0_Vector(A, atmosphTime, deployTime, inputFile, figDir);
+function A = L0_Vector(A, atmosphTime, deployTime, inputFile, figDir);
 
 %
 date = datetime(A.sensor.date,'convertFrom','datenum');
@@ -60,37 +60,97 @@ exportgraphics(fig0,figName)
 %
 %
 % use acceleration and jolt to filter bad data
-utot = sqrt( A.v1.^2 + A.v2.^2 + A.v3.^2);
-du   = gradient(utot)/A.config.dt;
-ddu  = gradient(du)/A.config.dt;
+u1   = A.b1;
+d1   = gradient(u1)/A.config.dt;
+dd1  = gradient(d1)/A.config.dt;
+u2   = A.b2;
+d2   = gradient(u2)/A.config.dt;
+dd2  = gradient(d2)/A.config.dt;
+u3   = A.b3;
+d3   = gradient(u3)/A.config.dt;
+dd3  = gradient(d3)/A.config.dt;
 %
-r0   =  8*nanstd(utot);
-r1   =  5*nanstd(du);
-r2   =  4*nanstd(ddu);
+r01  =  nanstd(u1(:));
+r02  =  nanstd(u2(:));
+r03  =  nanstd(u3(:));
+R0   = (u1./r01).^2 + (u2./r02).^2 + (u3./r03).^2;
 %
-valid = (utot/r0).^2 + (du/r1).^2 + (ddu/r2).^2 <= 1;
+r11  = nanstd(d1(:));
+r12  = nanstd(d2(:));
+r13  = nanstd(d3(:));
+R1   = (d1./r11).^2 + (d2./r12).^2 + (d3./r13).^2;
+%
+r21  = nanstd(dd1(:));
+r22  = nanstd(dd2(:));
+r23  = nanstd(dd3(:));
+R2   = (dd1./r21).^2 + (dd2./r22).^2 + (dd3./r23).^2;
+%
+valid = (R0<0.5);% & (R1<5) & (R2<10);
 A.qcFlag = A.qcFlag & valid;
+
 %
-% need to apply this mask before conducting analysis
-% make a few quick plots
-fig0 = figure;
-ax1 = subplot(3,1,1);
-plot(time,A.east.*valid.*A.qcFlag,'.')
-ylabel(ax1,'$v_\mathrm{\scriptscriptstyle{E}}$ [m/s]','interpreter','latex')
-set(ax1,'xticklabel','','ticklabelinterpreter','latex','tickdir','out')
-ax2 = subplot(3,1,2);
-plot(time,A.north.*valid.*A.qcFlag,'.')
-ylabel(ax2,'$v_\mathrm{\scriptscriptstyle{N}}$ [m/s]','interpreter','latex')
-xlabel(ax2,'time','interpreter','latex')
-set(ax2,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
-ax3 = subplot(3,1,3);
-plot(time,A.north.*valid.*A.qcFlag,'.')
-ylabel(ax3,'$v_\mathrm{\scriptscriptstyle{U}}$ [m/s]','interpreter','latex')
-xlabel(ax3,'time','interpreter','latex')
-set(ax3,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
-figName = [figDir, inputFile,'_velocity_ENU.png'];
-linkaxes([ax1, ax2, ax3],'x')
-exportgraphics(fig0,figName)
+A.A1 = (A.a1.*A.qcFlag)';
+A.A2 = (A.a2.*A.qcFlag)';
+A.A3 = (A.a3.*A.qcFlag)';
+%
+%
+A.C1 = (A.c1.*A.qcFlag)';
+A.C2 = (A.c2.*A.qcFlag)';
+A.C3 = (A.c3.*A.qcFlag)';
+%
+for i = size(A.A1)
+    Amin(i) = min(A.A1(i), min(A.A2(i), A.A3(i)));
+    Cmin(i) = min(A.C1(i), min(A.C2(i), A.C3(i)));
+end
+
+A.Amplitude_Minimum = Amin';
+A.Correlation_Minimum = Cmin';
+
+%
+% Now plot currents
+V1 = (A.v1.*A.qcFlag)';
+V2 = (A.v2.*A.qcFlag)';
+V3 = (A.v3.*A.qcFlag)';
+
+A.Velocity_East = (A.east.*A.qcFlag);
+A.Velocity_North = (A.north.*A.qcFlag);
+A.Velocity_Up = (A.up.*A.qcFlag);
+
+A.Velocity_East(~A.qcFlag')=nan;
+A.Velocity_North(~A.qcFlag')=nan;
+A.Velocity_Up(~A.qcFlag')=nan;
+%
+%
+%
+A.Velocity_Beam1 = (A.b1.*A.qcFlag);
+A.Velocity_Beam2 = (A.b2.*A.qcFlag);
+A.Velocity_Beam3 = (A.b3.*A.qcFlag);
+
+A.Velocity_Beam1(~A.qcFlag')=nan;
+A.Velocity_Beam2(~A.qcFlag')=nan;
+A.Velocity_Beam3(~A.qcFlag')=nan;
+
+% get the time-averaged current.
+% Note, this is not in depth normalized (sigma) coordinates.
+% first, nan any values that don't pass QC.
+V1(~A.qcFlag')=nan;
+V2(~A.qcFlag')=nan;
+V3(~A.qcFlag')=nan;
+flag = sum(A.qcFlag,1) > 0.50*nsamples;
+% Uz = time averegd; U = depth & time averaged
+Uz = nanmean(V1,2); U = nanmean(Uz); Uz(~flag)=nan;
+Vz = nanmean(V2,2); V = nanmean(Vz); Vz(~flag)=nan;
+Wz = nanmean(V3,2); W = nanmean(Wz); Wz(~flag)=nan;
+
+
+%
+A.Velocity_X = V1';
+A.Velocity_Y = V2';
+A.Velocity_Z = V3';
+%
+A.VelXAvg = Uz;
+A.VelYAvg = Vz;
+A.VelZAvg = Wz;
 %
 
 %
@@ -104,182 +164,16 @@ end
 A = orderfields(A,cat(1,fieldNames,originalFields));
 %ncfile = [L0Dir,'/',L0Name,'.nc'];
 %if exist(ncfile,'file')
- %   system(['del ',ncfile]);
+    %eval(['!rm ',ncfile])
 %end
-disp('skipping .nc file')
+disp('skipping nc file')
 %struct2nc(A,ncfile,'NETCDF4');
 %
-% $$$ fig0 = figure;
-% $$$ ax1 = subplot(2,1,1);
-% $$$ scatter(date,A.sensor.temperature)
-% $$$ ylabel(ax1,'$T$ [$^\circ$]','interpreter','latex')
-% $$$ set(ax1,'xticklabel','','ticklabelinterpreter','latex','tickdir','out')
-% $$$ ax2 = subplot(2,1,2);
-% $$$ plot(time,A.pressure)
-% $$$ ylabel(ax2,'$P$ [m]','interpreter','latex')
-% $$$ xlabel(ax2,'time','interpreter','latex')
-% $$$ set(ax2,'ticklabelinterpreter','latex','tickdir','out','xlim',get(ax1,'xlim'))
-% $$$ figName = [figDir,'/',inputFile,'_temp_pres.png'];
-% $$$ exportgraphics(fig0,figName)
-
-
-
-
-
 %
-% $$$ % quick convolution running mean filter
-% $$$ np1 = round(0.3/A.config.binSize);% 10 cm vertical 
-% $$$ np2 = 31;% 5min for 1Hz data
-% $$$ f1 = hamming(np1);f1 = f1./sum(f1);
-% $$$ f2 = hamming(np2);f2 = f2./sum(f2);
-% $$$ % do a nan-mean filter, keep track of normalization
-% $$$ on = conv2(f1,f2,A.qcFlag','same');
-% $$$ %
-% $$$ A1 = conv2(f1,f2,(A.a1.*A.qcFlag)','same')./on;
-% $$$ A2 = conv2(f1,f2,(A.a2.*A.qcFlag)','same')./on;
-% $$$ A3 = conv2(f1,f2,(A.a3.*A.qcFlag)','same')./on;
-% $$$ %
-% $$$ fig1 = figure;
-% $$$ ax1 = subplot(3,1,1);
-% $$$ imagesc(time,A.dbins',A1.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
-% $$$ text(time(1),ylims(2),'X')
-% $$$ set(ax1,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ title(ax1,'Amplitude')
-% $$$ %
-% $$$ ax2 = subplot(3,1,2);
-% $$$ imagesc(time,A.dbins',A2.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
-% $$$ text(time(1),ylims(2),'Y')
-% $$$ ylabel('mab','interpreter','latex')
-% $$$ set(ax2,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ %
-% $$$ ax3 = subplot(3,1,3);
-% $$$ imagesc(time,A.dbins',A3.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')),colorbar
-% $$$ text(time(1),ylims(2),'Z')
-% $$$ set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ xlabel('time [s]','interpreter','latex')
-% $$$ figName = [figDir,'/',inputFile,'_amplitude.png'];
-% $$$ exportgraphics(fig1,figName)
-% $$$ %
-% $$$ %
-% $$$ C1 = conv2(f1,f2,(A.c1.*A.qcFlag)','same')./on;
-% $$$ C2 = conv2(f1,f2,(A.c2.*A.qcFlag)','same')./on;
-% $$$ C3 = conv2(f1,f2,(A.c3.*A.qcFlag)','same')./on;
-% $$$ %
-% $$$ fig1 = figure;
-% $$$ ax1 = subplot(3,1,1);
-% $$$ imagesc(time,A.dbins',C1.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
-% $$$ text(time(1),ylims(2),'X')
-% $$$ set(ax1,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ title(ax1,'Correlation')
-% $$$ %
-% $$$ ax2 = subplot(3,1,2);
-% $$$ imagesc(time,A.dbins',C2.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
-% $$$ text(time(1),ylims(2),'Y')
-% $$$ ylabel('mab','interpreter','latex')
-% $$$ set(ax2,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ %
-% $$$ ax3 = subplot(3,1,3);
-% $$$ imagesc(time,A.dbins',C3.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),colorbar
-% $$$ text(time(1),ylims(2),'Z')
-% $$$ set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ xlabel('time [s]','interpreter','latex')
-% $$$ figName = [figDir,'/',inputFile,'_correlation.png'];
-% $$$ exportgraphics(fig1,figName)
-% $$$ %
-% $$$ %
-% $$$ % Now plot currents
-% $$$ V1 = conv2(f1,f2,(A.v1.*A.qcFlag)','same')./on;
-% $$$ V2 = conv2(f1,f2,(A.v2.*A.qcFlag)','same')./on;
-% $$$ V3 = conv2(f1,f2,(A.v3.*A.qcFlag)','same')./on;
-% $$$ %
-% $$$ fig2 = figure;
-% $$$ ax1 = subplot(3,1,1);
-% $$$ imagesc(time,A.dbins',V1.*qcFlag0'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
-% $$$ text(time(1),ylims(2),'X')
-% $$$ %
-% $$$ set(ax1,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ ax2 = subplot(3,1,2);
-% $$$ imagesc(time,A.dbins',V2.*qcFlag0'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
-% $$$ text(time(1),ylims(2),'Y')
-% $$$ set(ax2,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ ylabel('mab','interpreter','latex')
-% $$$ %
-% $$$ ax3 = subplot(3,1,3);
-% $$$ imagesc(time,A.dbins',V3.*qcFlag0'),caxis([-0.125 0.125]),colormap(cmocean('balance')),colorbar
-% $$$ text(time(1),ylims(2),'Z')
-% $$$ set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
-% $$$ xlabel('time [s]','interpreter','latex')
-% $$$ figName = [figDir,'/',inputFile,'_velocity.png'];
-% $$$ exportgraphics(fig2,figName)
-% $$$ %
-% $$$ % get the time-averaged current.
-% $$$ % Note, this is not in depth normalized (sigma) coordinates.
-% $$$ % first, nan any values that don't pass QC.
-% $$$ V1(~A.qcFlag')=nan;
-% $$$ V2(~A.qcFlag')=nan;
-% $$$ V3(~A.qcFlag')=nan;
-% $$$ flag = sum(A.qcFlag,1) > 0.50*nsamples;
-% $$$ % Uz = time averegd; U = depth & time averaged
-% $$$ Uz = nanmean(V1,2); U = nanmean(Uz); Uz(~flag)=nan;
-% $$$ Vz = nanmean(V2,2); V = nanmean(Vz); Vz(~flag)=nan;
-% $$$ Wz = nanmean(V3,2); W = nanmean(Wz); Wz(~flag)=nan;
-% $$$ %
-% $$$ fig3 = figure;
-% $$$ plot(Uz,A.dbins,'.-r',Vz,A.dbins,'.-b',Wz,A.dbins,'.-k')
-% $$$ hh = legend('X','Y','Z');
-% $$$ set(hh,'fontsize',9)
-% $$$ xlabel('m/s','interpreter','latex')
-% $$$ ylabel('mab','interpreter','latex')
-% $$$ set(gca,'ticklabelinterpreter','latex','tickdir','out')
-% $$$ figName = [figDir,'/',inputFile,'_mean_velocity.png'];
-% $$$ exportgraphics(fig3,figName)
-% $$$ %
-% $$$ A.VelX = V1;
-% $$$ A.VelY= V2;
-% $$$ A.VelZ   = V3;
-% $$$ %
-% $$$ A.VelXAvg = Uz;
-% $$$ A.VelYAvg= Vz;
-% $$$ A.VelZAvg   = Wz;
-% $$$ %
-% $$$ save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
-% $$$ %
-% $$$ %
-% $$$ %
-% $$$ v1bar = nansum( A.v1.*A.qcFlag ,2)./sum(A.qcFlag,2);
-% $$$ v2bar = nansum( A.v2.*A.qcFlag ,2)./sum(A.qcFlag,2);
-% $$$ v3bar = nansum( A.v3.*A.qcFlag ,2)./sum(A.qcFlag,2);
-% $$$ % rotate 60 degrees:
-% $$$ vrot = [cosd(60) sind(60);-sind(60) cosd(60)]*[v1bar';v2bar'];
-% $$$ v1rot = vrot(1,:)';
-% $$$ v2rot = vrot(2,:)';
-% $$$ %
-% $$$ %
-% $$$ dv    = 0.01;
-% $$$ vbins = [-1:dv:1];
-% $$$ v1H   = hist(v1rot,vbins);
-% $$$ v2H   = hist(v2rot,vbins);
-% $$$ v3H   = hist(v3bar,vbins);
-% $$$ %
-% $$$ figure, plot(v1rot,v2rot,'.')
-% $$$ hold on, plot(1.5*[-cosd(60) cosd(60)],1.5*[-sind(60) sind(60)],'--r')
-% $$$ xlabel('$\bar{v}_X$','interpreter','latex')
-% $$$ ylabel('$\bar{v}_Y$','interpreter','latex')
-% $$$ figName = [figDir,'/',inputFile,'_depth_avg_XYvel_checker_pattern.png'];
-% $$$ exportgraphics(gcf,figName)
-% $$$ %
-% $$$ %
-% $$$ figure,
-% $$$ subplot(3,1,1)
-% $$$ bar(vbins, v1H./length(v1bar))
-% $$$ ylabel('$p(\bar{v}_{X''})$','interpreter','latex')
-% $$$ subplot(3,1,2)
-% $$$ bar(vbins, v2H./length(v1bar))
-% $$$ ylabel('$p(\bar{v}''_{Y''})$','interpreter','latex')
-% $$$ subplot(3,1,3)
-% $$$ bar(vbins, v3H./length(v1bar))
-% $$$ ylabel('$p(\bar{v}_Z)$','interpreter','latex')
-% $$$ xlabel('velocity')
-% $$$ figName = [figDir,'/',inputFile,'_depth_avg_vel_XYrot60deg_histograms.png'];
-% $$$ exportgraphics(gcf,figName)
+
+% Make the names match convention
+A.Time = A.time;
+A.Config = A.config;
+fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config'};
+A.L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
 end
