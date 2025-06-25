@@ -26,7 +26,7 @@ A = load_AQD_data_function(inputDir, inputFile, fileName, tos);
 save([outputDir,'/',outputName,'.mat'],'-struct','A')
 
 % Generate L0
-A = L0(A, atmTime, depTime);
+A = L0_AQD(A, atmTime, depTime);
 % Save L0 data
 L0.Velocity_X = A.VelX;
 L0.Velocity_Y = A.VelY;
