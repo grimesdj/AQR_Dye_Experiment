@@ -8,7 +8,7 @@ versions = {'L0', 'M1', 'Vector'};
 
 
 % Avg Tables for L0 and M1
-for j = 1:3
+for j = 1:1
     ind = sprintf('AvgR%d', j);
     clear T
    T = array2table(zeros(2, length(cols)), 'VariableNames', cols, 'RowNames', versions(1:2));
@@ -33,7 +33,7 @@ end
 
 
 % Tables for Stats at Vector Point
-for j = 1:3
+for j = 1:1
     ind = sprintf('PtR%d', j);
     clear T
     T = array2table(zeros(3, length(cols)), 'VariableNames', cols, 'RowNames', versions);

@@ -42,10 +42,13 @@ What scripts need to be changed?
 	[x] load_AQD_data.m
 	[x] make load_Aquadopp_release1 into function call   ### ```load_Aquadopp_release1.m``` now calls ```load_AQD_data_function.m``` ```L0.m``` and ```L0_plots.m```
 		- still needs a little bit of work to get the plots and L0 processing untangled (qcFlag takes out big chunks of images plots (>_<)	
-	[ ] make load_Vector_release1 into function call
-		- need to change heading to match aquadopp HPR
+	[x] make load_Vector_release1 into function call
+		- Adding AQD HPR to Vector L0?
+		- L0 function isn't actually changing the data
+		- *** Add BINS
 	[ ] release 2
-	[ ] load_VECTOR_data.m
+		- *** USE L0_AQD.m but with different user input 
+	[x] load_VECTOR_data.m 
 	[ ] load_and_process_sig1000_to_RDI_matrix_format.m
 	[ ] time_average_and_rotate_sig1000_RDI_matrix_format.m
 	[ ] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
@@ -66,4 +69,7 @@ What scripts need to be changed?
 - generate L1 files for subsequent analysis.
   - [ ] Make 5-min averaged fields for AQD and M1. See ```time_average_and_rotate_sig1000_RDI_matrix_format.m``` for example.
   - [ ] For Vector, want to use heading from AQD to make ENU velocities. Then generate 15-30 minute spectra. 
+
+ - [ ] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :)
+
 
