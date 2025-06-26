@@ -41,7 +41,7 @@ A.ylims      = [0 min(max(A.maxRange),max(A.dbins))];
 dum1       = A.maxRange.*ones(1,A.config.Nbins);
 dum2       = ones(nsamples,1)*A.dbins;
 qcFlag0    =  (dum2<=dum1);
-A.qcFlag   =  double( (dum2<=dum1) & min(A.a1,min(A.a2,A.a3))>20 & min(A.c1,min(A.c2,A.c3))>40 );
+A.qcFlag   =  double( (dum2<=dum1) & min(A.a1,min(A.a2,A.a3))>30 & min(A.c1,min(A.c2,A.c3))>40 );
 %
 time = datetime(A.time,'convertFrom','datenum');
 %
@@ -53,15 +53,15 @@ time = datetime(A.time,'convertFrom','datenum');
 %    end
 %end
 
-A.Amplitude_Minimum = Amin;
-A.Correlation_Minimum = Cmin;
+A.Amplitude_Minimum = Amin';
+A.Correlation_Minimum = Cmin';
 
 %
 % Now plot currents
 
-A.Velocity_East = A.east.*A.qcFlag;
-A.Velocity_North = A.north.*A.qcFlag;
-A.Velocity_Up = A.up.*A.qcFlag;
+A.Velocity_East = A.east.*A.qcFlag';
+A.Velocity_North = A.north.*A.qcFlag';
+A.Velocity_Up = A.up.*A.qcFlag';
 
 A.Velocity_East(~A.qcFlag')=nan;
 A.Velocity_North(~A.qcFlag')=nan;
@@ -69,21 +69,35 @@ A.Velocity_Up(~A.qcFlag')=nan;
 %
 %
 %
-A.Velocity_Beam1 = A.b1.*A.qcFlag;
-A.Velocity_Beam2 = A.b2.*A.qcFlag;
-A.Velocity_Beam3 = A.b3.*A.qcFlag;
+A.Velocity_Beam1 = A.b1.*A.qcFlag';
+A.Velocity_Beam2 = A.b2.*A.qcFlag';
+A.Velocity_Beam3 = A.b3.*A.qcFlag';
 
 A.Velocity_Beam1(~A.qcFlag')=nan;
 A.Velocity_Beam2(~A.qcFlag')=nan;
 A.Velocity_Beam3(~A.qcFlag')=nan;
 
+% get the time-averaged current.
+% Note, this is not in depth normalized (sigma) coordinates.
+% first, nan any values that don't pass QC.
+V1(~A.qcFlag')=nan;
+V2(~A.qcFlag')=nan;
+V3(~A.qcFlag')=nan;
+flag = sum(A.qcFlag,1) > 0.50*nsamples;
+% Uz = time averegd; U = depth & time averaged
+Uz = nanmean(V1,2); U = nanmean(Uz); Uz(~flag)=nan;
+Vz = nanmean(V2,2); V = nanmean(Vz); Vz(~flag)=nan;
+Wz = nanmean(V3,2); W = nanmean(Wz); Wz(~flag)=nan;
 
 
 %
-A.Velocity_X = A.v1.*A.qcFlag;
-A.Velocity_Y = A.v1.*A.qcFlag;
-A.Velocity_Z = A.v1.*A.qcFlag;
+A.Velocity_X = V1';
+A.Velocity_Y = V2';
+A.Velocity_Z = V3';
 %
+A.VelXAvg = Uz;
+A.VelYAvg = Vz;
+A.VelZAvg = Wz;
 %
 
 %

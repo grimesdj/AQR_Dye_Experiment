@@ -76,5 +76,9 @@ for i = 1:3
     %close(gcf)
 end
 
+
+
+
+
+
 addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\scratch'
-ellipse 
