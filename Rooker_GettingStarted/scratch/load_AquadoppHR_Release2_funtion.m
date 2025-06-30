@@ -30,7 +30,7 @@ A = L0_AQD(A, atmTime, depTime);
 % Save L0 data
 L0 = A.L0;
 
-save([L0Dir,'/',L0Name,'.mat'],'-struct','L0')
+save([L0Dir,'/',L0Name,'.mat'],'-struct','L0')  
 
 % Create Plots
 %L0_plots(A, inputFile, figDir)

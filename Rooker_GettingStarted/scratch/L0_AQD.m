@@ -108,6 +108,7 @@ disp('skipping nc file')
 A.Time = A.time;
 A.Config = A.config;
 A.Pressure = A.pressure;
-fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure'};
+A.Bins = A.dbins;
+fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure', 'Bins'};
 A.L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
 end
