@@ -70,6 +70,6 @@ What scripts need to be changed?
   - [ ] Make 5-min averaged fields for AQD and M1. See ```time_average_and_rotate_sig1000_RDI_matrix_format.m``` for example.
   - [ ] For Vector, want to use heading from AQD to make ENU velocities. Then generate 15-30 minute spectra. 
 
- - [ ] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :)
+ - [ ] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :)	
 
 
