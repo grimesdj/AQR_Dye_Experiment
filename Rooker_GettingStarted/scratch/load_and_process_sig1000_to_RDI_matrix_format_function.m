@@ -1,4 +1,4 @@
-function load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime)
+function load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
 
 files = dir([rootDIR,filesep,fRoot,'*.mat']);
 Nf    = length(files);
@@ -53,6 +53,9 @@ loadFlag = 1;
 ii = 0;
 outNf = 0;
 fprintf('\n \n')
+
+idx = 1;
+
 while ii<=Nf
     %
     if loadFlag
@@ -66,7 +69,7 @@ while ii<=Nf
         t    = Data.IBurst_Time;
         nt   = length(t);
         % check if instrument is deployed
-        is   = find(t>=deployTime,1,'first');
+        is   = find(t>=deployTime,1,'first')
         if isempty(is)
             disp(['--> instrument is not yet deployed, skipping this file.'])
             loadFlag=1;
@@ -96,10 +99,10 @@ while ii<=Nf
     end
     %
     if N+nt-(is-1)<=Nmax
-        ie   = nt;
+        ie   = nt
         loadFlag = 1;
     else
-        ie   = Nmax-N-(is-1);
+        ie   = Nmax-N-(is-1)
         loadFlag = 0;
     end
     %
@@ -138,7 +141,7 @@ while ii<=Nf
     end
     %
     N = N+ie-(is-1);
-    is= ie+1;
+    is = ie+1
     %
     if N==Nmax || (ii==Nf & loadFlag)
         % process data
@@ -159,24 +162,24 @@ while ii<=Nf
 % $$$         out.beam2xyz = beam2xyz;
         %
         % save output
-        outNf = outNf+1;
-        outFileName = sprintf([filePrefix,'%03d.mat'],outNf);
-        fout  = [L0dir,outFileName];
-        fprintf(['saving output file:   %s \n'],outFileName)
-        save(fout,'-struct','out')
-        outFileName = sprintf([filePrefix,'%03d.nc'],outNf);
-        fout = [L0dir,outFileName];
-        if exist(fout,'file')
-            eval(['!rm ', outFileName])
-        end
-        struct2nc(out,outFileName,'NETCDF4')
-        %
-        N = 0;
-        %
-        if (ii==Nf & loadFlag )
-        fprintf('done! \n')
-        break
-        end
+         outNf = outNf+1;
+         outFileName = sprintf([filePrefix,'%03d.mat'],outNf);
+         fout  = [L0dir,outFileName];
+         fprintf(['saving output file:   %s \n'],outFileName)
+%         save(fout,'-struct','out')
+%         outFileName = sprintf([filePrefix,'%03d.nc'],outNf);
+%         fout = [L0dir,outFileName];
+%         if exist(fout,'file')
+%             eval(['!rm ', outFileName])
+%         end
+%         struct2nc(out,outFileName,'NETCDF4')
+%         %
+         N = 0;
+%         %
+         if (ii==Nf & loadFlag )
+         fprintf('done! \n')
+         break
+        %end
     end
     %
     %

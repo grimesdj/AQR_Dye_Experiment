@@ -45,17 +45,18 @@ Data.qcFlag = 0*Data.b1;
 
 
 Vrange = (0.30*sind(25)+0.13*cos(25))/2;
+figure, plot(gradient(Velocities{i}(:, 1)))
 
 for i = 1:3
     Velocity = Velocities{i};
-    u   = Velocity;
-    d   = gradient(u,1);
-    dd  = gradient(d,1);
-    Data.qcFlag = d >= Vrange;% | dd >= Vrange/10;
-    for j = 1:length(dye)
+     for j = 1:length(dye)
 
         for k = 1:75
-
+            u   = Velocity(:, k);
+            d   = gradient(u);
+            dd  = gradient(d);
+            Data.qcFlag = d >= Vrange;% | dd >= Vrange/10;
+   
             if abs(Velocity(j,k)) > Vrange/2   %Data.qcFlag(j, k)
                 if Velocity(j, k) > 0
                     Velocity(j, k) = Velocity(j, k) - 2*Vrange;
@@ -74,7 +75,7 @@ figure, histogram(Velocities{i}(:, 1), 'BinWidth', 0.01)
 figure, plot(Velocities{i}(:, 1), '.')
 
 
-
+figure, plot(gradient(Velocities{i}(:, 1)))
 
 
 
