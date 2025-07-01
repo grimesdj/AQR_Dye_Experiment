@@ -1,4 +1,4 @@
-function load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, Descriptions)
+function load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime)
 
 files = dir([rootDIR,filesep,fRoot,'*.mat']);
 Nf    = length(files);
@@ -24,16 +24,18 @@ mabE = hab+blnkE+binwE.*[1:NcE]';
 end
 %
 % save the config info
-outFile = [L0dir, filePrefix, 'config.mat'];
-if ~exist(L0dir,'dir')
-    eval(['!mkdir ',L0dir])
-end
-save(outFile,'Config','Descriptions')
-outFile = [L0dir, filePrefix, 'config.nc'];
-if exist(outFile,'file')
-    eval(['!rm ', outFile])
-end
-struct2nc(Config,outFile,'NETCDF4')
+% outFile = [L0dir, filePrefix, 'config.mat'];
+% if ~exist(L0dir,'dir')
+%     eval(['!mkdir ',L0dir])
+% end
+% save(outFile,'Config','Descriptions')
+% outFile = [L0dir, filePrefix, 'config.nc'];
+% if exist(outFile,'file')
+%     eval(['!rm ', outFile])
+% end
+%struct2nc(Config,outFile,'NETCDF4')
+
+
 %
 % limit archive file to 24hr length
 maxDuration = 24*3600;

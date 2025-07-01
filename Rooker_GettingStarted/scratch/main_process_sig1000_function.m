@@ -47,7 +47,7 @@ switch adcp_ID
     ATM_Time    = nanmean(atmosphTime);
     ATM_Pressure = nanmean(Data.Burst_Pressure(it));
   case 2
-    offset_file = sprintf([rootDIR,filesep,fRoot,'%d.mat'],1);
+    offset_file = sprintf([rootDIR,'/',fRoot,'%d.mat'],1);
     load(offset_file,'Config','Data','Descriptions');
     atmosphTime = [datenum('02-Jul-2024 19:15:00'), datenum('02-Jul-2024 19:45:00')];
     it          = find(Data.Burst_Time>=atmosphTime(1) & Data.Burst_Time<=atmosphTime(2));
@@ -68,7 +68,7 @@ Config.ATM_Time = ATM_Time;
 Config.ATM_Pressure=ATM_Pressure;
 %
 % load and pre-process data.
-load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, 'Descriptions')
+load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime)
 %
 return
 % make time-averages
