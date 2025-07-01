@@ -1,4 +1,4 @@
-function load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix)
+function load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, Descriptions)
 
 files = dir([rootDIR,filesep,fRoot,'*.mat']);
 Nf    = length(files);

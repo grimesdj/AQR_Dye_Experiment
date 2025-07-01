@@ -12,7 +12,7 @@ time_shift = 0/24;
 rootDIR = sprintf('/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/FullExperiment/raw/%s',adcp_file_roots{adcp_ID});
 fRoot   = [adcp_file_roots{adcp_ID},'_'];
 % 3) output directory:
-outRoot = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/L0/';
+outRoot = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/';
 % 4) output data file prefix:
 filePrefix= sprintf('ADCP_%s_',adcp_mooring_ID{adcp_ID});
 %
@@ -40,7 +40,7 @@ HeadingOffset = 0;
 % 6) deploy/recovery times
 switch adcp_ID
   case 1
-    offset_file = sprintf([rootDIR,filesep,fRoot,'%d.mat'],2);
+    offset_file = sprintf([rootDIR,'/',fRoot,'%d.mat'],2);
     load(offset_file,'Config','Data','Descriptions');
     atmosphTime = [datenum('02-Jul-2024 18:45:00'), datenum('02-Jul-2024 19:15:00')];
     it          = find(Data.Burst_Time>=atmosphTime(1) & Data.Burst_Time<=atmosphTime(2));
@@ -68,8 +68,9 @@ Config.ATM_Time = ATM_Time;
 Config.ATM_Pressure=ATM_Pressure;
 %
 % load and pre-process data.
-load_and_process_sig1000_to_RDI_matrix_format_function(
+load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, 'Descriptions')
 %
+return
 % make time-averages
 time_average_and_rotate_sig1000_RDI_matrix_format
 %

@@ -5,7 +5,7 @@
 
   - multiplot.m plots East and North velocities for all three instruments at bin equivalent to vector height 
   - aquaplot.m plots ENU, beam velocity, beam amplitude, correlation, and statistics for all bins for a single instrument
-  - Plots and figures for velocities are in '../Kelp_data/Summer2025/Rooker/figures/...'
+ - Plots and figures for velocities are in '../Kelp_data/Summer2025/Rooker/figures/...'
   - Statistics table in '..Kelp_data/Summer2025/Rooker/Stats/...'
   - preliminary observations (R1,R2,R3): 
 
@@ -46,9 +46,10 @@ What scripts need to be changed?
 		- Adding AQD HPR to Vector L0?
 		- L0 function isn't actually changing the data
 		- *** Add BINS field to L0 Data	
-	[ ] release 2
+	[x] release 2
 		- *** USE L0_AQD.m but with different user input 
 	[x] load_VECTOR_data.m 
+	[ ] main_process_sig100
 	[ ] load_and_process_sig1000_to_RDI_matrix_format.m
 	[ ] time_average_and_rotate_sig1000_RDI_matrix_format.m
 	[ ] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
