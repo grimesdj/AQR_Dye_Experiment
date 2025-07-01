@@ -45,7 +45,7 @@ What scripts need to be changed?
 	[x] make load_Vector_release1 into function call
 		- Adding AQD HPR to Vector L0?
 		- L0 function isn't actually changing the data
-		- *** Add BINS field to L0 Data
+		- *** Add BINS field to L0 Data	
 	[ ] release 2
 		- *** USE L0_AQD.m but with different user input 
 	[x] load_VECTOR_data.m 
