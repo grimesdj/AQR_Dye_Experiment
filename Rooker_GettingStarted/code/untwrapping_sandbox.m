@@ -1,16 +1,19 @@
 % Unwrapping AQD Release 1 Data?
 
-Data = load('/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/L0/KELP1_AquadoppHR_L0.mat');
+Data = load('/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat');
 
+TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
+
+dye = find(Data.time >= datenum(TRange.StartTime_UTC_(1)) & Data.time <= datenum(TRange.EndTime_UTC_(1)));
 
 % use acceleration and jolt to filter bad data
-% u1   = Data.Velocity_Beam1;
+% u1   = Data.b1;
 % d1   = gradient(u1)/Data.Config.dt;
 % dd1  = gradient(d1)/Data.Config.dt;
-% u2   = Data.Velocity_Beam2;
+% u2   = Data.b2;
 % d2   = gradient(u2)/Data.Config.dt;
 % dd2  = gradient(d2)/Data.Config.dt;
-% u3   = Data.Velocity_Beam3;
+% u3   = Data.b3;
 % d3   = gradient(u3)/Data.Config.dt;
 % dd3  = gradient(d3)/Data.Config.dt;
 %
@@ -33,39 +36,40 @@ Data = load('/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooke
 % Data.qcFlag = valid;
 
 
-Data.qcFlag = 0*Data.Velocity_Beam1;
+Data.qcFlag = 0*Data.b1;
 
-Velocities = [Data.Velocity_Beam1 Data.Velocity_Beam2 Data.Velocity_Beam3];
-MaxV = max(Velocities(1), max(Velocities(2), Velocities(3)));
-MinV = min(Velocities(1), min(Velocities(2), Velocities(3)));
-Vrange = (MaxV+MinV)/2;
+ Velocities = {Data.b1(dye,:), Data.b2(dye,:), Data.b3(dye,:)};
+% MaxV = max(max(Velocities{1}(:)), max(max(Velocities{2}(:)), max(Velocities{3}(:))));
+% MinV = abs(min(min(Velocities{1}(:)), min(min(Velocities{2}(:)), min(Velocities{3}(:)))));
+% Vrange = (MaxV+MinV)/2;
+
+
+Vrange = (0.72*sind(25)+0.31*cos(25))/2;
 
 for i = 1:3
-    Velocity = Velocities(i);
+    Velocity = Velocities{i};
     u   = Velocity;
-    d   = gradient(u)/Data.Config.dt;
-    dd  = gradient(d)/Data.Config.dt;
-    Data.qcFlag = d > Vrange;
-    for j = 1:length(Data.Time)
+    d   = gradient(u,1);
+    dd  = gradient(d,1);
+    Data.qcFlag = d >= 0.0001;% | dd >= Vrange/10;
+    for j = dye
 
-        for k = 1:Data.Config.Nbins
+        for k = 1:75
 
-            if ~Data.qcFlag(k, j)
-                if Velocity(k, j) > 0
-                    Velocity(k, j) = Velocity(k, j) - 2*Vrange;
-                else Velocity(k,j) < 0;
-                    Velocity(k, j) = Velocity(k, j) + 2*Vrange;
+            if Data.qcFlag(j, k)
+                if Velocity(j, k) > 0
+                    Velocity(j, k) = Velocity(j, k) - Vrange;
+                else Velocity(j, k) < 0;
+                    Velocity(j, k) = Velocity(j, k) + Vrange;
                 end
             end
         end
     end
-    Velocities(i) = Velocity;
+    Velocities{i} = Velocity;
 end
 
 
-
-
-
+figure, histogram(Velocities{i}(dye, 1), 'BinWidth', 0.01)
 
 
 
