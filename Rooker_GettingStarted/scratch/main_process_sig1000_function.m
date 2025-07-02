@@ -9,10 +9,10 @@ echo_mode = 0;
 % used to shift timezone,e.g. to convert EST to UTC
 time_shift = 0/24;
 % 2) raw data input directory & filename convention:
-rootDIR = sprintf('/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/FullExperiment/raw/%s',adcp_file_roots{adcp_ID});
+rootDIR = sprintf('../../../../Kelp_data/data/FullExperiment/raw/%s',adcp_file_roots{adcp_ID});
 fRoot   = [adcp_file_roots{adcp_ID},'_'];
 % 3) output directory:
-outRoot = '/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/';
+outRoot = '../../../../Kelp_data/Summer2025/Rooker/';
 % 4) output data file prefix:
 filePrefix= sprintf('ADCP_%s_',adcp_mooring_ID{adcp_ID});
 %
@@ -44,8 +44,8 @@ switch adcp_ID
     load(offset_file,'Config','Data','Descriptions');
     atmosphTime = [datenum('02-Jul-2024 18:45:00'), datenum('02-Jul-2024 19:15:00')];
     it          = find(Data.Burst_Time>=atmosphTime(1) & Data.Burst_Time<=atmosphTime(2));
-    ATM_Time    = nanmean(atmosphTime);
-    ATM_Pressure = nanmean(Data.Burst_Pressure(it));
+    ATM_Time    = mean(atmosphTime, 'omitnan');
+    ATM_Pressure = mean(Data.Burst_Pressure(it), 'omitnan');
   case 2
     offset_file = sprintf([rootDIR,'/',fRoot,'%d.mat'],1);
     load(offset_file,'Config','Data','Descriptions');
@@ -68,11 +68,11 @@ Config.ATM_Time = ATM_Time;
 Config.ATM_Pressure=ATM_Pressure;
 %
 % load and pre-process data.
-load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
+A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, Descriptions, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
 %
 
 % make time-averages
-time_average_and_rotate_sig1000_RDI_matrix_format()
+time_average_and_rotate_sig1000_RDI_matrix_format_function(A)
 %
 return
 % estimate hourly wave stats

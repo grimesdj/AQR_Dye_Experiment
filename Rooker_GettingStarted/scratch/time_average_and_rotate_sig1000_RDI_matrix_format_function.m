@@ -1,5 +1,5 @@
 
-function time_average_and_rotate_sig1000_RDI_matrix_format()
+function time_average_and_rotate_sig1000_RDI_matrix_format_function(A)
 
 %
 load([L0dir,filesep,filePrefix,'config.mat'])
@@ -109,7 +109,7 @@ for ii= 1:Nf
     end
         
     % 
-    % need to rotate from magnetic to true?
+     disp('need to rotate from magnetic to true?')
 % $$$     [avg,Config2,beam2xyz] = beam2earth_sig1000_DG(avg,Config,'',in.HeadingOffset);
 % $$$     avg.beam2xyz=beam2xyz;
     %
@@ -152,8 +152,8 @@ if ~exist(L0dir,'dir')
 end
 save([L0dir,L0FRoot],'-struct','out')
 fprintf('done! \n')
-outFileName = [L0dir,L0FRoot,'.nc'];
-if exist(outFileName,'file')
-    eval(['!rm ', outFileName])
-end
-struct2nc(out,outFileName,'NETCDF4')
+%outFileName = [L0dir,L0FRoot,'.nc'];
+%if exist(outFileName,'file')
+ %   eval(['!rm ', outFileName])
+%end
+%struct2nc(out,outFileName,'NETCDF4')

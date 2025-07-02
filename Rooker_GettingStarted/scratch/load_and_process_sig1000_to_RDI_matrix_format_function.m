@@ -1,4 +1,4 @@
-function A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
+function A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, Descriptions, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
 
 files = dir([rootDIR,filesep,fRoot,'*.mat']);
 Nf    = length(files);
@@ -23,12 +23,12 @@ NcE  = double(Config.EchoSounder_NCells);
 mabE = hab+blnkE+binwE.*[1:NcE]';
 end
 %
-% save the config info
-% outFile = [L0dir, filePrefix, 'config.mat'];
-% if ~exist(L0dir,'dir')
-%     eval(['!mkdir ',L0dir])
-% end
-% save(outFile,'Config','Descriptions')
+%save the config info
+outFile = [L0dir, filePrefix, 'config.mat'];
+if ~exist(L0dir,'dir')
+    eval(['!mkdir ',L0dir])
+end
+save(outFile,'Config','Descriptions')
 % outFile = [L0dir, filePrefix, 'config.nc'];
 % if exist(outFile,'file')
 %     eval(['!rm ', outFile])
@@ -179,7 +179,7 @@ while ii<=Nf
          if (ii==Nf & loadFlag )
          fprintf('done! \n')
          break
-        %end
+         end
     end
     %
     %
