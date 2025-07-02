@@ -1,5 +1,5 @@
 
-function time_average_and_rotate_sig1000_RDI_matrix_format_function(A)
+function time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, filePrefix)
 
 %
 load([L0dir,filesep,filePrefix,'config.mat'])
@@ -66,8 +66,8 @@ for ii= 1:Nf
     ns = rem(ns,1);
     %
     % average Iburst and burst Temp/Pres
-    in.Pressure    = nanmean(in.Pressure,1);
-    in.Temperature = nanmean(in.Temperature,1);
+    in.Pressure    = mean(in.Pressure,1, 'omitnan');
+    in.Temperature = mean(in.Temperature,1, 'omitnan');
     %
     %
     % perform time-convolution (filling nan's in the mask), conv2 x 3 (nans=0, qcFlag, ones)
