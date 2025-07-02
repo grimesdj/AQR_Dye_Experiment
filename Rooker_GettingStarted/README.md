@@ -46,6 +46,8 @@ What scripts need to be changed?
 		- Adding AQD HPR to Vector L0?
 		- L0 function isn't actually changing the data
 		- *** Add BINS field to L0 Data	
+		- *** add unwrap flag!
+		- *** stats to find optimal vR ratio
 	[x] release 2
 		- *** USE L0_AQD.m but with different user input 
 	[x] load_VECTOR_data.m 
