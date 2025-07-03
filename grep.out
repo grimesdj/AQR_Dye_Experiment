@@ -1,0 +1,1 @@
+./estimate_bulk_CTDF_stats_by_release.m:figname = [figdir,'CTDF_temp_pdf.png'];

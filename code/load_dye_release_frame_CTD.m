@@ -326,3 +326,85 @@ set(cb,'ytick',[],'xtick',[1:length(R23.mab)],'xticklabel',num2str(R23.mab','%1.
 ylabel(cb,'[m]','rotation',0)
 figname = [root_dir,'/data/Release2/figures/R23_Release_Stratification.pdf'];
 exportgraphics(fig,figname)
+%
+%
+%
+%
+% Compute release temperature PDF to compare with the observed
+% devine bins and load temperature time series
+dbin  = 0.25;
+Tbins = [12:dbin:20];
+T1    = R1.Temperature;
+T2    = R2.Temperature;
+T3    = R3.Temperature;
+%
+% generate histograms
+pdf1    = histcounts(T1,[Tbins-dbin/2, Tbins(end)+dbin/2],'normalization','probability');
+pdf2    = histcounts(T2,[Tbins-dbin/2, Tbins(end)+dbin/2],'normalization','probability');
+pdf3    = histcounts(T3,[Tbins-dbin/2, Tbins(end)+dbin/2],'normalization','probability');
+%
+R1.Temperature_bins = Tbins;
+R1.Temperature_pdf  = pdf1;
+%
+R2.Temperature_bins = Tbins;
+R2.Temperature_pdf  = pdf2;
+%
+R3.Temperature_bins = Tbins;
+R3.Temperature_pdf  = pdf3;
+%
+pw = 9;
+ph = 4;
+ppos= [xm ym pw ph];
+ps = [2*xm+pw 2*ym+ph];
+fig = figure('units','centimeters');
+pos = get(fig,'position'); pos(3:4) = ps; set(fig,'position',pos,'papersize',ps,'paperposition',[0 0 ps]);
+ax1 = axes('units','centimeters','position',ppos);
+plot(Tbins, pdf1,'-k',Tbins,pdf2,'-r',Tbins,pdf3,'-b','linewidth',2)
+ll = legend('R1','R2','R3');
+ylabel('$\mathrm{p}(T)$ [none]','interpreter','latex')
+xlabel('temperature [C]','interpreter','latex')
+figname = [root_dir,filesep,'figures',filesep,'Release_temp_pdf.png'];
+exportgraphics(fig,figname)
+%
+% mean temperature of dye during release
+T1dye = sum(Tbins.*pdf1)./sum(pdf1);
+T2dye = sum(Tbins.*pdf2)./sum(pdf2);
+T3dye = sum(Tbins.*pdf3)./sum(pdf3);
+%
+% mean stratification at release depth
+dT1   = diff(R1.Temperature,1,2);
+dTdz1 = dT1./diff(R1.mab,1,2);
+dTdz1 = mean(dTdz1(2:3),2);
+dT2   = diff(R2.Temperature,1,2);
+dTdz2 = dT2./diff(R2.mab,1,2);
+dTdz2 = mean(dTdz2(2:3),2);
+dT3   = diff(R3.Temperature,1,2);
+dTdz3 = dT3./diff(R3.mab,1,2);
+dTdz3 = mean(dTdz3(2:3),2);
+%
+% estimate the standard plume (vertical) thickness using mean stratification
+sigT1 = sqrt( sum( (Tbins-T1dye).^2.*pdf1, 'omitnan') ./ sum(pdf1,'omitnan') );
+sigT2 = sqrt( sum( (Tbins-T2dye).^2.*pdf2, 'omitnan') ./ sum(pdf2,'omitnan') );
+sigT3 = sqrt( sum( (Tbins-T3dye).^2.*pdf3, 'omitnan') ./ sum(pdf3,'omitnan') );
+sigP1 = sigT1/dTdz1
+sigP2 = sigT2/dTdz2
+sigP3 = sigT3/dTdz3
+%
+fig = figure('units','centimeters');
+pos = get(fig,'position'); pos(3:4) = ps; set(fig,'position',pos,'papersize',ps,'paperposition',[0 0 ps]);
+ax1 = axes('units','centimeters','position',ppos);
+plot((Tbins-T1dye)/dTdz1, pdf1*dTdz1,'-k',(Tbins-T2dye)/dTdz2,pdf2*dTdz2,'-r',(Tbins-T3dye)/dTdz3,pdf3*dTdz3,'-b','linewidth',2)
+ll = legend('R1','R2','R3');
+ylabel('$\mathrm{p}(z'')$ [none]','interpreter','latex')
+xlabel('z'' [m]','interpreter','latex')
+set(ax1,'ticklabelinterpreter','latex','xlim',[-15 15])
+figname = [root_dir,filesep,'figures',filesep,'Release_thickness_pdf.png'];
+exportgraphics(gcf,figname)
+%
+% from: estimate_bulk_CTDF_stats_by_release.m
+% $$$ dTdp_T1avg = -0.4797;
+% $$$ dTdp_T2avg = -1.3773;
+% $$$ dTdp_T3avg = -0.0468;
+% $$$ sigP1 = 2.1914
+% $$$ sigP2 = 0.8097
+% $$$ sigP3 = 6.6642

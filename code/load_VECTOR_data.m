@@ -221,7 +221,7 @@ if ~strcmp(coords,'ENU')
 % $$$           0*pp       cos(rr)         -sin(rr)   ;...
 % $$$          sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
     for j = 1:nsamples
-     ENU = H*[v1(j);v2(j);v3(j)];
+     ENU = H(:,:,jj)*[v1(j);v2(j);v3(j)];
      east (j) = ENU(1);
      north(j) = ENU(2);
      up   (j) = ENU(3);    

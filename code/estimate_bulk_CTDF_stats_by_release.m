@@ -148,7 +148,7 @@ dp = min(dp, 0.01);
 fig = figure('units','centimeters');
 pos = get(fig,'position'); pos(3:4) = ps; set(fig,'position',pos,'papersize',ps,'paperposition',[0 0 ps]);
 ax1 = axes('units','centimeters','position',ppos);
-plot(-(Tbins-T1dye)/dTdp_T1avg, m1*-dTdp_T1avg,'-k',-(Tbins-T2dye)/dTdp_T2avg*-dTdp_T2avg,m2,'-r',-(Tbins-T3dye)/dTdp_T3avg,m3*-dTdp_T3avg,'-b','linewidth',2)
+plot(-(Tbins-T1dye)/dTdp_T1avg, m1*-dTdp_T1avg,'-k',-(Tbins-T2dye)/dTdp_T2avg,m2*-dTdp_T2avg,'-r',-(Tbins-T3dye)/dTdp_T3avg,m3*-dTdp_T3avg,'-b','linewidth',2)
 ll = legend('R1','R2','R3');
 ylabel('$\mathrm{p}(z'')$ [none]','interpreter','latex')
 xlabel('z'' [m]','interpreter','latex')
