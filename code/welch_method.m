@@ -43,3 +43,13 @@ for m=1:M
     SX=SX+A2;
 end
 psd=SX*dt/M/Ns;
+
+function x = iseven(x)
+if mod(x,2)==0
+    x=true;
+else
+    x=false;
+end
+end
+
+end
