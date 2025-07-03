@@ -1,46 +1,28 @@
 
 
 
-% Testing the Shcherbina et al 2018 unwrapper
+% using Shcherbina et al 2018 unwrapper for L1 processing
 %
 %clear
 %
 
- Data = load('../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat');
+%Data = load('../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat');
 % 
-releaseNum = 1
-TRange = readtable("../../../Kelp_data/info/dye_mixing_cals_and_releases/dye_release_times.csv");
-dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
+% releaseNum = 1
+% TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
+% dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
 
 
-% 
-% 
 
-% for beam = 1:1
-%for bin = 1:1
- v_wrapped = Data.b1;
+% v_wrapped = Data.b1(dye, :);
+%  
+% Vr = ((Data.sspeed(dye, :).^2)/(8*1000^2*2.5));
+%  
+% v_unwrap = Shcherbina_Unwrapper(v_wrapped, Vr);
+%  
  
- Vr = ((Data.sspeed.^2)/(8*1000^2*2.5));
- 
- v_unwrap = Shcherbina_Unwrapper(v_wrapped, Vr);
- 
- figure, histogram(v_wrapped)
- xlabel('v_wrapped')
- figure, histogram(v_unwrap)
- xlabel('v_unwrap')
-
-%  Data.(sprintf('b%d',beam))(dye,:) = v_unwrap;
-%  figure, plot(Data.(sprintf('b%d',beam))(dye,:), '.')
-% end
-
-unwraps = v_unwrap;
-
-%end
-
-%save('../../../Kelp_data/data/Release1/raw/KELP1_AquadoppHR_unwrap.mat', '-struct', 'Data')
- 
-function [v_unwrap] = Shcherbina_Unwrapper(v_wrapped, Vr)
+function [v_unwrap] = aquawrap(v_wrapped, Vr)
 
 [nbins, nt] = size(v_wrapped);
 v_unwrap = v_wrapped;

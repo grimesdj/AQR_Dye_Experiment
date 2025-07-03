@@ -8,12 +8,14 @@ AQD Dye Release Experiment Technical Reference:
 
 		ADCPs:
 
+
 			AquaDoppHR
 				Sample Rate: 1Hz
 				bin size: 3cm
 				# of bins: 75
 				blanking dist: 20cm	
 				EVR Velocity Range: 0.72 m/s (Horizontal), 0.31 m/s (Vertical)	
+				Velocity Range = (c^2/(8*F*lag1)
 
 			Signature1000
 				Sample Rate: 4Hz

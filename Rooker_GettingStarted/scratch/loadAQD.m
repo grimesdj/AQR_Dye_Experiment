@@ -1,15 +1,16 @@
 
 
+function A = loadAQD(inputDir, inputFile, fileName, tos, depTime, atmTime);
 
-function A = load_AQD_data_function(inputDir, inputFile, fileName, tos)
+
+% pull data
+
+HRflag = 0;
 
 %% load header data
 %% data for each field starts at column 39 or 40
 hdrFile = sprintf('%s/%s.hdr', inputDir, inputFile);
 fid = fopen(hdrFile);% open file
-
-lag1 = NaN;
-lag2 = NaN;
 
 while ~feof(fid);
     %grab line
@@ -62,10 +63,13 @@ while ~feof(fid);
         line      = fgetl(fid);
         value     = line(39:end);
         T(3,1:3)  = str2num(value);
+    elseif strcmp(string, 'Extended velocity range')
+        disp('Instrument being processed is HR')
+        HRflag = 1;
+        
     end
 clear line string value i
 end
-
 
 meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
                    'Nbins',nbins,'binSize',binsize,'blank',blank,'coords',coords,'transform_matrix',T);
@@ -86,16 +90,50 @@ pressure = A1(:,16);
 temperature = A1(:,17);
 clear A A1
 %
-A.config= meta_data;
-A.date  = datestr(time(1));
-A.time  = time; A.volt = volt;
-A.seconds= (time-time(1))*86400;
-A.sspeed= sspeed;A.vrange = vrange;
-A.heading  = heading;A.pitch = pitch;A.roll = roll;
-A.pressure  = pressure;A.temperature = temperature;
-A.fname = fileName;
 
+% Here is where to set pressure offset and trim time
+
+if ~exist('atmTime','var')
+    disp('pick 2 points bounding when out of water for ATM pressure offset')
+    plot(pressure)
+    l = ginput(2);
+    l = round(l(:,1));
+    atmTime = [time(l(1)), time(l(2))];
+    fprintf('atmTime = \n')
+    fprintf('%s --- %s', datestr(atmTime(1)), datestr(atmTime(2)));
+else
+    l = find(time>=atmTime(1) & time<=atmTime(2));
+end
+A.pressureOffset = mean(pressure(l(1):l(2)));
+A.Pressure = pressure - A.pressureOffset;
 %
+if ~exist('depTime','var')
+    % now trim the data to when it was in the water
+    disp('pick start/end points of deployment')
+    l = ginput(2);
+    l = round(l(:,1));
+    depTime = [time(l(1)), time(l(2))];
+    fprintf('depTime = \n')
+    fprintf('%s --- %s', datestr(depTime(1)), datestr(depTime(2)));
+else
+    dep = find(time>=depTime(1) & time<=depTime(2));
+end
+nsamples = length(dep);
+meta_data.Nsamples = nsamples;
+
+
+A.Config= meta_data;
+A.Date  = datestr(time(1));
+A.Time  = time(dep); A.Volt = volt;
+A.Seconds= (A.Time-A.Time(1))*86400;
+A.Sound_Speed= sspeed(dep);A.VRange = vrange(dep);
+A.Heading  = heading(dep);A.Pitch = pitch(dep);A.Roll = roll(dep);
+A.Pressure  = pressure(dep);A.Temperature = temperature(dep);
+A.fileName = fileName;
+%%%%%%%
+
+% Heres where we get amp and cor data
+
 %% load beam amplitudes and velocities (may be in beam coords or ENU, see A.config)
 a1 = load(strcat(fileName,'.a1'));
 [Na,Ma] = size(a1);
@@ -106,47 +144,49 @@ else
 end
 a2 = load(strcat(fileName,'.a2'));
 a3 = load(strcat(fileName,'.a3'));
-A.a1 = a1(:,bin1:end);
-A.a2 = a2(:,bin1:end);
-A.a3 = a3(:,bin1:end);
+A.Amplitude_Beam1 = a1(dep,bin1:end);
+A.Amplitude_Beam2 = a2(dep,bin1:end);
+A.Amplitude_Beam3 = a3(dep,bin1:end);
 %
 v1 = load(strcat(fileName,'.v1'));
 v2 = load(strcat(fileName,'.v2'));
 v3 = load(strcat(fileName,'.v3'));
+
+A.Velocity_X = v1(dep,bin1:end);
+A.Velocity_Y = v2(dep,bin1:end);
+A.Velocity_Z = v3(dep,bin1:end);
+
 switch coords
   case {'XYZ','ENU'}
-    A.v1 = v1(:,bin1:end);
-    A.v2 = v2(:,bin1:end);
-    A.v3 = v3(:,bin1:end);
-    if strcmp(coords,'XYZ')
-        shape = size(A.v1);
-        BEAM  = inv(T)*[A.v1(:)'; A.v2(:)'; A.v3(:)'];
-        A.b1  = reshape(BEAM(1,:)',shape);
-        A.b2  = reshape(BEAM(2,:)',shape);
-        A.b3  = reshape(BEAM(3,:)',shape);
+        if strcmp(coords,'XYZ')
+        shape = size(A.Velocity_X);
+        BEAM  = inv(T)*[A.Velocity_X(:)'; A.Velocity_Y(:)'; A.Velocity_Z(:)'];
+        A.Velocity_Beam1  = reshape(BEAM(1,:)',shape);
+        A.Velocity_Beam2  = reshape(BEAM(2,:)',shape);
+        A.Velocity_Beam3  = reshape(BEAM(3,:)',shape);
     end        
-    A.east = A.v1;
-    A.north= A.v2;
-    A.up   = A.v3;
+    A.Velocity_East  = A.Velocity_X;
+    A.Velocity_North = A.Velocity_Y;
+    A.Velocity_Up    = A.Velocity_Z;
   case {'BEA'}
-    b1 = v1(:,bin1:end);
-    b2 = v2(:,bin1:end);
-    b3 = v3(:,bin1:end);
+    b1 = v1(dep,bin1:end);
+    b2 = v2(dep,bin1:end);
+    b3 = v3(dep,bin1:end);
     shape = size(b1);
     XYZ= T*[b1(:)'; b2(:)'; b3(:)'];
-    A.v1 = reshape(XYZ(1,:)',shape);
-    A.v2 = reshape(XYZ(2,:)',shape);
-    A.v3 = reshape(XYZ(3,:)',shape);
-    A.b1 = b1;
-    A.b2 = b2;
-    A.b3 = b3;
+    A.Velocity_X = reshape(XYZ(1,:)',shape);
+    A.Velocity_Y = reshape(XYZ(2,:)',shape);
+    A.Velocity_Z = reshape(XYZ(3,:)',shape);
+    A.Velocity_Beam1 = b1;
+    A.Velocity_Beam2 = b2;
+    A.Velocity_Beam3 = b3;
 end
 %
 if ~strcmp(coords,'ENU')
     % rotate to EW, need to work out the pitch/roll matrices
-    hh = reshape(pi*(heading-90)/180,1,1,nsamples);
-    pp = reshape(pi*pitch/180,1,1,nsamples);
-    rr = reshape(pi*roll/180,1,1,nsamples);
+    hh = reshape(pi*(A.Heading-90)/180,1,1,nsamples);
+    pp = reshape(pi*A.Pitch/180,1,1,nsamples);
+    rr = reshape(pi*A.Roll/180,1,1,nsamples);
     H = [ cos(hh), sin(hh), 0*hh;...
          -sin(hh), cos(hh), 0*hh;...
           0*hh,      0*hh,  0*hh+1];
@@ -159,24 +199,41 @@ if ~strcmp(coords,'ENU')
         0*rr sin(rr) cos(rr)];
      
      
-    shape = size(A.v1);
+    shape = size(A.Velocity_X);
     for j = 1:nsamples
      R   = H(:,:,j)*P(:,:,j)*O(:,:,j);
-     ENU = R*[A.v1(j,:);A.v2(j,:);A.v3(j,:)];
-     A.east (j,:) = ENU(1,:);
-     A.north(j,:) = ENU(2,:);
-     A.up   (j,:) = ENU(3,:);    
+     ENU = R*[A.Velocity_X(j,:);A.Velocity_Y(j,:);A.Velocity_Z(j,:)];
+     A.Velocity_East  (j,:) = ENU(1,:);
+     A.Velocity_North (j,:) = ENU(2,:);
+     A.Velocity_Up    (j,:) = ENU(3,:);    
     end
 end
-%
-c1 = load(strcat(fileName,'.c1'));
-c2 = load(strcat(fileName,'.c2'));
-c3 = load(strcat(fileName,'.c3'));
-A.c1 = c1(:,bin1:end);
-A.c2 = c2(:,bin1:end);
-A.c3 = c3(:,bin1:end);
-%
-A.dbins = blank + binsize*[1:nbins];
-% 
+
+% Find correlations
+if HRflag
+    %
+    c1 = load(strcat(fileName,'.c1'));
+    c2 = load(strcat(fileName,'.c2'));
+    c3 = load(strcat(fileName,'.c3'));
+    A.Correlation_Beam1 = c1(dep,bin1:end);
+    A.Correlation_Beam2 = c2(dep,bin1:end);
+    A.Correlation_Beam3 = c3(dep,bin1:end);
+
+else
+    Correlation_Beam1 = NaN;
+    Correlation_Beam2 = NaN;
+    Correlation_Beam3 = NaN;
+end
+
+
+%%%%%%%%
+% vars  = {'Time','Volt','Seconds','Sound_Speed','Heading','Pitch','Roll','Pressure','Temperature','Amplitude_Beam1','Amplitude_Beam2','Amplitude_Beam3','Velocity_X','Velocity_Y','Velocity_Z','Correlation_Beam1','Correlation_Beam2','Correlation_Beam3','Velocity_Beam1','Velocity_Beam2','Velocity_Beam3','Velocity_East','Velocity_North','Velocity_Up'};
+% for jj = 1:length(vars)
+%     eval(['A.',vars{jj},' = A.',vars{jj},'(dep,:);'])
+% end
+
+
+
 
 end
+

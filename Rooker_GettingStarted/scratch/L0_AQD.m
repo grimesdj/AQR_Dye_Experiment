@@ -111,4 +111,12 @@ A.Pressure = A.pressure;
 A.Bins = A.dbins;
 fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure', 'Bins'};
 A.L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
+
+disp('Do you want to unwrap beam Velocities?')
+unwrap = input('(1 = yes; 0 = no)');
+if unwrap == 1
+    for beam = 1:3
+        A.(sprintf('u%d',beam)) = aquawrap(A.(sprintf('b%d',beam)), A.vrange);
+    end
+
 end

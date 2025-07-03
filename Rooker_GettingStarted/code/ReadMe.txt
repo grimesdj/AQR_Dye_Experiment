@@ -50,3 +50,10 @@ multiplot.m: make quick timeseries plots to compare East and North Velocities fo
 	qc(optional)= 'on'/'off' quality control filter for AQD data
 	
 	outputs a figure with two plots of East and North velocites at 1.237 MAB
+
+aquawrap.m: adaptation of Shcherbina et al 2018 unwrap function to fit AQD data
+
+	USAGE: v_unwrap = aquawrap(v_wrapped, Vr)
+
+	v_wrapped: velocity as [time x bins]
+	Vr: Velocity range, can be computed by 
