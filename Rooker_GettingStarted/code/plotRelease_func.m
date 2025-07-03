@@ -41,9 +41,9 @@ ENUlabel = ['E' 'N' 'U'];
 
      % plot histogram
          figure(histfig);
-         histogram(B(:,beam),[-0.75:0.01:0.75]);
+         histogram(ENU(:,beam),[-0.75:0.01:0.75]);
          ylabel('Counts')
-         xlabel('Velocity (m/s)')
+         xlabel(['Velocity, '  ENUlabel(beam)  '(m/s)'])
      % Export Histogram
          figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\histogram\" + version + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);

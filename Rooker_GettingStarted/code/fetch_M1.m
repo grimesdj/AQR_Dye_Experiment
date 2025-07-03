@@ -17,21 +17,18 @@ for i = 1:length(files)
         end
     end
 end
-Data.time = M1.Time;
-Data.east = M1.Velocity_East';
-Data.north = M1.Velocity_North';
-Data.up = M1.Velocity_Up';
-Data.b1 = M1.Velocity_Beam(:,:,1)';
-Data.b2 = M1.Velocity_Beam(:,:,2)';
-Data.b3 = M1.Velocity_Beam(:,:,3)';
-Data.a1 = M1.Amplitude_Beam(:,:,1)';
-Data.a2 = M1.Amplitude_Beam(:,:,2)';
-Data.a3 = M1.Amplitude_Beam(:,:,3)';
-Data.c1 = M1.Correlation_Beam(:,:,1)';
-Data.c2 = M1.Correlation_Beam(:,:,2)';
-Data.c3 = M1.Correlation_Beam(:,:,3)';
-Data.pressure = M1.Pressure(2,:)';
-Data.heading = M1.Heading(:, :)';
-Data.pitch = M1.Pitch(:,:)';
-Data.roll = M1.Roll(:,:)';
+Data.Time = M1.Time;
+Data.Velocity_East = M1.Velocity_East';
+Data.Velocity_North = M1.Velocity_North';
+Data.Velocity_Up = M1.Velocity_Up';
+Data.Velocity_Beam1 = M1.Velocity_Beam(:,:,1)';
+Data.Velocity_Beam2 = M1.Velocity_Beam(:,:,2)';
+Data.Velocity_Beam3 = M1.Velocity_Beam(:,:,3)';
+
+Data.Correlation_Minimum = min(M1.Correlation_Beam(:,:,1)', min(M1.Correlation_Beam(:,:,2)', M1.Correlation_Beam(:,:,3)'));
+Data.Amplitude_Minimum = min(M1.Amplitude_Beam(:,:,1)', min(M1.Amplitude_Beam(:,:,2)', M1.Amplitude_Beam(:,:,3)'));
+Data.Pressure = M1.Pressure(2,:)';
+Data.Heading = M1.Heading(:, :)';
+Data.Pitch = M1.Pitch(:,:)';
+Data.Roll = M1.Roll(:,:)';
 end

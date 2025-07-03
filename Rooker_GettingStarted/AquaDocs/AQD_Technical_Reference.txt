@@ -1,0 +1,28 @@
+AQD Dye Release Experiment Technical Reference:
+
+	Dates and times: see "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv"
+
+	Location: see "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\info"
+
+	Instruments:
+
+		ADCPs:
+
+			AquaDoppHR
+				Sample Rate: 1Hz
+				bin size: 3cm
+				# of bins: 75
+				blanking dist: 20cm	
+				EVR Velocity Range: 0.72 m/s (Horizontal), 0.31 m/s (Vertical)	
+
+			Signature1000
+				Sample Rate: 4Hz
+				bin size: 20cm
+				# of bins: 71
+				blanking dist: 10cm
+				Nominal Velocity Range: 5 m/s
+
+			Vector
+				Sample Rate: 16Hz
+				Sample height: 1.237 MAB
+				Nominal Velocity Range: 7 m/s

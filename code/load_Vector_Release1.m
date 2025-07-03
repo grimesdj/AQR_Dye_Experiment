@@ -24,7 +24,7 @@ tos = 0;
 %
 % returns structure A with all vector data
 if ~exist([outputDir,'/',outputName,'.mat'],'file')
-    load_VECTOR_data
+    A = load_VECTOR_data_function(inputDir, inputFile, fileName, tos);
     save([outputDir,'/',outputName,'.mat'],'-struct','A')
 else
     A = load([outputDir,'/',outputName,'.mat']);
