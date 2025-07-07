@@ -68,7 +68,7 @@ load_and_process_AQD : going to load raw and L0 Data
 
 loadAQD: going to load RAW data. RAW means Loaded and rotated!
 
-L1_AQD: going to generate L1 data. L1 mean possible unwrapping, and QA/QC!
+L0_AQD: going to generate L0 data. L0 means possible unwrapping, and QA/QC!
 
 
 

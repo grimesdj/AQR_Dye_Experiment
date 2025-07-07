@@ -30,7 +30,7 @@
 
 ## Velocity Processing
 - Standardizing velocity variables and data files across instruments.
-  - [ ] Time, Velocity_East, Velocity_North, Amplitude_Minimum, Correltation_Minimum, etc.
+  - [x] Time, Velocity_East, Velocity_North, Amplitude_Minimum, Correltation_Minimum, etc.
   - [ ] Convert script load/process algorithms to functions, e.g.,
      	```load_AquadoppHR_Release2.m```
 	calls:
@@ -42,13 +42,13 @@ What scripts need to be changed?
 	[x] load_AQD_data.m
 	[x] make load_Aquadopp_release1 into function call   ### ```load_Aquadopp_release1.m``` now calls ```load_AQD_data_function.m``` ```L0.m``` and ```L0_plots.m```
 		- still needs a little bit of work to get the plots and L0 processing untangled (qcFlag takes out big chunks of images plots (>_<)
-		- *** call aquawrapp() to fix banded data with a user prompt	
+		- [x] call aquawrapp() to fix banded data with a user prompt	
 	[x] make load_Vector_release1 into function call
 		- Adding AQD HPR to Vector L0?
 		- L0 function isn't actually changing the data
-		- *** Add BINS field to L0 Data	
-		- *** add unwrap flag!
-		- *** stats to find optimal vR ratio
+		- [x] Add BINS field to L0 Data	
+		- [x] add unwrap flag!
+		- stats to find optimal vR ratio?
 	[x] release 2
 		- *** USE L0_AQD.m but with different user input 
 	[x] load_VECTOR_data.m 
@@ -74,6 +74,6 @@ What scripts need to be changed?
   - [ ] Make 5-min averaged fields for AQD and M1. See ```time_average_and_rotate_sig1000_RDI_matrix_format.m``` for example.
   - [ ] For Vector, want to use heading from AQD to make ENU velocities. Then generate 15-30 minute spectra. 
 
- - [ ] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :)	
+ - [x] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :)	
 
 
