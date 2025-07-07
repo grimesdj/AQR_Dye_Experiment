@@ -3,8 +3,8 @@ function A = L0_AQD(A)
 
 
 % temporary addpath for testing :(
-addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
-
+%addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
+addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
 
 fprintf('\n============================\nDo you want to unwrap beam Velocities?')
 unwrap = input('(1 = yes; 0 = no)');
