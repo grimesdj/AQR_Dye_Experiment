@@ -56,4 +56,20 @@ aquawrap.m: adaptation of Shcherbina et al 2018 unwrap function to fit AQD data
 	USAGE: v_unwrap = aquawrap(v_wrapped, Vr)
 
 	v_wrapped: velocity as [time x bins]
-	Vr: Velocity range, can be computed by 
+	Vr: Velocity range, can be computed by ((c^2)/(8*F^2*L))
+
+
+
+############################################################################################################
+
+IN PROGRESS:
+
+load_and_process_AQD : going to load raw and L0 Data
+
+loadAQD: going to load RAW data. RAW means Loaded and rotated!
+
+L1_AQD: going to generate L1 data. L1 mean possible unwrapping, and QA/QC!
+
+
+
+

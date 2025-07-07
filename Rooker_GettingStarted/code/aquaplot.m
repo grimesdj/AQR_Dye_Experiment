@@ -4,7 +4,7 @@ function Stats = aquaplot(releaseNum, version, plots, binStart, binEnd)
 
 warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
 
-inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release1\raw\KELP1_AquadoppHR_unwrap.mat";
+inputFiles = ["../../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
               "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\Release1\L0\KELP1_AquadoppHR_L0.mat";
@@ -17,22 +17,22 @@ inputFiles = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release
 
 
 if strcmp(version, 'raw')
-    
-    Data = load(inputFiles(releaseNum));
-    Data.Time           = Data.time;
-    Data.Velocity_X     = Data.v1;
-    Data.Velocity_Y     = Data.v2;
-    Data.Velocity_Z     = Data.v3;
-    Data.Velocity_East  = Data.east;
-    Data.Velocity_North = Data.north;
-    Data.Velocity_Up    = Data.up;
-    Data.Velocity_Beam1 = Data.b1;
-    Data.Velocity_Beam2 = Data.b2;
-    Data.Velocity_Beam3 = Data.b3;
-    
-    Data.Amplitude_Minimum = min(Data.a1, min(Data.a2, Data.a3));
-    Data.Correlation_Minimum = min(Data.c1, min(Data.c2, Data.c3));
-    
+    % 
+     Data = load(inputFiles(releaseNum));
+    % Data.Time           = Data.time;
+    % Data.Velocity_X     = Data.v1;
+    % Data.Velocity_Y     = Data.v2;
+    % Data.Velocity_Z     = Data.v3;
+    % Data.Velocity_East  = Data.east;
+    % Data.Velocity_North = Data.north;
+    % Data.Velocity_Up    = Data.up;
+    % Data.Velocity_Beam1 = Data.b1;
+    % Data.Velocity_Beam2 = Data.b2;
+    % Data.Velocity_Beam3 = Data.b3;
+    % 
+    Data.Amplitude_Minimum = min(Data.Amplitude_Beam1, min(Data.Amplitude_Beam2, Data.Amplitude_Beam3));
+    Data.Correlation_Minimum = min(Data.Correlation_Beam1, min(Data.Correlation_Beam2, Data.Correlation_Beam3));
+    % 
 elseif strcmp(version, 'L0')
     Data = load(inputFiles(releaseNum+3));
 elseif strcmp(version, 'M1')
@@ -75,7 +75,7 @@ end
 
 
 % Limit data to during dye release
-TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
+TRange = readtable("../../../../Kelp_data/info/dye_mixing_cals_and_releases/dye_release_times.csv");
 
 dye = find(Data.Time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.Time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 

@@ -35,7 +35,7 @@ dt = datetime(datestr(Data.Time(dye)));
          ylabel('Pulse Correlation (%)');
          xlabel('Time (samples)');
      % Export Figure
-         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\timeseries\"+ version + "_ts_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
+         figname = ["../../../../Kelp_data/Summer2025/Rooker/figures/Release" + releaseNum + "/timeseries/"+ version + "_ts_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);
          close(gcf)
 
@@ -45,7 +45,7 @@ dt = datetime(datestr(Data.Time(dye)));
          ylabel('Counts')
          xlabel(['Velocity, '  ENUlabel(beam)  '(m/s)'])
      % Export Histogram
-         figname = ["C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\figures\Release" + releaseNum + "\histogram\" + version + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
+         figname = ["../../../../Kelp_data/Summer2025/Rooker/figures/Release" + releaseNum + "/histogram/" + version + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
          exportgraphics(gcf, figname);
          close(gcf)
      end

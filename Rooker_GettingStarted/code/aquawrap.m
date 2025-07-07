@@ -3,26 +3,28 @@
 
 % using Shcherbina et al 2018 unwrapper for L1 processing
 %
-%clear
+ clear
 %
 
-%Data = load('../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat');
+Data = load('../../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat');
 % 
-% releaseNum = 1
-% TRange = readtable("C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\info\dye_mixing_cals_and_releases\dye_release_times.csv");
-% dye = find(Data.time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.time <= datenum(TRange.EndTime_UTC_(releaseNum)));
+ releaseNum = 1
+ TRange = readtable("../../../../Kelp_data/info/dye_mixing_cals_and_releases/dye_release_times.csv");
+ dye = find(Data.Time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.Time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
 
 
 
-% v_wrapped = Data.b1(dye, :);
+ v_wrapped = Data.Velocity_Beam1(dye, :);
 %  
-% Vr = ((Data.sspeed(dye, :).^2)/(8*1000^2*2.5));
+ Vr = ((Data.Sound_Speed(dye, :).^2)/(8*1000^2*2.5));
 %  
-% v_unwrap = Shcherbina_Unwrapper(v_wrapped, Vr);
+ v_unwrap = Shcherbina_Unwrapper(v_wrapped, Vr);
 %  
  
-function [v_unwrap] = aquawrap(v_wrapped, Vr)
+function [v_unwrap] = Shcherbina_Unwrapper(v_wrapped, Vr)
+
+disp('using Shcherbina et al 2018 unwrapper for L1 processing')
 
 [nbins, nt] = size(v_wrapped);
 v_unwrap = v_wrapped;

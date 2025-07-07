@@ -34,7 +34,7 @@ while ~feof(fid);
         dt = str2num(value(1:i-1));
     elseif strcmp(string, 'Pulse distance (Lag1)')
         i = strfind(value, 'm');
-        lag1 = str2num(value(1:i-1))
+        lag1 = str2num(value(1:i-1));
     elseif strcmp(string, 'Pulse distance (Lag2)')
         i = strfind(value, 'm');
         lag2 = str2num(value(1:i-1));
@@ -68,7 +68,7 @@ while ~feof(fid);
         HRflag = 1;
         
     end
-clear line string value i
+clear line string value i;
 end
 
 meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
@@ -79,7 +79,7 @@ fclose(fid);
 senFile = sprintf(['%s/%s.sen'], inputDir,inputFile);
 fid = fopen(senFile,'r');
 A = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %*[^\n]');
-fclose(fid)
+fclose(fid);
 A1 = [A{:,1}, A{:,2}, A{:,3}, A{:,4}, A{:,5}, A{:,6}, A{:,7}, A{:,8}, A{:,9}, A{:,10}, A{:,11}, A{:,12} A{:,13}, A{:,14}, A{:,15} A{:,16} A{:,17}];
 time = datenum(A1(:,3),A1(:,1),A1(:,2),A1(:,4),A1(:,5),A1(:,6))+tos/24;
 volt = A1(:,11);
@@ -92,6 +92,7 @@ clear A A1
 %
 
 % Here is where to set pressure offset and trim time
+
 
 if ~exist('atmTime','var')
     disp('pick 2 points bounding when out of water for ATM pressure offset')
@@ -135,6 +136,9 @@ A.fileName = fileName;
 % Heres where we get amp and cor data
 
 %% load beam amplitudes and velocities (may be in beam coords or ENU, see A.config)
+
+disp('Trimming data to deployment time while loading')
+
 a1 = load(strcat(fileName,'.a1'));
 [Na,Ma] = size(a1);
 if Ma>nbins% sometimes there are extra columns (beam#, ensemble#)
@@ -164,7 +168,7 @@ switch coords
         A.Velocity_Beam1  = reshape(BEAM(1,:)',shape);
         A.Velocity_Beam2  = reshape(BEAM(2,:)',shape);
         A.Velocity_Beam3  = reshape(BEAM(3,:)',shape);
-    end        
+        end        
     A.Velocity_East  = A.Velocity_X;
     A.Velocity_North = A.Velocity_Y;
     A.Velocity_Up    = A.Velocity_Z;
@@ -226,11 +230,11 @@ else
 end
 
 
-%%%%%%%%
-% vars  = {'Time','Volt','Seconds','Sound_Speed','Heading','Pitch','Roll','Pressure','Temperature','Amplitude_Beam1','Amplitude_Beam2','Amplitude_Beam3','Velocity_X','Velocity_Y','Velocity_Z','Correlation_Beam1','Correlation_Beam2','Correlation_Beam3','Velocity_Beam1','Velocity_Beam2','Velocity_Beam3','Velocity_East','Velocity_North','Velocity_Up'};
-% for jj = 1:length(vars)
-%     eval(['A.',vars{jj},' = A.',vars{jj},'(dep,:);'])
-% end
+
+ % vars  = {'Time','Volt','Seconds','Sound_Speed','Heading','Pitch','Roll','Pressure','Temperature','Amplitude_Beam1','Amplitude_Beam2','Amplitude_Beam3','Velocity_X','Velocity_Y','Velocity_Z','Correlation_Beam1','Correlation_Beam2','Correlation_Beam3','Velocity_Beam1','Velocity_Beam2','Velocity_Beam3','Velocity_East','Velocity_North','Velocity_Up'};
+ % for jj = 1:length(vars)
+ %     eval(['A.',vars{jj},' = A.',vars{jj},'(:,:);'])
+ % end
 
 
 

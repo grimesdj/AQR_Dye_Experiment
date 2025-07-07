@@ -22,13 +22,16 @@ if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
 tos = 0;
 %
 % returns structure A with all aquadopp data
+disp('Generating raw data')
 A = loadAQD(inputDir, inputFile, fileName, tos, depTime, atmTime);
 % Save raw data
+disp('Saving raw data')
 save([outputDir,'/',outputName,'.mat'],'-struct','A')
 
-aquawrap(A.Velocity_Beam1, A.VRange)
-return
+%aquawrap(A.Velocity_Beam1, A.VRange)
+
 % Generate L0
+disp('Generating L0 data')
 A = L0_AQD(A, atmTime, depTime);
 % Save L0 data
 L0 = A.L0;
