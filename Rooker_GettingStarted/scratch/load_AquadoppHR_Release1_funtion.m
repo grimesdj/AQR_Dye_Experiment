@@ -32,10 +32,11 @@ save([outputDir,'/',outputName,'.mat'],'-struct','A')
 
 % Generate L0
 disp('Generating L0 data')
-A = L0_AQD(A, atmTime, depTime);
+A = L0_AQD(A);
 % Save L0 data
 L0 = A.L0;
 
+disp('Saving L0 data')
 save([L0Dir,'/',L0Name,'.mat'],'-struct','L0')
 
 % Create Plots

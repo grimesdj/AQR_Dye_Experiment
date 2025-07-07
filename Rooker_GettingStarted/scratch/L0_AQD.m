@@ -1,5 +1,17 @@
 
-function A = L0_AQD(A, atmTime, depTime)
+function A = L0_AQD(A)
+
+
+% temporary addpath for testing :(
+addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
+
+
+fprintf('\n============================\nDo you want to unwrap beam Velocities?')
+unwrap = input('(1 = yes; 0 = no)');
+if unwrap == 1
+    for beam = 1:3
+        A.L0.(sprintf('u%d',beam)) = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
+    end
 
 
 % %
@@ -114,15 +126,5 @@ disp('skipping nc file for now')
 fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure', 'Bins'};
 A.L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
 
-% temporary addpath for testing :(
-addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
-
-
-disp('Do you want to unwrap beam Velocities?')
-unwrap = input('(1 = yes; 0 = no)');
-if unwrap == 1
-    for beam = 1:3
-        A.L0.(sprintf('u%d',beam)) = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
-    end
 
 end
