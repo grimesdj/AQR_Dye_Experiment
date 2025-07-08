@@ -80,13 +80,13 @@ TRange = readtable("../../../../Kelp_data/info/dye_mixing_cals_and_releases/dye_
 dye = find(Data.Time >= datenum(TRange.StartTime_UTC_(releaseNum)) & Data.Time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
 % Collect Stats
-%Pres = [mean(Data.Pressure(dye, :),'all', 'omitnan'), std(Data.Pressure(dye, :), 0, 'all', 'omitnan')];
+Pres = [mean(Data.Pressure(dye, :),'all', 'omitnan'), std(Data.Pressure(dye, :), 0, 'all', 'omitnan')];
  East = [mean(Data.Velocity_East(dye, binStart:binEnd),'all', 'omitnan'), std(Data.Velocity_East(dye, binStart:binEnd), 0, 'all', 'omitnan')];
  North = [mean(Data.Velocity_North(dye, binStart:binEnd),'all', 'omitnan'), std(Data.Velocity_North(dye, binStart:binEnd), 0, 'all', 'omitnan')];
  theta = atan2d(East(1), North(1));
  Mag = [(East(1)^2 + North(1)^2)^0.5, (East(2)^2 + North(2)^2)^0.5]  ;
 % 
- %Stats = struct('Pres', Pres, 'East', East, 'North', North, 'theta', theta, 'Mag', Mag, 'version', version);
+ Stats = struct('Pres', Pres, 'East', East, 'North', North, 'theta', theta, 'Mag', Mag, 'version', version);
 
 
 if strcmp(plots, 'on')

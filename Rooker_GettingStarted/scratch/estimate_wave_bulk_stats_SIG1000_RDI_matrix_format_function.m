@@ -1,4 +1,4 @@
-function waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(L0dir, filePrefix, L0FRoot)
+function waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(L0dir, filePrefix, L0FRoot, hab)
 
 %
 dtBurst = 1800;% seconds

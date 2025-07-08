@@ -13,9 +13,9 @@ if unwrap == 1
         [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
     end
 
-    A.Correlation_Beam1(A.Suspect_Beam1) = NaN;
-    A.Correlation_Beam2(A.Suspect_Beam2) = NaN;
-    A.Correlation_Beam3(A.Suspect_Beam3) = NaN;
+    A.Correlation_Beam1(find(A.Suspect_Beam1)) = NaN;
+    A.Correlation_Beam2(find(A.Suspect_Beam2)) = NaN;
+    A.Correlation_Beam3(find(A.Suspect_Beam3)) = NaN;
 end
 % %
 % %
