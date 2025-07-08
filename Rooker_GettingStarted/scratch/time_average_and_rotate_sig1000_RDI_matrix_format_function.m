@@ -1,5 +1,5 @@
 
-function time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, filePrefix, dtAvg, echo_mode)
+function time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, L0FRoot, filePrefix, dtAvg, echo_mode)
 
 %
 load([L0dir,filesep,filePrefix,'config.mat'])

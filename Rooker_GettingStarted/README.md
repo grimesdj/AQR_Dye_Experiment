@@ -21,7 +21,7 @@
 	- R1: Data from AquaDopp appears to be phase wrapped and is not usable in its current state. 
 		Vector and Sig1000 have average velocities nearly perpendicular to each other
 	- R2: All three instruments have time averaged currents of similar magnitude and direction.
-	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and 	Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.
+	- R3: Aquadopp battery starts to die and takes limited samples at regular intervals. AQD and Vector are similar but the Sig1000 is at a slightly different angle and has a greater magnitude.
   
 - [ ] draft readme's for each script worth its weight in salt. 
 
@@ -31,11 +31,14 @@
 ## Velocity Processing
 - Standardizing velocity variables and data files across instruments.
   - [x] Time, Velocity_East, Velocity_North, Amplitude_Minimum, Correltation_Minimum, etc.
-  - [ ] Convert script load/process algorithms to functions, e.g.,
+  - [x] Convert script load/process algorithms to functions, e.g.,
      	```load_AquadoppHR_Release2.m```
 	calls:
      	```load_AQD_data.m```
      	then does several other operations (qa/qc) and makes plots. Put that into an ```L0``` function?
+
+  - [x] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :) -> ended up using Shcherbinas's magic unwrapping script	
+
 
 ---------------------------------------------------------------------
 What scripts need to be changed?
@@ -48,14 +51,14 @@ What scripts need to be changed?
 		- L0 function isn't actually changing the data
 		- [x] Add BINS field to L0 Data	
 		- [x] add unwrap flag!
-		- stats to find optimal vR ratio?
+		- stats to find optimal vR ratio? -> got it worked out now to be normalized
 	[x] release 2
-		- *** USE L0_AQD.m but with different user input 
+		- *** USE L0_AQD.m but with different user input -> have to double check if it runs
 	[x] load_VECTOR_data.m 
 	[x] main_process_sig100
-	[ ] load_and_process_sig1000_to_RDI_matrix_format.m
-	[ ] time_average_and_rotate_sig1000_RDI_matrix_format.m
-	[ ] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
+	[x] load_and_process_sig1000_to_RDI_matrix_format.m
+	[x] time_average_and_rotate_sig1000_RDI_matrix_format.m
+	[x] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
 	[x] rotation (add to multiplot) -> now called ```Vector_rotation.m```
 
 		- find out what each function is supposed to return and then set that to output in the same syntax as the wrapper function
@@ -68,12 +71,12 @@ What scripts need to be changed?
 		- take a look at extended velocity range mode
 		rotation matrix fro vector
 ---------------------------------------------------------------------
-
-- [ ] (re) Make L0 files reflecting above changes.
+L0:
+	- [ ] (re) Make L0 files reflecting above changes.
+	- [ ] add principal axis rotation
+L1:
 - generate L1 files for subsequent analysis.
-  - [ ] Make 5-min averaged fields for AQD and M1. See ```time_average_and_rotate_sig1000_RDI_matrix_format.m``` for example.
-  - [ ] For Vector, want to use heading from AQD to make ENU velocities. Then generate 15-30 minute spectra. 
-
- - [x] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :)	
-
+ 	- [ ] Make 5-min averaged fields for AQD and M1. See ```time_average_and_rotate_sig1000_RDI_matrix_format.m``` for example.
+ 	- [ ] For Vector, want to use heading from AQD to make ENU velocities. Then generate 15-30 minute spectra. 
+ 
 

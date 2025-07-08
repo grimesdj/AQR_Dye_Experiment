@@ -22,7 +22,7 @@
 %  v_unwrap = Shcherbina_Unwrapper(v_wrapped, Vr);
 % %  
 % 
-function [v_unwrap] = aquawrap(v_wrapped, Vr)
+function [v_unwrap, suspect_pts] = aquawrap(v_wrapped, Vr)
 
 disp('using Shcherbina et al 2018 unwrapper')
 

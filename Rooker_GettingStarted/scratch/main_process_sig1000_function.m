@@ -74,7 +74,7 @@ disp('load and pre-process data')
 
 % make time-averages
 disp('make time-averages')
-%time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, filePrefix, dtAvg, echo_mode)
+time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, L0FRoot, filePrefix, dtAvg, echo_mode)
 %
 
 % estimate hourly wave stats

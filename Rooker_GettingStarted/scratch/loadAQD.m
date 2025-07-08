@@ -1,6 +1,6 @@
 
 
-function A = loadAQD(inputDir, inputFile, fileName, tos, depTime, atmTime);
+function A = loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
 
 
 % pull data
@@ -236,6 +236,8 @@ end
  %     eval(['A.',vars{jj},' = A.',vars{jj},'(:,:);'])
  % end
 
+disp('Saving raw data')
+save([outputFile,'.mat'],'-struct','A')
 
 
 

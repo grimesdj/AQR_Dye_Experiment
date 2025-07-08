@@ -1,7 +1,7 @@
 
-function A = L0_AQD(A)
+function L0_AQD(outputFile, L0Dir, L0Name)
 
-
+A = load([outputFile, '.mat']);
 % temporary addpath for testing :(
 %addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
 addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
@@ -10,10 +10,13 @@ fprintf('\n============================\nDo you want to unwrap beam Velocities?'
 unwrap = input('(1 = yes; 0 = no)');
 if unwrap == 1
     for beam = 1:3
-        A.L0.(sprintf('u%d',beam)) = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
+        [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
     end
 
-
+    A.Correlation_Beam1(A.Suspect_Beam1) = NaN;
+    A.Correlation_Beam2(A.Suspect_Beam2) = NaN;
+    A.Correlation_Beam3(A.Suspect_Beam3) = NaN;
+end
 % %
 % %
 % % plot some stuff
@@ -54,21 +57,13 @@ A.ylims      = [0 min(max(A.maxRange),max(A.dbins))];
 dum1       = A.maxRange.*ones(1,A.Config.Nbins);
 dum2       = ones(nsamples,1)*A.dbins;
 qcFlag0    =  (dum2<=dum1);
-A.qcFlag   =  double( (dum2<=dum1) & min(A.Amplitude_Beam1,min(A.Amplitude_Beam2,A.Amplitude_Beam3))>20 & min(A.Correlation_Beam1,min(A.Correlation_Beam2,A.Correlation_Beam3))>40 );
+A.Amplitude_Minimum   = min(A.Amplitude_Beam1, min(A.Amplitude_Beam2, A.Amplitude_Beam3));
+A.Correlation_Minimum = min(A.Correlation_Beam1, min(A.Correlation_Beam2, A.Correlation_Beam3, 'omitnan'), 'omitnan');   
+A.qcFlag              =  double( qcFlag0 & A.Amplitude_Minimum > 20 & A.Correlation_Minimum > 40 );
 %
 Time = datetime(A.Time,'convertFrom','datenum');
 %
 %
-%for i = size(A.A1,1)
-%   for j = size(A.A1, 2)
-    %Amin = min(A.a1, min(A.a2, A.a3));
-    %Cmin = min(A.c1, min(A.c2, A.c3));
-%    end
-%end
-
-%A.Amplitude_Minimum = Amin;
-%A.Correlation_Minimum = Cmin;
-
 disp('Applying qcFlag to NaN data A < 20 and C < 40')
 %
 % Now plot currents
@@ -77,9 +72,9 @@ A.Velocity_East = A.Velocity_East.*A.qcFlag;
 A.Velocity_North = A.Velocity_North.*A.qcFlag;
 A.Velocity_Up = A.Velocity_Up.*A.qcFlag;
 
-A.Velocity_East(~A.qcFlag')=nan;
-A.Velocity_North(~A.qcFlag')=nan;
-A.Velocity_Up(~A.qcFlag')=nan;
+% A.Velocity_East(~A.qcFlag')=nan;
+% A.Velocity_North(~A.qcFlag')=nan;
+% A.Velocity_Up(~A.qcFlag')=nan;
 %
 %
 %
@@ -87,9 +82,9 @@ A.Velocity_Beam1 = A.Velocity_Beam1.*A.qcFlag;
 A.Velocity_Beam2 = A.Velocity_Beam2.*A.qcFlag;
 A.Velocity_Beam3 = A.Velocity_Beam3.*A.qcFlag;
 
-A.Velocity_Beam1(~A.qcFlag')=nan;
-A.Velocity_Beam2(~A.qcFlag')=nan;
-A.Velocity_Beam3(~A.qcFlag')=nan;
+% A.Velocity_Beam1(~A.qcFlag')=nan;
+% A.Velocity_Beam2(~A.qcFlag')=nan;
+% A.Velocity_Beam3(~A.qcFlag')=nan;
 
 
 
@@ -123,8 +118,10 @@ disp('skipping nc file for now')
 %A.Config = A.config;
 %A.Pressure = A.pressure;
 %A.Bins = A.dbins;
-fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure', 'Bins'};
-A.L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
+% fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure','Heading', 'Pitch', 'Roll', 'Bins', 'Temperature', 'u1', 'u2', 'u3'};
+% L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
 
+disp('Saving L0 data')
+save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
 
 end
