@@ -1,4 +1,4 @@
-function A = load_VECTOR_data_function(inputDir, inputFile, fileName, tos);
+function load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
 
 %% load header data
 %% data for each field starts at column 39 or 40
@@ -155,45 +155,51 @@ datFile = sprintf(['%s/%s.dat'], inputDir,inputFile);
 fid     = fopen(datFile,'r');
 format  = '%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %d %d %d';
 dat     = textscan(fid,format);
-seconds = (1:meta_data.Nsamples)'./meta_data.sample_rate;
-v1    = dat{3};
-v2    = dat{4};
-v3    = dat{5};
-a1    = dat{6};
-a2    = dat{7};
-a3    = dat{8};
+Seconds = (1:meta_data.Nsamples)'./meta_data.sample_rate;
+Velocity_X    = dat{3};
+Velocity_Y    = dat{4};
+Velocity_Z    = dat{5};
+Amplitude_Beam1    = dat{6};
+Amplitude_Beam2    = dat{7};
+Amplitude_Beam3    = dat{8};
 SNR1  = dat{9};
 SNR2  = dat{10};
 SNR3  = dat{11};
-c1    = dat{12};
-c2    = dat{13};
-c3    = dat{14};
-pressure = dat{15};
+Correlation_Beam1    = dat{12};
+Correlation_Beam2    = dat{13};
+Correlation_Beam3    = dat{14};
+Pressure = dat{15};
 %
 SENseconds = 0:60:60*(Ndt-1);
-headInterp = interp1(SENseconds,head,seconds);
+headInterp = interp1(SENseconds,head,Seconds);
+%
+A.Time = datenum(date);
+l = find(A.Time>=atmTime(1) & A.Time<=atmTime(2));
+A.pressureOffset = mean(Pressure(l(1):l(2)));
+A.Pressure = Pressure - A.pressureOffset;
+
 %
 switch coords
   case {'XYZ','ENU'}
     if strcmp(coords,'XYZ')
-        shape = size(v1);
-        BEAM  = inv(T)*[v1(:)'; v2(:)'; v3(:)'];
-        b1  = reshape(BEAM(1,:)',shape);
-        b2  = reshape(BEAM(2,:)',shape);
-        b3  = reshape(BEAM(3,:)',shape);
+        shape = size(Velocity_X);
+        BEAM  = inv(T)*[Velocity_X(:)'; Velocity_Y(:)'; Velocity_Z(:)'];
+        Velocity_Beam1  = reshape(BEAM(1,:)',shape);
+        Velocity_Beam2  = reshape(BEAM(2,:)',shape);
+        Velocity_Beam3  = reshape(BEAM(3,:)',shape);
     end        
-    east = v1;
-    north= v2;
-    up   = v3;
+    Velocity_East = Velocity_X;
+    Velocity_North= Velocity_Y;
+    Velocity_Up   = Velocity_Z;
   case {'BEA','BEAM'}
-    b1 = v1;
-    b2 = v2;
-    b3 = v3;
-    shape = size(b1);
-    XYZ= T*[b1(:)'; b2(:)'; b3(:)'];
-    v1 = reshape(XYZ(1,:)',shape);
-    v2 = reshape(XYZ(2,:)',shape);
-    v3 = reshape(XYZ(3,:)',shape);
+    Velocity_Beam1 = Velocity_X;
+    Velocity_Beam2 = Velocity_Y;
+    Velocity_Beam3 = Velocity_Z;
+    shape = size(Velocity_Beam1);
+    XYZ= T*[Velocity_Beam1(:)'; Velocity_Beam2(:)'; Velocity_Beam3(:)'];
+    Velocity_X = reshape(XYZ(1,:)',shape);
+    Velocity_Y = reshape(XYZ(2,:)',shape);
+    Velocity_Z = reshape(XYZ(3,:)',shape);
 end
 %
 if ~strcmp(coords,'ENU')
@@ -206,10 +212,10 @@ if ~strcmp(coords,'ENU')
         H = [ cos(hh) sin(hh) 0*hh;...
              -sin(hh) cos(hh) 0*hh;...
               0*hh      0*hh  0*hh+1];
-        ENU = H*[v1';v2';v3'];
-        east  = ENU(1,:)';
-        north = ENU(2,:)';
-        up    = ENU(3,:)';    
+        ENU = H*[Velocity_X';Velocity_Y';Velocity_Z'];
+        Velocity_East  = ENU(1,:)';
+        Velocity_North = ENU(2,:)';
+        Velocity_Up    = ENU(3,:)';    
         
     else
     % rotate to EW, pitch/roll matrices don't work w cabled head
@@ -223,42 +229,45 @@ if ~strcmp(coords,'ENU')
 % $$$           0*pp       cos(rr)         -sin(rr)   ;...
 % $$$          sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
     for j = 1:nsamples
-     ENU = H(:,:,j)*[v1(j);v2(j);v3(j)];
-     east (j) = ENU(1);
-     north(j) = ENU(2);
-     up   (j) = ENU(3);    
+     ENU = H(:,:,j)*[Velocity_X(j);Velocity_Y(j);Velocity_Z(j)];
+     Velocity_East (j) = ENU(1);
+     Velocity_North(j) = ENU(2);
+     Velocity_Up   (j) = ENU(3);    
     end
     end
 end
 %
-A.config= meta_data;
+A.Config= meta_data;
 sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspeed,'heading',head,'pitch',pitch,'roll',roll,'temperature',temperature);
 A.sensor    = sensor_data;
-A.sspeed    = sspeed;
-A.seconds   = seconds;
-A.pressure  = pressure;
+A.Sound_Speed    = sspeed;
+A.Seconds   = Seconds;
 if fixedHead
     A.fixed_heading = headingOffset;
 end
-A.v1    = v1;
-A.v2    = v2;
-A.v3    = v3;
-A.b1    = b1;
-A.b2    = b2;
-A.b3    = b3;
-A.east  = east;
-A.north = north;
-A.up    = up;
-A.a1    = a1;
-A.a2    = a2;
-A.a3    = a3;
-A.c1    = c1;
-A.c2    = c2;
-A.c3    = c3;
+A.Velocity_X    = Velocity_X;
+A.Velocity_Y    = Velocity_Y;
+A.Velocity_Z    = Velocity_Z;
+A.Velocity_Beam1    = Velocity_Beam1;
+A.Velocity_Beam2    = Velocity_Beam2;
+A.Velocity_Beam3    = Velocity_Beam3;
+A.Velocity_East  = Velocity_East;
+A.Velocity_North = Velocity_North;
+A.Velocity_Up    = Velocity_Up;
+A.Amplitude_Beam1    = Amplitude_Beam1;
+A.Amplitude_Beam2    = Amplitude_Beam2;
+A.Amplitude_Beam3    = Amplitude_Beam3;
+A.Correlation_Beam1    = Correlation_Beam1;
+A.Correlation_Beam2    = Correlation_Beam2;
+A.Correlation_Beam3    = Correlation_Beam3;
 A.SNR1  = SNR1;
 A.SNR2  = SNR2;
 A.SNR3  = SNR3;
 A.fname = fileName;
+
+
+disp('Saving raw data')
+save([outputFile,'.mat'],'-struct','A')
 %
 
 end

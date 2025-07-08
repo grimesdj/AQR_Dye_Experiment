@@ -63,8 +63,8 @@ end
 
 
 
-Results = [Table.AvgR1; Table.AvgR2; Table.AvgR3; Table.PtR1; Table.PtR2; Table.PtR3]; 
-writetable(Results, 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\tables\Stats.xlsx', 'WriteRowNames', true);
+%Results = [Table.AvgR1; Table.AvgR2; Table.AvgR3; Table.PtR1; Table.PtR2; Table.PtR3]; 
+%writetable(Results, 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\tables\Stats.xlsx', 'WriteRowNames', true);
 
 
 
