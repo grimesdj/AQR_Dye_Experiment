@@ -1,5 +1,5 @@
 
-function time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, filePrefix)
+function time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, filePrefix, dtAvg, echo_mode)
 
 %
 load([L0dir,filesep,filePrefix,'config.mat'])
@@ -16,7 +16,7 @@ fprintf('\n \n')
 % define filter parameters
 fc = 1/dtAvg;% frequency cutoff
 Ns = fs/fc;% filter half-width
-if isodd(Ns), Ns=Ns+1; end
+if mod(Ns, 2), Ns=Ns+1; end
 Fw = 2*Ns+1;% filter width
 F  = hanning(Ns+1);% Hann-function filter
 F  = F./sum(F);% normalize
