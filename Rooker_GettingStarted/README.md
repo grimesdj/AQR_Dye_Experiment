@@ -52,7 +52,7 @@ What scripts need to be changed?
 	[x] release 2
 		- *** USE L0_AQD.m but with different user input 
 	[x] load_VECTOR_data.m 
-	[ ] main_process_sig100
+	[x] main_process_sig100
 	[ ] load_and_process_sig1000_to_RDI_matrix_format.m
 	[ ] time_average_and_rotate_sig1000_RDI_matrix_format.m
 	[ ] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
