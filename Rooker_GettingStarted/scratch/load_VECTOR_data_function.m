@@ -164,34 +164,52 @@ Correlation_Beam1    = dat{12};
 Correlation_Beam2    = dat{13};
 Correlation_Beam3    = dat{14};
 Pressure = dat{15};
+keyboard
 %
 SENseconds = 0:60:60*(Ndt-1);
 headInterp = interp1(SENseconds,head,Seconds);
 %
-A.Time = datenum(date);
+TStart = date(1);
+%TEnd = date(end);
+step = Seconds/86400;
+
+A.Time_sensor = date;
+A.Time = TStart+step;
+
 l = find(A.Time>=atmTime(1) & A.Time<=atmTime(2));
 A.pressureOffset = mean(Pressure(l(1):l(2)));
 A.Pressure = Pressure - A.pressureOffset;
+
+dep = find(A.Time>=depTime(1) & A.Time<=depTime(2));
+dep_sensor = find(A.Time_sensor>=depTime(1) & A.Time_sensor<=depTime(2));
+
+nsamples = length(dep);
+
 
 %
 switch coords
   case {'XYZ','ENU'}
     if strcmp(coords,'XYZ')
-        shape = size(Velocity_X);
-        BEAM  = inv(T)*[Velocity_X(:)'; Velocity_Y(:)'; Velocity_Z(:)'];
+        shape = size(Velocity_X(dep));
+        BEAM  = inv(T)*[Velocity_X(dep)'; Velocity_Y(dep)'; Velocity_Z(dep)'];
         Velocity_Beam1  = reshape(BEAM(1,:)',shape);
         Velocity_Beam2  = reshape(BEAM(2,:)',shape);
         Velocity_Beam3  = reshape(BEAM(3,:)',shape);
-    end        
-    Velocity_East = Velocity_X;
-    Velocity_North= Velocity_Y;
-    Velocity_Up   = Velocity_Z;
+        
+        Velocity_X = Velocity_X(dep);
+        Velocity_Y = Velocity_Y(dep);
+        Velocity_Z = Velocity_Z(dep);
+    else        
+    Velocity_East = Velocity_X(dep);
+    Velocity_North= Velocity_Y(dep);
+    Velocity_Up   = Velocity_Z(dep);
+    end
   case {'BEA','BEAM'}
-    Velocity_Beam1 = Velocity_X;
-    Velocity_Beam2 = Velocity_Y;
-    Velocity_Beam3 = Velocity_Z;
-    shape = size(Velocity_Beam1);
-    XYZ= T*[Velocity_Beam1(:)'; Velocity_Beam2(:)'; Velocity_Beam3(:)'];
+    Velocity_Beam1 = Velocity_X(dep);
+    Velocity_Beam2 = Velocity_Y(dep);
+    Velocity_Beam3 = Velocity_Z(dep);
+    shape = size(Velocity_Beam1(dep));
+    XYZ= T*[Velocity_Beam1'; Velocity_Beam2'; Velocity_Beam3'];
     Velocity_X = reshape(XYZ(1,:)',shape);
     Velocity_Y = reshape(XYZ(2,:)',shape);
     Velocity_Z = reshape(XYZ(3,:)',shape);
@@ -207,14 +225,14 @@ if ~strcmp(coords,'ENU')
         H = [ cos(hh) sin(hh) 0*hh;...
              -sin(hh) cos(hh) 0*hh;...
               0*hh      0*hh  0*hh+1];
-        ENU = H*[Velocity_X';Velocity_Y';Velocity_Z'];
+        ENU = H*[Velocity_X(dep)';Velocity_Y(dep)';Velocity_Z(dep)'];
         Velocity_East  = ENU(1,:)';
         Velocity_North = ENU(2,:)';
         Velocity_Up    = ENU(3,:)';    
         
     else
     % rotate to EW, pitch/roll matrices don't work w cabled head
-    hh = reshape(pi*(headInterp)/180,1,1,nsamples);
+    hh = reshape(pi*(headInterp(dep))/180,1,1,nsamples);
     % pp = reshape(pi*pitch/180,1,1,nsamples);
     % rr = reshape(pi*roll/180,1,1,nsamples);
     H = [ cos(hh) sin(hh) 0*hh;...
@@ -235,8 +253,8 @@ end
 A.Config= meta_data;
 sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspeed,'heading',head,'pitch',pitch,'roll',roll,'temperature',temperature);
 A.sensor    = sensor_data;
-A.Sound_Speed    = sspeed;
-A.Seconds   = Seconds;
+A.Sound_Speed    = sspeed(dep_sensor);
+A.Seconds   = Seconds(dep);
 if fixedHead
     A.fixed_heading = headingOffset;
 end
@@ -249,15 +267,15 @@ A.Velocity_Beam3    = Velocity_Beam3;
 A.Velocity_East  = Velocity_East;
 A.Velocity_North = Velocity_North;
 A.Velocity_Up    = Velocity_Up;
-A.Amplitude_Beam1    = Amplitude_Beam1;
-A.Amplitude_Beam2    = Amplitude_Beam2;
-A.Amplitude_Beam3    = Amplitude_Beam3;
-A.Correlation_Beam1    = Correlation_Beam1;
-A.Correlation_Beam2    = Correlation_Beam2;
-A.Correlation_Beam3    = Correlation_Beam3;
-A.SNR1  = SNR1;
-A.SNR2  = SNR2;
-A.SNR3  = SNR3;
+A.Amplitude_Beam1    = Amplitude_Beam1(dep);
+A.Amplitude_Beam2    = Amplitude_Beam2(dep);
+A.Amplitude_Beam3    = Amplitude_Beam3(dep);
+A.Correlation_Beam1    = Correlation_Beam1(dep);
+A.Correlation_Beam2    = Correlation_Beam2(dep);
+A.Correlation_Beam3    = Correlation_Beam3(dep);
+A.SNR1  = SNR1(dep);
+A.SNR2  = SNR2(dep);
+A.SNR3  = SNR3(dep);
 A.fname = fileName;
 
 
