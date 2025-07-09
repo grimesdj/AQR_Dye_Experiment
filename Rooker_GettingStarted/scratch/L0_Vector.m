@@ -3,11 +3,11 @@ function L0_Vector(outputFile, L0Dir, L0Name)
 
 A = load([outputFile, '.mat']);
 % temporary addpath for testing :(
-%addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
-addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
+addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
+%addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
 
-fprintf('\n============================\nDo you want to unwrap beam Velocities?')
-unwrap = input('(1 = yes; 0 = no)');
+fprintf('\n============================\n\nDo you want to unwrap beam Velocities?')
+unwrap = input('\n(1 = yes; 0 = no)');
 if unwrap == 1
     for beam = 1:3
         [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
@@ -16,6 +16,15 @@ if unwrap == 1
     A.Correlation_Beam1(find(A.Suspect_Beam1)) = NaN;
     A.Correlation_Beam2(find(A.Suspect_Beam2)) = NaN;
     A.Correlation_Beam3(find(A.Suspect_Beam3)) = NaN;
+end
+
+fprintf('\n============================\n\nDo you want to use external heading?')
+headcorrect = input('\n(1 = yes; 0 = no)');
+if headcorrect == 1
+    %head = load(input('\nEnter path for correct heading:'));
+    disp('Using AquaDopp HPR for now')
+    HPR = load('../../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat');
+    A = Vector_rotation(A, HPR);
 end
 % %
 % %

@@ -1,16 +1,16 @@
 clear all
 close all
 % Enter input /directory/ and fileName root without file extension
-inputDir  = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/data/Release1/raw';
+inputDir  = '../../../../Kelp_data/data/Release1/raw';
 inputFile = 'KELP1_Vector';
 headingOffset = 331.4;% based on heading from AquodoppHR_KELP1
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
-outputDir = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/raw';
+outputDir = '../../../../Kelp_data/Summer2025/Rooker/Release1/raw';
 outputName= [inputFile,'_raw'];
 outputFile= [outputDir, '/', outputName];
 % Enter processed output fileName without .mat
-L0Dir   = 'C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/L0';
+L0Dir   = '../../../../Kelp_data/Summer2025/Rooker/Release1/L0';
 L0Name  = [inputFile,'_L0'];
 % Enter path to save figures
 figDir = [inputDir,'/../figures'];

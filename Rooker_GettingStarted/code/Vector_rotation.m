@@ -4,7 +4,7 @@
 
 % % % Lets turn this into a function % % %
 
-%what does rotation return? -> Vector data with updated Parameters
+% what does rotation return? -> Vector data with updated Parameters
 function CorrectVec = Vector_rotation(Data, AQD)
 
 Data.Heading = interp1(AQD.Time, AQD.Heading, Data.Time);

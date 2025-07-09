@@ -76,7 +76,7 @@ while ~feof(fid);
             cff=1000;
         end
         pulse_distance = str2num(value(1:i-1))/cff;% cm-->m
-    elseif strcmp(string,'Distance between pings')
+    elseif strcmp(string,'Salinity')
         i = strfind(value,'ppt');
         salinity = str2num(value(1:i-1));% cm-->m
     elseif strcmp(string,'Cell size')
@@ -102,11 +102,6 @@ while ~feof(fid);
         coords = value;
     elseif strcmp(string,'Serial number') & ~exist('sn','var')
         sn = deblank(value);
-    elseif strcmp(string,'Salinity') 
-        salinity = deblank(value);
-    elseif strcmp(string,'Head frequency')
-        i = strfind(value,'kHz');        
-        head_freq = str2num(value(1:i-1));
     elseif strcmp(string,'Transformation matrix')
         temp   = textscan(value,'%f %f %f');
         T      = cell2mat(temp);

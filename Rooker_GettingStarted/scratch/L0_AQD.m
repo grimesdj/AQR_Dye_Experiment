@@ -50,7 +50,7 @@ end
 %     eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
 % end
 nsamples = length(A.Time);
-%A.dbins = (A.Config.blank + A.Config.binSize*A.Config.Nbins);
+A.dbins = (A.Config.blank + A.Config.binSize*A.Config.Nbins);
 %
 A.maxRange = (A.Pressure-A.pressureOffset).*cosd(20)-1*A.Config.binSize;
 A.ylims      = [0 min(max(A.maxRange),max(A.dbins))];
