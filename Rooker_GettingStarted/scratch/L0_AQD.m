@@ -13,9 +13,9 @@ if unwrap == 1
         [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
     end
 
-    A.Correlation_Beam1(find(A.Suspect_Beam1)) = NaN;
-    A.Correlation_Beam2(find(A.Suspect_Beam2)) = NaN;
-    A.Correlation_Beam3(find(A.Suspect_Beam3)) = NaN;
+    A.Correlation_Beam1(find(A.Suspect_Beam1)) = 80;
+    A.Correlation_Beam2(find(A.Suspect_Beam2)) = 80;
+    A.Correlation_Beam3(find(A.Suspect_Beam3)) = 80;
 end
 % %
 % %
@@ -60,6 +60,8 @@ qcFlag0    =  (dum2<=dum1);
 A.Amplitude_Minimum   = min(A.Amplitude_Beam1, min(A.Amplitude_Beam2, A.Amplitude_Beam3));
 A.Correlation_Minimum = min(A.Correlation_Beam1, min(A.Correlation_Beam2, A.Correlation_Beam3, 'omitnan'), 'omitnan');   
 A.qcFlag              =  double( qcFlag0 & A.Amplitude_Minimum > 20 & A.Correlation_Minimum > 40 );
+
+
 %
 Time = datetime(A.Time,'convertFrom','datenum');
 %
