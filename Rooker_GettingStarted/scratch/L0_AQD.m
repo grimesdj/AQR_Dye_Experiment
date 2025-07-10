@@ -3,13 +3,13 @@ function L0_AQD(outputFile, L0Dir, L0Name)
 
 A = load([outputFile, '.mat']);
 % temporary addpath for testing :(
-addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
-%addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
+%addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
+addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
 
 fprintf('\n============================\nDo you want to unwrap beam Velocities?')
 unwrap = input('(1 = yes; 0 = no)');
 if unwrap == 1
-    for beam = 1:3
+    for beam = 1:3 
         [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
     end
     
