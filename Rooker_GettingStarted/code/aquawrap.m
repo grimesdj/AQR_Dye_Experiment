@@ -28,7 +28,6 @@ disp('using Shcherbina et al 2018 unwrapper')
 
 [nbins, nt] = size(v_wrapped);
 v_unwrap = v_wrapped;
-
 filt_diff = (v_wrapped - medfilt1(v_wrapped,150))./Vr;
 filt_diff1 = filt_diff;
 suspect_pts = abs(filt_diff)>1;
@@ -50,7 +49,7 @@ v_prime = D*v_wrapped(:,ncol);
 %solve least squares problem, and correct profile
 r = round( (2*Vr(ncol)*D*E)\v_prime );
 v_unwrap(si, ncol) = v_wrapped(si, ncol) - r*2*Vr(ncol);
-
+keyboard
 end
 
 %plots;

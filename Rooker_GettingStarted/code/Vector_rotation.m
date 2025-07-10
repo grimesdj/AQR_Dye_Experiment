@@ -8,18 +8,28 @@
 function CorrectVec = Vector_rotation(Data, AQD)
 
 Data.Heading = interp1(AQD.Time, AQD.Heading, Data.Time);
-Data.Pitch = interp1(AQD.Time, AQD.Pitch, Data.Time);
-Data.Roll = interp1(AQD.Time, AQD.Roll, Data.Time);
-overlap = find(Data.Time >= AQD.Time(1) & Data.Time <= AQD.Time(end));
+Data.Heading = Data.Heading(~isnan(Data.Heading));
 
-for i = 1:length(AQD.Time)
-    if  ~overlap(i)
-        
-        Data.Velocity_East(i) = NaN;
-        Data.Velocity_North(i) = NaN;        
-        Data.Velocity_Up(i) = NaN;
-        
-    else
+Data.Pitch = interp1(AQD.Time, AQD.Pitch, Data.Time);
+Data.Pitch = Data.Pitch(~isnan(Data.Pitch));
+
+Data.Roll = interp1(AQD.Time, AQD.Roll, Data.Time);
+Data.Roll = Data.Roll(~isnan(Data.Roll));
+
+Data.Velocity_East = Data.Velocity_X;
+Data.Velocity_North = Data.Velocity_Y;
+Data.Velocity_Up = Data.Velocity_Z;
+keyboard
+%overlap = find(Data.Time >= AQD.Time(1) & Data.Time <= AQD.Time(end));
+
+for i = 1:length(Data.Seconds)
+    % if  ~overlap(i)
+    % 
+    %     Data.Velocity_East(i) = NaN;
+    %     Data.Velocity_North(i) = NaN;        
+    %     Data.Velocity_Up(i) = NaN;
+    % 
+    % else
 
         theta = Data.Heading(i) - 90;
 
@@ -42,7 +52,9 @@ for i = 1:length(AQD.Time)
         Data.Velocity_North(i) = ENU(2);
         Data.Velocity_Up(i) = ENU(3);
 
-       CorrectVec = Data;
-    end
+       
+    %end
+
 end
+CorrectVec = Data;
 end

@@ -164,7 +164,6 @@ Correlation_Beam1    = dat{12};
 Correlation_Beam2    = dat{13};
 Correlation_Beam3    = dat{14};
 Pressure = dat{15};
-keyboard
 %
 SENseconds = 0:60:60*(Ndt-1);
 headInterp = interp1(SENseconds,head,Seconds);
@@ -254,6 +253,8 @@ A.Config= meta_data;
 sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspeed,'heading',head,'pitch',pitch,'roll',roll,'temperature',temperature);
 A.sensor    = sensor_data;
 A.Sound_Speed    = sspeed(dep_sensor);
+A.VRange = (A.Sound_Speed.^2)/(8*6*1000*0.004);
+A.VRange = interp1(A.Time_sensor(dep_sensor), A.VRange, Seconds(dep));
 A.Seconds   = Seconds(dep);
 if fixedHead
     A.fixed_heading = headingOffset;

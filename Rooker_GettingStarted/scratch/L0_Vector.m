@@ -10,12 +10,14 @@ fprintf('\n============================\n\nDo you want to unwrap beam Velocities
 unwrap = input('\n(1 = yes; 0 = no)');
 if unwrap == 1
     for beam = 1:3
-        [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
+
+        vwrap = [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Velocity_Beam%d',beam))];
+        [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(vwrap, A.VRange);
     end
 
-    A.Correlation_Beam1(find(A.Suspect_Beam1)) = NaN;
-    A.Correlation_Beam2(find(A.Suspect_Beam2)) = NaN;
-    A.Correlation_Beam3(find(A.Suspect_Beam3)) = NaN;
+    A.Correlation_Beam1(find(A.Suspect_Beam1)) = 999;
+    A.Correlation_Beam2(find(A.Suspect_Beam2)) = 999;
+    A.Correlation_Beam3(find(A.Suspect_Beam3)) = 999;
 end
 
 fprintf('\n============================\n\nDo you want to use external heading?')
