@@ -19,10 +19,9 @@ Data.Roll = Data.Roll(~isnan(Data.Roll));
 Data.Velocity_East = Data.Velocity_X;
 Data.Velocity_North = Data.Velocity_Y;
 Data.Velocity_Up = Data.Velocity_Z;
-keyboard
 %overlap = find(Data.Time >= AQD.Time(1) & Data.Time <= AQD.Time(end));
 
-for i = 1:length(Data.Seconds)
+for i = 1:length(Data.Heading)
     % if  ~overlap(i)
     % 
     %     Data.Velocity_East(i) = NaN;

@@ -5,14 +5,14 @@ function Stats = aquaplot(releaseNum, version, plots, binStart, binEnd)
 warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
 
 inputFiles = ["../../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\raw\KELP2_AquadoppHR_raw.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\Summer2025\Rooker\Release1\L0\KELP1_AquadoppHR_L0.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Aquadopp_L0.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Aquadopp_L0.mat";
-              "C:/Users/jkr6136/OneDrive - UNC-Wilmington/Kelp_data/Summer2025/Rooker/Release1/L0/KELP1_Vector_L0.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Vector_L0.mat";
-              "C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_data\data\Release2\L0\KELP2_Vector_L0.mat"];
+              "../../../../Kelp_data/Summer2025/Rooker/Release2/raw/KELP2_AquadoppHR_raw.mat";
+              "../../../../Kelp_data/Summer2025/Rooker/Release2/raw/KELP2_AquadoppHR_raw.mat";
+              "../../../../Kelp_data/Summer2025/Rooker/Release1/L0/KELP1_AquadoppHR_L0.mat";
+              "../../../../Kelp_data/Summer2025/Rooker/Release2/L0/KELP2_AquadoppHR_L0.mat";
+              "../../../../Kelp_data/Summer2025/Rooker/Release2/L0/KELP2_AquadoppHR_L0.mat";
+              "../../../../Kelp_data/Summer2025/Rooker/Release1/L0/KELP1_Vector_L0.mat";
+              "../../../../Kelp_data/Summer2025/Rooker/Release2/L0/KELP2_Vector_L0.mat";
+              "../../../../Kelp_data/Summer2025/Rooker/Release2/L0/KELP2_Vector_L0.mat"];
 
 
 
@@ -45,6 +45,7 @@ elseif strcmp(version, 'Vector')
     Data = load(inputFiles(releaseNum));    
     Data = Vector_rotation(Data, AQD);
     releaseNum = releaseNum-6;
+    Data.Time = Data.Time_sensor;
 %     Data.Time           = Data.time;
 %     Data.Velocity_X     = Data.v1;
 %     Data.Velocity_Y     = Data.v2;

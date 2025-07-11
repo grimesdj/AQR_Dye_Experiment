@@ -30,12 +30,11 @@ disp('using Shcherbina et al 2018 unwrapper')
 v_unwrap = v_wrapped;
 filt_diff = (v_wrapped - medfilt1(v_wrapped,150))./Vr;
 filt_diff1 = filt_diff;
-suspect_pts = abs(filt_diff)>1;
+suspect_pts = abs(filt_diff)>1; % seems that you have to input the threshold based on deployment
 
 figure, plot(v_wrapped(:, 1), '.')
 hold on, plot(find(suspect_pts(:,1)),v_wrapped(suspect_pts(:,1)), 'r.')
 hold on, plot(find(~suspect_pts(:,1)),v_wrapped(~suspect_pts(:, 1)), 'g.')
-
 for ncol = 1:nt
 %ncol = 30;
 

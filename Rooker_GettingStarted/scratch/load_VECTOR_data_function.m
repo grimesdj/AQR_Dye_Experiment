@@ -123,7 +123,7 @@ meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
                    'coords',coords,'sample_rate',sample_rate,'velocity_scale',vel_scale,...
                    'sample_volume',sample_vol,'transmit_length',transmit_length,...
                    'receive_length',receive_length,'pulse_distance',pulse_distance,...
-                   'salinity',salinity,'head_frequency_kHz',head_freq,'transformation_matrix',T);
+                   'salinity',salinity,'head_frequency_kHz',head_freq,'transform_matrix',T);
 %
 fclose(fid);
 %
@@ -207,7 +207,7 @@ switch coords
     Velocity_Beam1 = Velocity_X(dep);
     Velocity_Beam2 = Velocity_Y(dep);
     Velocity_Beam3 = Velocity_Z(dep);
-    shape = size(Velocity_Beam1(dep));
+    shape = size(Velocity_Beam1);
     XYZ= T*[Velocity_Beam1'; Velocity_Beam2'; Velocity_Beam3'];
     Velocity_X = reshape(XYZ(1,:)',shape);
     Velocity_Y = reshape(XYZ(2,:)',shape);
@@ -242,9 +242,9 @@ if ~strcmp(coords,'ENU')
 % $$$          sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
     for j = 1:nsamples
      ENU = H(:,:,j)*[Velocity_X(j);Velocity_Y(j);Velocity_Z(j)];
-     Velocity_East (j) = ENU(1);
-     Velocity_North(j) = ENU(2);
-     Velocity_Up   (j) = ENU(3);    
+     Velocity_East (j) = ENU(1)';
+     Velocity_North(j) = ENU(2)';
+     Velocity_Up   (j) = ENU(3)';    
     end
     end
 end
@@ -253,8 +253,8 @@ A.Config= meta_data;
 sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspeed,'heading',head,'pitch',pitch,'roll',roll,'temperature',temperature);
 A.sensor    = sensor_data;
 A.Sound_Speed    = sspeed(dep_sensor);
-A.VRange = (A.Sound_Speed.^2)/(8*6*1000*0.004);
-A.VRange = interp1(A.Time_sensor(dep_sensor), A.VRange, Seconds(dep));
+Range = (A.Sound_Speed.^2)/(8*6*1000*1.01);
+A.VRange = interp1(A.Time_sensor(dep_sensor), Range, A.Time(dep));
 A.Seconds   = Seconds(dep);
 if fixedHead
     A.fixed_heading = headingOffset;

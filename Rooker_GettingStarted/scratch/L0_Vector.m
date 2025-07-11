@@ -3,29 +3,72 @@ function L0_Vector(outputFile, L0Dir, L0Name)
 
 A = load([outputFile, '.mat']);
 % temporary addpath for testing :(
-addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
-%addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
+%addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
+addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
 
 fprintf('\n============================\n\nDo you want to unwrap beam Velocities?')
 unwrap = input('\n(1 = yes; 0 = no)');
 if unwrap == 1
     for beam = 1:3
-
-        vwrap = [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Velocity_Beam%d',beam))];
-        [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(vwrap, A.VRange);
+        Vel = (sprintf('Velocity_Beam%d',beam));
+        vwrap = reshape(A.(Vel), [], 24);
+        Vr = reshape(A.VRange, [], 24);
+        Vr = Vr.*0.01;
+        [unwrap, A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(vwrap, Vr);
+        A.(Vel) = unwrap(:);
     end
 
     A.Correlation_Beam1(find(A.Suspect_Beam1)) = 999;
     A.Correlation_Beam2(find(A.Suspect_Beam2)) = 999;
     A.Correlation_Beam3(find(A.Suspect_Beam3)) = 999;
+
+% rotate unwrapped data!
+    % XYZ
+    disp('rotating unwrapped data to XYZ')
+    shape = size(A.Velocity_Beam1);
+    XYZ= A.Config.transform_matrix*[A.Velocity_Beam1(:)'; A.Velocity_Beam2(:)'; A.Velocity_Beam3(:)'];
+    A.Velocity_X = reshape(XYZ(1,:)',shape);
+    A.Velocity_Y = reshape(XYZ(2,:)',shape);
+    A.Velocity_Z = reshape(XYZ(3,:)',shape);
+
+    % ENU
+    disp('not rotating unwrapped data to ENU')
+   
+    
+    
+    
+    % hh = reshape(pi*(A.Heading-90)/180,1,1,A.Config.Nsamples);
+    % pp = reshape(pi*A.Pitch/180,1,1,A.Config.Nsamples);
+    % rr = reshape(pi*A.Roll/180,1,1,A.Config.Nsamples);
+    % H = [ cos(hh), sin(hh), 0*hh;...
+    %      -sin(hh), cos(hh), 0*hh;...
+    %       0*hh,      0*hh,  0*hh+1];
+    % P = [cos(pp), 0*pp, -sin(pp);...
+    %       0*pp,  0*pp+1, 0*pp   ;...
+    %      sin(pp),  0*pp,  cos(pp)];
+    % 
+    % O = [1+0*rr 0*rr 0*rr;...
+    %     0*rr cos(rr) -sin(rr);...
+    %     0*rr sin(rr) cos(rr)];
+    % 
+    % 
+    % 
+    % for j = 1:A.Config.Nsamples
+    %     R   = H(:,:,j)*P(:,:,j)*O(:,:,j);
+    %     ENU = R*[A.Velocity_X(j,:);A.Velocity_Y(j,:);A.Velocity_Z(j,:)];
+    %     A.Velocity_East  (j,:) = ENU(1,:)';
+    %     A.Velocity_North (j,:) = ENU(2,:)';
+    %     A.Velocity_Up    (j,:) = ENU(3,:)';
+    % end
+
 end
 
 fprintf('\n============================\n\nDo you want to use external heading?')
 headcorrect = input('\n(1 = yes; 0 = no)');
 if headcorrect == 1
-    %head = load(input('\nEnter path for correct heading:'));
+    head = load(input('\nEnter path for correct heading:'));
     disp('Using AquaDopp HPR for now')
-    HPR = load('../../../../Kelp_data/Summer2025/Rooker/Release1/raw/KELP1_AquadoppHR_raw.mat');
+    HPR = head;
     A = Vector_rotation(A, HPR);
 end
 % %
