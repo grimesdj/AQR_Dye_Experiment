@@ -171,7 +171,6 @@ headInterp = interp1(SENseconds,head,Seconds);
 TStart = date(1);
 %TEnd = date(end);
 step = Seconds/86400;
-
 A.Time_sensor = date;
 A.Time = TStart+step;
 
@@ -183,7 +182,8 @@ dep = find(A.Time>=depTime(1) & A.Time<=depTime(2));
 dep_sensor = find(A.Time_sensor>=depTime(1) & A.Time_sensor<=depTime(2));
 
 nsamples = length(dep);
-
+A.Time = A.Time(dep);
+A.Time_sensor = A.Time_sensor(dep_sensor);
 
 %
 switch coords
@@ -242,9 +242,9 @@ if ~strcmp(coords,'ENU')
 % $$$          sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
     for j = 1:nsamples
      ENU = H(:,:,j)*[Velocity_X(j);Velocity_Y(j);Velocity_Z(j)];
-     Velocity_East (j) = ENU(1)';
-     Velocity_North(j) = ENU(2)';
-     Velocity_Up   (j) = ENU(3)';    
+     Velocity_East (j) = ENU(1);
+     Velocity_North(j) = ENU(2);
+     Velocity_Up   (j) = ENU(3);    
     end
     end
 end
@@ -254,7 +254,7 @@ sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspee
 A.sensor    = sensor_data;
 A.Sound_Speed    = sspeed(dep_sensor);
 Range = (A.Sound_Speed.^2)/(8*6*1000*1.01);
-A.VRange = interp1(A.Time_sensor(dep_sensor), Range, A.Time(dep));
+A.VRange = interp1(A.Time_sensor, Range, A.Time);
 A.Seconds   = Seconds(dep);
 if fixedHead
     A.fixed_heading = headingOffset;

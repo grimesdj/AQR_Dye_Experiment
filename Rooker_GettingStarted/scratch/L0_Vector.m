@@ -3,8 +3,8 @@ function L0_Vector(outputFile, L0Dir, L0Name)
 
 A = load([outputFile, '.mat']);
 % temporary addpath for testing :(
-%addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
-addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
+addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
+%addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
 
 fprintf('\n============================\n\nDo you want to unwrap beam Velocities?')
 unwrap = input('\n(1 = yes; 0 = no)');
@@ -66,9 +66,10 @@ end
 fprintf('\n============================\n\nDo you want to use external heading?')
 headcorrect = input('\n(1 = yes; 0 = no)');
 if headcorrect == 1
-    head = load(input('\nEnter path for correct heading:'));
+    %head = load(input('\nEnter path for correct heading:'));
     disp('Using AquaDopp HPR for now')
-    HPR = head;
+    HPRfiles = dir([L0Dir, '/../raw/*AquadoppHR_raw.mat']);
+    HPR = load(fullfile(HPRfiles(1).folder, HPRfiles(1).name));
     A = Vector_rotation(A, HPR);
 end
 % %
@@ -120,7 +121,6 @@ Time = datetime(A.Time,'convertFrom','datenum');
 %
 disp('Applying qcFlag to NaN data A < 20 and C < 40')
 %
-% Now plot currents
 
 A.Velocity_East = A.Velocity_East.*A.qcFlag;
 A.Velocity_North = A.Velocity_North.*A.qcFlag;

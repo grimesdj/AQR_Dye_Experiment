@@ -40,39 +40,9 @@
   - [x] use jolt filter to figure out what stuff got messed up by the .hr2 and the fix it :) -> ended up using Shcherbinas's magic unwrapping script	
 
 
----------------------------------------------------------------------
-What scripts need to be changed?
-	[x] load_AQD_data.m
-	[x] make load_Aquadopp_release1 into function call   ### ```load_Aquadopp_release1.m``` now calls ```load_AQD_data_function.m``` ```L0.m``` and ```L0_plots.m```
-		- still needs a little bit of work to get the plots and L0 processing untangled (qcFlag takes out big chunks of images plots (>_<)
-		- [x] call aquawrapp() to fix banded data with a user prompt	
-	[x] make load_Vector_release1 into function call
-		- Adding AQD HPR to Vector L0?
-		- L0 function isn't actually changing the data
-		- [x] Add BINS field to L0 Data	
-		- [x] add unwrap flag!
-		- stats to find optimal vR ratio? -> got it worked out now to be normalized
-	[x] release 2
-		- *** USE L0_AQD.m but with different user input -> have to double check if it runs
-	[x] load_VECTOR_data.m 
-	[x] main_process_sig100
-	[x] load_and_process_sig1000_to_RDI_matrix_format.m
-	[x] time_average_and_rotate_sig1000_RDI_matrix_format.m
-	[x] estimate_wave_bulk_stats_SIG1000_RDI_matrix_format.m
-	[x] rotation (add to multiplot) -> now called ```Vector_rotation.m```
-
-		- find out what each function is supposed to return and then set that to output in the same syntax as the wrapper function
-		- Keep load_Aquadopp_release1 and related functions as wrapper and make a new function that those the actual processing
-			(e.g.) lAr1 is user input data and make 2 fuction calls.
-		- compare processing; can L0 for Vector be the same function as L0 for Vector?
-		- Leave .raws alone, but standardize structures for L0 output in above format.
-		- double-check that release 2 L0 and raw makes it to the correct folder
-
-		- take a look at extended velocity range mode
-		rotation matrix fro vector
----------------------------------------------------------------------
 L0:
-	- [ ] (re) Make L0 files reflecting above changes.
+	- [x] (re) Make L0 files reflecting above changes.
+
 	- [ ] add principal axis rotation
 L1:
 - generate L1 files for subsequent analysis.
