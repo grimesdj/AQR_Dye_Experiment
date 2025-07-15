@@ -1,14 +1,14 @@
 
 
-function A = loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+function loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
 
 
 % pull data
 
 HRflag = 0;
 
-%% load header data
-%% data for each field starts at column 39 or 40
+% load header data
+% data for each field starts at column 39 or 40
 hdrFile = sprintf('%s/%s.hdr', inputDir, inputFile);
 fid = fopen(hdrFile);% open file
 
@@ -75,7 +75,7 @@ meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
                    'Nbins',nbins,'binSize',binsize,'blank',blank,'coords',coords,'transform_matrix',T);
 fclose(fid);
 %
-%% Extracts date, temp, pressure, Vr, heading, pitch, roll
+% Extracts date, temp, pressure, Vr, heading, pitch, roll
 senFile = sprintf(['%s/%s.sen'], inputDir,inputFile);
 fid = fopen(senFile,'r');
 A = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %*[^\n]');
@@ -131,11 +131,8 @@ A.Sound_Speed= sspeed(dep);A.VRange = vrange(dep);
 A.Heading  = heading(dep);A.Pitch = pitch(dep);A.Roll = roll(dep);
 A.Pressure  = pressure(dep);A.Temperature = temperature(dep);
 A.fileName = fileName;
-%%%%%%%
 
-% Heres where we get amp and cor data
-
-%% load beam amplitudes and velocities (may be in beam coords or ENU, see A.config)
+% load beam amplitudes and velocities (may be in beam coords or ENU, see A.config)
 
 disp('Trimming data to deployment time while loading')
 
@@ -224,17 +221,12 @@ if HRflag
     A.Correlation_Beam3 = c3(dep,bin1:end);
 
 else
-    Correlation_Beam1 = NaN;
-    Correlation_Beam2 = NaN;
-    Correlation_Beam3 = NaN;
+    A.Correlation_Beam1 = NaN;
+    A.Correlation_Beam2 = NaN;
+    A.Correlation_Beam3 = NaN;
 end
 
-
-
- % vars  = {'Time','Volt','Seconds','Sound_Speed','Heading','Pitch','Roll','Pressure','Temperature','Amplitude_Beam1','Amplitude_Beam2','Amplitude_Beam3','Velocity_X','Velocity_Y','Velocity_Z','Correlation_Beam1','Correlation_Beam2','Correlation_Beam3','Velocity_Beam1','Velocity_Beam2','Velocity_Beam3','Velocity_East','Velocity_North','Velocity_Up'};
- % for jj = 1:length(vars)
- %     eval(['A.',vars{jj},' = A.',vars{jj},'(:,:);'])
- % end
+%
 
 disp('Saving raw data')
 save([outputFile,'.mat'],'-struct','A')

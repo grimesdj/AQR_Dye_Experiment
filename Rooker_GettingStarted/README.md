@@ -30,7 +30,7 @@
 
 ## Velocity Processing
 - Standardizing velocity variables and data files across instruments.
-  - [x] Time, Velocity_East, Velocity_North, Amplitude_Minimum, Correltation_Minimum, etc.
+  - [x] Time, Velocity_East, Velocity_North, Amplitude_Minimum, Correlation_Minimum, etc.
   - [x] Convert script load/process algorithms to functions, e.g.,
      	```load_AquadoppHR_Release2.m```
 	calls:
@@ -44,9 +44,20 @@ L0:
 	- [x] (re) Make L0 files reflecting above changes.
 
 	- [ ] add principal axis rotation
+
+			[ ] 2 panel plots:
+				PCA_X, PCA_Y
+				Minamp, Mincor
+
+			[ ] main_sig1k put vars into config struct
+			[ ] descriptions
+			[ ] add to standardized variable list (sig 1000) to load and process Burst_AltimeterDistanceAST (or something) and Burst_...TimeOffset 
+			[ ] plots comparing mag/direction of M1, AQD, Vector for all releases
 L1:
 - generate L1 files for subsequent analysis.
  	- [ ] Make 5-min averaged fields for AQD and M1. See ```time_average_and_rotate_sig1000_RDI_matrix_format.m``` for example.
+		- for all variables that depend on time, apply an appropriate width Hamming/Hanning filter using conv() or conv2()
+		- then sub-sample using the appropriate span (equal to half-width of filter)
  	- [ ] For Vector, want to use heading from AQD to make ENU velocities. Then generate 15-30 minute spectra. 
  
 

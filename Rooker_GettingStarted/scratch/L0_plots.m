@@ -66,12 +66,12 @@ exportgraphics(fig1,figName)
 
 fig2 = figure;
 ax1 = subplot(3,1,1);
-imagesc(A.time,A.dbins',A.VelX.*A.qcFlag'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
+imagesc(A.time,A.dbins',A.PCA_X),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
 text(A.time(1),A.ylims(2),'X')
 %
 set(ax1,'ydir','normal','ticklabelinterpreter','latex','ylim',A.ylims)
 ax2 = subplot(3,1,2);
-imagesc(A.time,A.dbins',A.VelY.*A.qcFlag'),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
+imagesc(A.time,A.dbins',A.PCA_Y),caxis([-0.25 0.25]),colormap(cmocean('balance')),colorbar
 text(A.time(1),A.ylims(2),'Y')
 set(ax2,'ydir','normal','ticklabelinterpreter','latex','ylim',A.ylims)
 ylabel('mab','interpreter','latex')

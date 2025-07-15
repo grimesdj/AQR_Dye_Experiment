@@ -30,8 +30,13 @@ loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
 disp('Generating L0 data')
 L0_AQD(outputFile, L0Dir, L0Name);
 
+disp('PCA')
+pca_function(L0Dir, L0Name)
+
 
 % Create Plots
 %L0_plots(A, inputFile, figDir)
 
+
+% plot: 
 
