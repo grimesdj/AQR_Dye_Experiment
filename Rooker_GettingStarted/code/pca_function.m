@@ -1,6 +1,7 @@
-%function pca_function(L0Dir, L0Name)
+function pca_function(L0Dir, L0Name)
 % first create random variable then rotate 30-degrees counter clockwise
-A = load(fullfile(L0Dir, '/', L0Name));
+A = load([L0Dir, '/', L0Name, '.mat']);
+
 %VX = fillmissing(A.Velocity_X, 'nearest');
 %VY = fillmissing(A.Velocity_Y, 'nearest');
 VX = A.Velocity_X;
@@ -98,4 +99,4 @@ disp('Saving PCA data')
 save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
 
 
-%end
+end
