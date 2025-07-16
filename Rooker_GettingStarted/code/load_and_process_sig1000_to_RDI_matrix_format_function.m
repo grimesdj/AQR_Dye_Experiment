@@ -1,10 +1,8 @@
-function A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, Descriptions, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
+function A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
 
 files = dir([rootDIR,filesep,fRoot,'*.mat']);
 Nf    = length(files);
 %
-Config.ATM_Time = ATM_Time;
-Config.ATM_Pressure=ATM_Pressure;
 %
 % average the start/end pressures
 ATM_Pressure = mean(Config.ATM_Pressure);
@@ -28,7 +26,7 @@ outFile = [L0dir, filePrefix, 'config.mat'];
 if ~exist(L0dir,'dir')
     eval(['!mkdir ',L0dir])
 end
-save(outFile,'Config','Descriptions')
+save(outFile,'Config')
 % outFile = [L0dir, filePrefix, 'config.nc'];
 % if exist(outFile,'file')
 %     eval(['!rm ', outFile])
@@ -135,6 +133,9 @@ while ii<=Nf
     out.Velocity_North   (1:Nc,N+1:N+(ie-(is-1)))  = permute(Data.Burst_Velocity_ENU(is:ie,2,1:Nc),[3,1,2]);
     out.Velocity_Up      (1:Nc,N+1:N+(ie-(is-1)))  = permute(Data.Burst_Velocity_ENU(is:ie,3,1:Nc),[3,1,2]);
     out.Velocity_Error   (1:Nc,N+1:N+(ie-(is-1)))  = permute(Data.Burst_Velocity_ENU(is:ie,4,1:Nc),[3,1,2]);
+    out.AST              (1,N+1:N+(ie-(is-1)))     = Data.Burst_AltimeterDistanceAST(is:ie,1);
+    out.AST_Offset       (1,N+1:N+(ie-(is-1)))     = Data.Burst_AltimeterTimeOffsetAST(is:ie,1);
+
     if echo_mode
     out.Echo1            (1:NcE,N+1:N+(ie-(is-1))) = Data.Echo1Bin1_1000kHz_Echo(is:ie,1:NcE)';
     out.Echo2            (1:NcE,N+1:N+(ie-(is-1))) = Data.Echo2Bin1_1000kHz_Echo(is:ie,1:NcE)';

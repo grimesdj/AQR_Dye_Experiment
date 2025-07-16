@@ -2,7 +2,7 @@ clear all
 close all
 % stages of processing
 % 1) define deployment number:
-adcp_ID  = 1;
+adcp_ID  = 2;
 adcp_file_roots = {'S103071A014_KELP1','S104339A001_KELP1'};
 adcp_mooring_ID = {'M2', 'M1'};
 echo_mode = 0;
@@ -66,10 +66,11 @@ recoverTime = recoverTime + time_shift;
 
 Config.ATM_Time = ATM_Time;
 Config.ATM_Pressure=ATM_Pressure;
+Config.Descriptions = Descriptions;
 %
 % load and pre-process data.
 disp('load and pre-process data')
-load_and_process_sig1000_to_RDI_matrix_format_function(Config, Descriptions, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
+load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
 %
 
 % make time-averages
