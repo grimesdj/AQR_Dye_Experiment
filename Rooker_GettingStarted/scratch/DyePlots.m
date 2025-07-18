@@ -4,6 +4,8 @@ close all
 
 load("../../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat")
 
+
+
 % Release 1 Temperature
 T_bar = mean(R1.Temperature(:,3));
 
