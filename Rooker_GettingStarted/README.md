@@ -49,7 +49,7 @@ L0:
 				PCA_X, PCA_Y
 				Minamp, Mincor
 
-	- [ ] main_sig1k put vars into config struct
+	- [x] main_sig1k put vars into config struct
 	- [ ] descriptions
 	- [x] add to standardized variable list (sig 1000) to load and process Burst_AltimeterDistanceAST (or something) and 
 		Burst_...TimeOffset 
