@@ -2,7 +2,7 @@ clear all
 close all
 % stages of processing
 % 1) define deployment number:
-adcp_ID  = 2;
+adcp_ID  = 1;
 adcp_file_roots = {'S103071A014_KELP1','S104339A001_KELP1'};
 adcp_mooring_ID = {'M2', 'M1'};
 echo_mode = 0;
@@ -80,7 +80,7 @@ time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, L0FRoot, fileP
 
 % estimate hourly wave stats
 disp('estimate hourly wave stats')
-waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(L0dir, filePrefix, L0FRoot, hab);
+%waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(L0dir, filePrefix, L0FRoot, hab);
 %
 %
 disp('make some pictures')
