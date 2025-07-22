@@ -331,12 +331,14 @@ exportgraphics(fig,figname)
 %
 %
 % Compute release temperature PDF to compare with the observed
-% devine bins and load temperature time series
+% define bins and load temperature time series
 dbin  = 0.25;
 Tbins = [12:dbin:20];
-T1    = R1.Temperature;
-T2    = R2.Temperature;
-T3    = R3.Temperature;
+%
+% need to extract temperature at level of dye relese!!!
+T1    = R1.Temperature(:,3);
+T2    = R2.Temperature(:,3);
+T3    = R3.Temperature(:,3);
 %
 % generate histograms
 pdf1    = histcounts(T1,[Tbins-dbin/2, Tbins(end)+dbin/2],'normalization','probability');
@@ -408,3 +410,5 @@ exportgraphics(gcf,figname)
 % $$$ sigP1 = 2.1914
 % $$$ sigP2 = 0.8097
 % $$$ sigP3 = 6.6642
+archive_dir      = [root_dir,'/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat'];
+save(archive_dir)

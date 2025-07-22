@@ -226,6 +226,8 @@ figure,
 plot(-dTdp_T1avg,sqrt(S1(1)*S1(4)),'*k',-dTdp_T2avg,sqrt(S2(1)*S2(4)),'*r',-dTdp_T3avg,sqrt(S3(1)*S3(4)),'*b',...
      -dTdp_T1avg,S1(1),'^k',-dTdp_T2avg,S2(1),'xr',-dTdp_T3avg,S3(1),'xb',...
      -dTdp_T1avg,S1(4),'xk',-dTdp_T2avg,S2(4),'^r',-dTdp_T3avg,S3(4),'^b')
+leg = legend( '$\sqrt{\lambda_x\lambda_y}$','$\lambda_x$','$\lambda_y$');
+set(leg,'interpreter','latex')
 xlabel('$dT/dz$ [C/m]','interpreter','latex')
 ylabel('$\lambda_{x,y}$ [m]','interpreter','latex')
 %
@@ -270,5 +272,7 @@ figname = [figdir,'Release_plume_scales.png'];
 exportgraphics(gcf,figname)
 %
 %
+archive_dir      = [rootDir,'/data/2024_PROCESSED_DATA/VesselCTDFData.mat'];
+save(archive_dir)
 % 2) for each release, estimate the vertical and thermal width of the plume.
 % 3) did we observe the plume relatively soon or late after release start? I think all relatively similar
