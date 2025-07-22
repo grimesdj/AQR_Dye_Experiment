@@ -1,3 +1,16 @@
+% load_and_process_AQD.m
+% 
+%   USAGE: loads AQD data from textfiles into .mat files
+% 
+%   (script) -> requires user to enter:
+%       inputDir = Directory where textfiles are
+%       inputFile = file root for AQD files
+%       outputDir = Directory to save raw .mat
+%       L0Dir = Directory to save L0 .mat
+%       atmTime = two datetimes when instrument was in the air
+%       depTime = start and end times of deployment
+%       
+
 
 clear all
 close all

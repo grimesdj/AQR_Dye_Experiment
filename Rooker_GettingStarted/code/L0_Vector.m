@@ -1,5 +1,13 @@
 
 function L0_Vector(outputFile, L0Dir, L0Name)
+% 
+%   USAGE: L0_Vector(outputFile, L0Dir, L0Name)
+%       outputFile = folder path and filename (no extension) to raw data
+%       L0Dir = directory to save finished L0 data
+%       L0Name = L0 filename (without extension) to be saved
+% 
+%       takes raw Vector data and performs L0 QA/QC
+% 
 
 A = load([outputFile, '.mat']);
 % temporary addpath for testing :(

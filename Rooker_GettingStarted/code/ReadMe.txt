@@ -58,17 +58,74 @@ aquawrap.m: adaptation of Shcherbina et al 2018 unwrap function to fit AQD data
 	v_wrapped: velocity as [time x bins]
 	Vr: Velocity range, can be computed by ((c^2)/(8*F^2*L))
 
+L0_AQD.m
+
+%   USAGE: L0_AQD(outputFile, L0Dir, L0Name)
+%       outputFile = folder path and filename (no extension) to raw data
+%       L0Dir = directory to save finished L0 data
+%       L0Name = L0 filename (without extension) to be saved
+% 
+%       takes raw AQD data and performs L0 QA/QC
+
+L0_Vector.m
+% 
+%   USAGE: L0_Vector(outputFile, L0Dir, L0Name)
+%       outputFile = folder path and filename (no extension) to raw data
+%       L0Dir = directory to save finished L0 data
+%       L0Name = L0 filename (without extension) to be saved
+% 
+%       takes raw Vector data and performs L0 QA/QC
+
+% load_and_process_AQD.m
+% 
+%   USAGE: loads AQD data from textfiles into .mat files
+% 
+%   (script) -> requires user to enter:
+%       inputDir = Directory where textfiles are
+%       inputFile = file root for AQD files
+%       outputDir = Directory to save raw .mat
+%       L0Dir = Directory to save L0 .mat
+%       atmTime = two datetimes when instrument was in the air
+%       depTime = start and end times of deployment
 
 
-############################################################################################################
+loadAQD.m
+% 
+%   USAGE: loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+%       inputDir  = Directory where textfiles are
+%       inputFile = file root for AQD files
+%       fileName  = Directory and file root
+%       outputDir = Directory to save raw .mat
+%       atmTime   = [Datenum Datenum] in air
+%       depTime   = [Start_time , End_time] in water
+%       tos       = time offset for time zone correction
 
-IN PROGRESS:
+load_VECTOR_data_function.m
+% 
+%   USAGE: load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+%       inputDir  = Directory where textfiles are
+%       inputFile = file root for AQD files
+%       fileName  = Directory and file root
+%       outputDir = Directory to save raw .mat
+%       atmTime   = [Datenum Datenum] in air
+%       depTime   = [Start_time , End_time] in water
+%       tos       = time offset for time zone correction
 
-load_and_process_AQD : going to load raw and L0 Data
+% load_and_process_vector.m
+% 
+%   USAGE: loads Vector data from textfiles into .mat files
+% 
+%   (script) -> requires user to enter:
+%       inputDir = Directory where textfiles are
+%       inputFile = file root for AQD files
+%       outputDir = Directory to save raw .mat
+%       L0Dir = Directory to save L0 .mat
+%       atmTime = two datetimes when instrument was in the air
+%       depTime = start and end times of deployment
 
-loadAQD: going to load RAW data. RAW means Loaded and rotated!
+ 
 
-L0_AQD: going to generate L0 data. L0 means possible unwrapping, and QA/QC!
+
 
 
 

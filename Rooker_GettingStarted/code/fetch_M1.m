@@ -4,7 +4,7 @@
 function Data = fetch_M1(releaseNum)
 
 
-files = dir("../../../../Kelp_data/data/2024_PROCESSED_DATA/M1/L0/ADCP/ADCP_M1_*.mat");
+files = dir("../../../../Kelp_data/Summer2025/Rooker/M1/L0/ADCP/ADCP_M1_*.mat");
 
 TRange = readtable("../../../../Kelp_data/info/dye_mixing_cals_and_releases/dye_release_times.csv");
 
@@ -22,7 +22,7 @@ Data.Velocity_East = M1.Velocity_East';
 Data.Velocity_North = M1.Velocity_North';
 Data.Velocity_Up = M1.Velocity_Up';
 Data.Velocity_Beam1 = M1.Velocity_Beam(:,:,1)';
-Data.Velocity_Beam2 = M1.Velocity_Beam(:,:,2)';
+Data.Velocity_BeaM1 = M1.Velocity_Beam(:,:,2)';
 Data.Velocity_Beam3 = M1.Velocity_Beam(:,:,3)';
 
 Data.Correlation_Minimum = min(M1.Correlation_Beam(:,:,1)', min(M1.Correlation_Beam(:,:,2)', M1.Correlation_Beam(:,:,3)'));

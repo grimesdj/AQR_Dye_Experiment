@@ -6,9 +6,8 @@ close all
 load("../../../../Kelp_data/data/2024_PROCESSED_DATA/VesselCTDFData.mat")
 load("../../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat")
 
-
-% NaN all dye readings that are more than 2 std from Release Temp
 %%
+% find Release Temp stats
 [temp_pdf, temp_x] = ksdensity(R1.Temperature(:,3));
 % Compute mean and standard deviation from the PDF
 dx = temp_x(2) - temp_x(1);
@@ -31,17 +30,19 @@ hold off
 % Optional: show text summary
 fprintf('Mean Release temperature: %.2f °C\n', Tbar)
 fprintf('Release Temp Standard deviation: %.2f °C\n', sigma)
-%%
+
 Tplus = Tbar+(3*sigma);
 Tminus = Tbar-(3*sigma);
 
-CTD1.dye_grid(find(CTD1.temp_grid>=Tplus | CTD1.temp_grid<=Tminus)) = NaN;
 
 figure, imagesc(datenum(CTD1.time_grid), CTD1.pres_grid, log2(CTD1.dye_grid))
 hold on, contour(datenum(CTD1.time_grid), CTD1.pres_grid, CTD1.temp_grid, [Tminus Tplus], 'LineWidth', 1.5, 'LineColor', 'k')
 hold on, contour(datenum(CTD1.time_grid), CTD1.pres_grid, CTD1.temp_grid, [Tbar Tbar], 'LineWidth', 1.5, 'LineColor', 'r')
 datetick('x', 'keeplimits')
 
+CTD1.dye_grid(find(CTD1.temp_grid>=Tplus | CTD1.temp_grid<=Tminus)) = NaN;
+
+%%
 jumps = find(abs(diff(CTD1.time_grid))>1e-3);
 
 tdx = [];
@@ -78,11 +79,14 @@ for i = 1:length(tdiff)
     % Normalize dye values to make them sum to 1 (i.e., turn into weights)
     w = D / nansum(D);
     % Compute KDE of T, weighted by dye
-    [f, x] = ksdensity(T, 'Weights', w);  % <-- this is key 
+    [f, x] = ksdensity(T, 'Weights', w); 
     % Plot
     
-    figure, imagesc(log2(CTD1.(dyename)))
+    figure, imagesc(datenum(CTD1.time_grid), CTD1.pres_grid, log2(CTD1.(dyename)))
     title(sprintf('Transect #%d', count))
+    hold on, contour(datenum(CTD1.time_grid), CTD1.pres_grid, CTD1.temp_grid, 'k')
+    datetick('x',  'keeplimits')
+    
     %close(gcf)
 
     figure, plot(x, f, 'LineWidth', 2)
@@ -108,25 +112,68 @@ for i = 1:length(tdiff)
 end
 
 
-figure
-    ax1 = subplot(2, 1, 1);
-    ax2 = subplot(2, 1, 2);
-    plot(ax1, mu)
-    title(ax1, 'PDF AVG')
-    plot(ax2, sig)
-    title(ax2, 'PDF STD')
-    xlabel('transect #')
-    linkaxes([ax1 ax2], 'x')
 
 
 sig_interp = interp1(timestamp, sig, CTD1.time_grid, 'linear', 'extrap');
+mu_interp  = interp1(timestamp, mu,  CTD1.time_grid, 'linear', 'extrap');
+p_mu = polyfit(datenum(CTD1.time_grid), mu_interp, 1);
+mu_fit = polyval(p_mu, datenum(CTD1.time_grid));
+
+
+
 
 p = polyfit(datenum(CTD1.time_grid), sig_interp, 1);
 K = p(1)              
 intercept = p(2);      
 sig_fit = polyval([K intercept], datenum(CTD1.time_grid));
-figure, plot(CTD1.time_grid, sig_interp, 'w')
-hold on, plot(CTD1.time_grid, sig_fit, 'r--')
-legend('Interpolated \sigma', 'Quadratic Fit', 'Location', 'best')
+figure
+    ax1 = subplot(2, 1, 1);
+    ax2 = subplot(2, 1, 2);
+    plot(ax1, CTD1.time_grid, mu_interp, 'w')
+    hold(ax1, 'on'), plot(ax1, CTD1.time_grid, mu_fit, 'r--')
+    title(ax1, 'PDF AVG')
+    datetick(ax1, 'x', 'keeplimits')
+    ylabel('Temperature (°C)')
+    legend(ax1, 'Interpolated \mu', 'Quadratic Fit', 'Location', 'best')
+    plot(ax2, CTD1.time_grid, sig_interp, 'w')
+    hold (ax2, 'on'), plot(ax2, CTD1.time_grid, sig_fit, 'r--')
+    title(ax2, 'PDF STD')
+    datetick(ax2, 'x', 'keeplimits')
+    ylabel('Temperature (°C)')
+    legend(ax2, 'Interpolated \sigma', 'Linear Fit', 'Location', 'best')
+    linkaxes([ax1 ax2], 'x')
 
-%CTD1.dye_trans1 = CTD1.dye_grid(:,find(CTD1.time_grid == CTD1.time_grid(transidx(1))):find(CTD1.time_grid==CTD1.time_grid(transidx(4))))
+
+    legend('Interpolated \sigma', 'Linear Fit', 'Location', 'best')
+
+
+%% Make evolving PDFs using mu(t) and sigma(t)
+
+% Define temperature range
+T_vec = linspace(min(mu)-4*max(sig), max(mu)+4*max(sig), 200);
+
+% Allocate PDF matrix
+pdf_matrix = NaN(length(T_vec), length(CTD1.time_grid));
+
+for i = 1:length(CTD1.time_grid)
+    mu_t = Tbar;     % Time-varying mean
+    sigma_t = sig_fit(i); % Time-varying sigma
+
+    if isnan(mu_t) || isnan(sigma_t) || sigma_t <= 0
+        continue
+    end
+
+    % Gaussian PDF
+    f = (1 ./ (sigma_t * sqrt(2*pi))) .* exp(-0.5 * ((T_vec - mu_t) ./ sigma_t).^2);
+    f = f / trapz(T_vec, f);  % Normalize
+    pdf_matrix(:, i) = f;
+end
+figure;
+imagesc(datenum(CTD1.time_grid), T_vec, pdf_matrix)
+set(gca, 'YDir', 'normal')
+xlabel('Time')
+ylabel('Temperature (°C)')
+title('Time-Varying Temperature PDF (μ(t), σ(t))')
+colorbar
+colormap(cmocean('thermal'))
+datetick('x', 'keeplimits')
