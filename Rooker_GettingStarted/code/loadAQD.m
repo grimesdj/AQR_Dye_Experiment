@@ -1,6 +1,15 @@
 
 
 function loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+% 
+%   USAGE: loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+%       inputDir  = Directory where textfiles are
+%       inputFile = file root for AQD files
+%       fileName  = Directory and file root
+%       outputDir = Directory to save raw .mat
+%       atmTime   = [Datenum Datenum] in air
+%       depTime   = [Start_time , End_time] in water
+%       tos       = time offset for time zone correction
 
 
 % pull data

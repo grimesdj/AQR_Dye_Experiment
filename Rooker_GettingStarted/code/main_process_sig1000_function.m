@@ -66,10 +66,11 @@ recoverTime = recoverTime + time_shift;
 
 Config.ATM_Time = ATM_Time;
 Config.ATM_Pressure=ATM_Pressure;
+Config.Descriptions = Descriptions;
 %
 % load and pre-process data.
 disp('load and pre-process data')
-load_and_process_sig1000_to_RDI_matrix_format_function(Config, Descriptions, rootDIR, fRoot, L0dir, filePrefix, ATM_Time, ATM_Pressure, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
+load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
 %
 
 % make time-averages
@@ -79,7 +80,7 @@ time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, L0FRoot, fileP
 
 % estimate hourly wave stats
 disp('estimate hourly wave stats')
-waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(L0dir, filePrefix, L0FRoot, hab);
+%waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(L0dir, filePrefix, L0FRoot, hab);
 %
 %
 disp('make some pictures')

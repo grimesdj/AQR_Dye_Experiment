@@ -1,4 +1,13 @@
 function load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+% 
+%   USAGE: load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+%       inputDir  = Directory where textfiles are
+%       inputFile = file root for AQD files
+%       fileName  = Directory and file root
+%       outputDir = Directory to save raw .mat
+%       atmTime   = [Datenum Datenum] in air
+%       depTime   = [Start_time , End_time] in water
+%       tos       = time offset for time zone correction
 
 %% load header data
 %% data for each field starts at column 39 or 40

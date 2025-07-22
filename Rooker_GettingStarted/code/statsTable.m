@@ -24,6 +24,7 @@ for j = 1:3
         T{versions(2),:} = newRow;
         T.Properties.RowNames{2} = [ind ' ' versions{2}];
         quiver(0, 0, Stat.East(1), Stat.North(1), 0, 'r')
+        title(ind)
     hold off
     
     Table.(ind) = T;
@@ -57,6 +58,7 @@ for j = 1:3
     T.Properties.RowNames{3} = [ind ' ' versions{3}];
     Table.(ind) = T;
     quiver(0, 0, Stat.East(1), Stat.North(1), 0, 'g')
+    title(ind)
     hold off
 end
 

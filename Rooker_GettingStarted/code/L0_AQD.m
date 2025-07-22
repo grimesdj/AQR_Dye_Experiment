@@ -1,6 +1,13 @@
 
 function L0_AQD(outputFile, L0Dir, L0Name)
-
+% 
+%   USAGE: L0_AQD(outputFile, L0Dir, L0Name)
+%       outputFile = folder path and filename (no extension) to raw data
+%       L0Dir = directory to save finished L0 data
+%       L0Name = L0 filename (without extension) to be saved
+% 
+%       takes raw AQD data and performs L0 QA/QC
+% 
 A = load([outputFile, '.mat']);
 fprintf('\n============================\nDo you want to unwrap beam Velocities?')
 unwrap = input('(1 = yes; 0 = no)');
