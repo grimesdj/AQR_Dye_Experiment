@@ -148,7 +148,7 @@ figure
 
 
 %% Make evolving PDFs using mu(t) and sigma(t)
-
+p(2) = sig_fit(1);
 % Define temperature range
 T_vec = linspace(min(mu)-4*max(sig), max(mu)+4*max(sig), 200);
 
@@ -177,3 +177,18 @@ title('Time-Varying Temperature PDF (μ(t), σ(t))')
 colorbar
 colormap(cmocean('thermal'))
 datetick('x', 'keeplimits')
+
+
+%% Here's where we're going to find the value of PDF at a given time
+
+% P(T) = (1/(sigma(t)*sqrt(2*pi)))*exp(-T(t)^2/(2*sigma(t)^2))
+
+% Problem is that t wrt sigma is different from t wrt T
+% sigma --> CTD1.time_grid
+% T     --> (Mooring).Time
+% Can we make a global time?
+% --> tq-CTD1.time_grid(1)
+
+
+
+% DyePlots(p, CTD1, R1, R2, R3)

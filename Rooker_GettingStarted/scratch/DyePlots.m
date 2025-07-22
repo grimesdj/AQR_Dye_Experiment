@@ -1,8 +1,10 @@
-% working on some Dye/Temp analysis
-clear all
-close all
+function DyePlots(p, CTD1, R1, R2, R3)
 
-load("../../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat")
+% working on some Dye/Temp analysis
+%clear all
+%close all
+
+%load("../../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat")
 
 
 
@@ -24,39 +26,53 @@ for i = 1:length(files)
             Moor = load(fullfile(matFile(1).folder, matFile(1).name));            
             idx = find(Moor.Temperature_mab == 1.0);
             Tprime = abs(T_bar-Moor.Temperature(idx, :));
-            figure(i);
-            ax1 = subplot(2, 1, 1);
-            ax2 = subplot(2, 1, 2);
-            
-            plot(ax1, datetime(Moor.Time, 'ConvertFrom', 'datenum'), Tprime, 'y')
-            ylabel(ax1, "T' (^{\circ}C)")
-            
-                xline(ax1, R1.Start, 'g')
-                xline(ax1, R1.End, 'r')
-            
-                xline(ax1, R2.Start, 'g')
-                xline(ax1, R2.End, 'r')
-            
-                xline(ax1, R3.Start, 'g')
-                xline(ax1, R3.End, 'r')
-            
-            plot(ax2, datetime(Moor.Time, 'ConvertFrom', 'datenum'), Moor.Dye(1,:), 'b')
-            ylabel(ax2, 'Dye Conc (ppb)')
+            % figure(i);
+            % ax1 = subplot(2, 1, 1);
+            % ax2 = subplot(2, 1, 2);
+            % 
+            % plot(ax1, datetime(Moor.Time, 'ConvertFrom', 'datenum'), Tprime, 'y')
+            % ylabel(ax1, "T' (^{\circ}C)")
+            % 
+            %     xline(ax1, R1.Start, 'g')
+            %     xline(ax1, R1.End, 'r')
+            % 
+            %     xline(ax1, R2.Start, 'g')
+            %     xline(ax1, R2.End, 'r')
+            % 
+            %     xline(ax1, R3.Start, 'g')
+            %     xline(ax1, R3.End, 'r')
+            % 
+            % plot(ax2, datetime(Moor.Time, 'ConvertFrom', 'datenum'), Moor.Dye(1,:), 'b')
+            % ylabel(ax2, 'Dye Conc (ppb)')
+            % 
+            %     xline(ax2, R1.Start, 'g')
+            %     xline(ax2, R1.End, 'r')
+            % 
+            %     xline(ax2, R2.Start, 'g')
+            %     xline(ax2, R2.End, 'r')
+            % 
+            %     xline(ax2, R3.Start, 'g')
+            %     xline(ax2, R3.End, 'r')
+            % 
+            % linkaxes([ax1 ax2], 'x')
+            % title(ax1, [Moor.Name ' mooring'])
+            % xlim([R1.Start '06-Jul-2024 00:00:00'])
+            % exportgraphics(gcf, ['../../../../Kelp_data/Summer2025/Rooker/figures/Dye_Concentrations/TempDye_' Moor.Name '.pdf'] )
 
-                xline(ax2, R1.Start, 'g')
-                xline(ax2, R1.End, 'r')
-            
-                xline(ax2, R2.Start, 'g')
-                xline(ax2, R2.End, 'r')
-            
-                xline(ax2, R3.Start, 'g')
-                xline(ax2, R3.End, 'r')
-            
-            linkaxes([ax1 ax2], 'x')
-            title(ax1, [Moor.Name ' mooring'])
-            xlim([R1.Start '06-Jul-2024 00:00:00'])
-            exportgraphics(gcf, ['../../../../Kelp_data/Summer2025/Rooker/figures/Dye_Concentrations/TempDye_' Moor.Name '.pdf'] )
-            
+            for ii = 1:length(Moor.Dye(1,datenum(R1.End):datenum(R2.Start)))
+                t_rel = Moor.Time(ii)-CTD1.time_grid(1);
+                sigma_t = p(1) * t_rel + p(2);
+                scale = (1 / (sqrt(2*pi) * sigma_t)) * ...
+                    exp(-((Moor.Temperature(2, ii) - T_bar)^2) / (2 * sigma_t^2));
+                if scale > 0.001 && ~isnan(scale)
+                    Moor.Scaled(ii) = Moor.Dye(1,ii)/scale;
+                else
+                    Moor.Scaled(ii) = NaN;
+                end
+            end
+            figure, plot(Moor.Time(datenum(R1.End):datenum(R2.Start)), Moor.Scaled)
+            datetick('x', 'keeplimits')
+            title(['PDF-Scaled Dye Measurements at ' Moor.Name])
         end
     end
 end
@@ -213,3 +229,4 @@ end
 %                Start: 03-Jul-2024 18:38:00
 %                  End: 03-Jul-2024 19:52:00
 % 
+end
