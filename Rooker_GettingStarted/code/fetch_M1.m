@@ -20,7 +20,7 @@ end
 
 dye = find(M1.Time >= datenum(TRange.StartTime_UTC_(releaseNum)) & M1.Time <= datenum(TRange.EndTime_UTC_(releaseNum)));
 
-Data.Time = M1.Time(dye);
+Data.Time = M1.Time(dye)';
 Data.Velocity_East = M1.Velocity_East(:,dye)';
 Data.Velocity_North = M1.Velocity_North(:,dye)';
 Data.Velocity_Up = M1.Velocity_Up(:,dye)';
