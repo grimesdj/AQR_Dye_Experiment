@@ -7,7 +7,7 @@ versions = {'L0', 'M1', 'Vector'};
 
 
 
-% Avg Tables for L0 and M1
+% Avg Tables for AQD and M1
 for j = 1:3
     ind = sprintf('AvgR%d', j);
     clear T
@@ -38,7 +38,7 @@ for j = 1:3
     ind = sprintf('PtR%d', j);
     clear T
     T = array2table(zeros(3, length(cols)), 'VariableNames', cols, 'RowNames', versions);
-    %L0
+    %AQD
     Stat = aquaplot(j, versions{1}, 'off', 34, 35);
     newRow = [Stat.Pres(1), Stat.Pres(2), Stat.Mag(1), Stat.Mag(2), Stat.East(1), Stat.East(2), Stat.North(1), Stat.North(2), Stat.theta];
     T{versions(1),:} = newRow;

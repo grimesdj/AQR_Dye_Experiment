@@ -1,5 +1,12 @@
 
 function time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, L0FRoot, filePrefix, dtAvg, echo_mode)
+% 
+%   USAGE: time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, L0FRoot, filePrefix, dtAvg, echo_mode)
+%       L0dir     = Directory for L0 files
+%       L0FRoot   = L0 file root
+%       dtAvg     = Average sample interval (seconds) 
+%       echo_mode = (logical) Echo Mode status (0 == off)
+% 
 
 %
 load([L0dir,filesep,filePrefix,'config.mat'])

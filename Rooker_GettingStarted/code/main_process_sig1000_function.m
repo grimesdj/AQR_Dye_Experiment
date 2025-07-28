@@ -1,3 +1,27 @@
+
+% main_process_sig1000_function.m
+% 
+%   USAGE: (script) loads and processes raw sig1K data into L0
+%   '.mat' files
+% 
+%    REQUIRES USER TO ENTER:
+%       adcp_ID         = index of ADCP to be used
+%       adcp_file_roots = file roots for target ADCPs
+%       adcp_mooring_ID = mooring ID for selected ADCPs
+%       echo_mode       = (logical) Echo Mode status
+%       time_shift      = time zone compensation
+%       rootDIR         = Raw data directory
+%       fRoot           = Raw data file root
+%       outRoot         = parent directory of L0 and L1 dircetories
+%       dtAvg           = Average sample interval (seconds)
+%       atmosphTime     = two times when the instrument was in the air
+%       deployTime      = time the instrument was deployed
+%       recoverTime     = time the instrument was recovered
+% 
+
+
+
+
 clear all
 close all
 % stages of processing
