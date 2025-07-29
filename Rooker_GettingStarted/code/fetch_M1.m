@@ -1,10 +1,15 @@
 
 % Returns a Structure M1 with specified release
 
-function Data = fetch_M1(releaseNum)
+function Data = fetch_M1(releaseNum, mooringID)
 
 
 files = dir("../../../../Kelp_data/Summer2025/Rooker/M1/L0/ADCP/ADCP_M1_*.mat");
+files2 = dir("../../../../Kelp_data/Summer2025/Rooker/M2/L0/ADCP/ADCP_M2_*.mat");
+
+if mooringID == 2
+    files = files2;
+end
 
 TRange = readtable("../../../../Kelp_data/info/dye_mixing_cals_and_releases/dye_release_times.csv");
 
@@ -18,14 +23,14 @@ for i = 1:length(files)
     end
 end
 
-dye = find(M1.Time >= datenum(TRange.StartTime_UTC_(releaseNum)) & M1.Time <= datenum(TRange.EndTime_UTC_(releaseNum)));
+dye = find(M1.Time >= datenum(TRange.StartTime_UTC_(releaseNum+3)) & M1.Time <= datenum(TRange.EndTime_UTC_(releaseNum+3)));
 
 Data.Time = M1.Time(dye)';
 Data.Velocity_East = M1.Velocity_East(:,dye)';
 Data.Velocity_North = M1.Velocity_North(:,dye)';
 Data.Velocity_Up = M1.Velocity_Up(:,dye)';
 Data.Velocity_Beam1 = M1.Velocity_Beam(:,dye,1)';
-Data.Velocity_BeaM1 = M1.Velocity_Beam(:,dye,2)';
+Data.Velocity_Beam1 = M1.Velocity_Beam(:,dye,2)';
 Data.Velocity_Beam3 = M1.Velocity_Beam(:,dye,3)';
 
 Data.Correlation_Minimum = min(M1.Correlation_Beam(:,dye,1)', min(M1.Correlation_Beam(:,dye,2)', M1.Correlation_Beam(:, dye,3)'));
