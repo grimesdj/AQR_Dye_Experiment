@@ -4,7 +4,8 @@ close all
 
 
 % Define the files to be loaded
-files = dir('../../../../Kelp_data/Summer2025/Rooker/Release1/L0/*.mat');
+files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
+colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
 
 % Make figure
 figure;
@@ -83,17 +84,56 @@ legend(ax2, h2, labels, 'Location', 'best')
 datetick(ax1)
 datetick(ax2)
 
-h1(1).Color = 'b';
-h2(1).Color = 'b';
-
-h1(2).Color = 'r';
-h2(2).Color = 'r';
-
-h1(3).Color = 'm';
-h2(3).Color = 'm';
-
-h1(4).Color = 'g';
-h2(4).Color = 'g';
+for i = 1:numel(colors)
+    h1(i).Color = colors{i};
+    h2(i).Color = colors{i};
+end
 
 yline(ax1,0)
 yline(ax2,0)
+
+%% Map Plots
+
+% These are NOT the correct lat/lons. having a hard time getting them from
+% the info files so I approximated them for now
+
+% Assign Coords
+lats = [34.4690789 34.469615 34.4690706 34.4690789];
+longs = [-120.1278549 -120.130375 -120.1278088 -120.1278549];
+
+% Make a map
+figure, 
+geobasemap satellite
+hold on
+geoplot(lats(1), longs(1), 'bo')
+geoplot(lats(2), longs(2), 'ro')
+geoplot(lats(3), longs(3), 'mo')
+geoplot(lats(4), longs(4), 'g.')
+
+% Set up video writer
+v = VideoWriter('geoplot_animation.mp4', 'MPEG-4');
+v.FrameRate = 5;  
+open(v)
+
+for idx = 1:length(data.Time)
+    for i = 1:length(lats)
+
+% Define arrow scaling (adjust as needed to make arrows visible on map)
+scale = 0.05;
+
+% Arrow base coordinates (lat/lon of instrument 1)
+lat_base = lats(i);
+lon_base = longs(i);
+
+% Compute the tip of the arrow
+lat_tip = lat_base + v_ds(idx) * scale; % v = north/south
+lon_tip = lon_base + u_ds(idx) * scale; % u = east/west
+
+% Plot the arrow as a line
+geoplot([lat_base, lat_tip], [lon_base, lon_tip], 'Color', colors{i}, 'LineWidth', 2)
+     
+    end
+    % Capture frame
+    frame = getframe(gcf);
+    writeVideo(v, frame);
+end
