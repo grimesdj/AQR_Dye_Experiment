@@ -3,7 +3,7 @@
 clear all; close all;
 
 %% File Setup and Color Definitions
-files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
+files = dir('../../../../Kelp_data/Summer2025/Rooker/Release1/L0/*.mat');
 colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
 labels = cell(1, length(files));
 h1 = gobjects(1, length(files));
@@ -97,26 +97,149 @@ geobasemap satellite; hold on
 for i = 1:length(lats)
     geoplot(lats(i), longs(i), 'o', 'Color', colors{i})
 end
+close(3)
 
-%% Make MP4 of Vectors on Map
-v = VideoWriter('geoplot_animation.mp4', 'MPEG-4');
+%% Make MP4 of Vectors on Map with Midpoint Diff Arrow
+v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release1/animations/Release1_Currents.mp4', 'MPEG-4');
 v.FrameRate = 5;
 open(v)
 
+% Create visible figure
+fig = figure('Visible','on');
+gx = geoaxes(fig);
+grid(gx,'off');
+hold(gx,'on');
+geobasemap(gx,'satellite');
+
+% --- Create dummy arrows for persistent legend ---
+hArrowsLegend = gobjects(length(colors)+1, 1); % +1 for diff arrow
+for i = 1:length(colors)
+    hArrowsLegend(i) = geoplot(gx, [0 0], [0 0], 'Color', colors{i}, 'LineWidth', 2);
+end
+% Dummy for diff arrow (black)
+hArrowsLegend(end) = geoplot(gx, [0 0], [0 0], 'Color', [0 0 0], 'LineWidth', 2);
+
+legend(hArrowsLegend, [labels, {'Diff 2-3'}], 'Location', 'northeast');
+
+% --- Animate arrows and base circles ---
 for idx = 1:length(tq)
-    if idx > length(U_all{i})
-        continue
-    end
+    % Delete previous arrows/markers
+    if exist('hArrows','var'); delete(hArrows); end
+    if exist('hMarkers','var'); delete(hMarkers); end
+
+    hold(gx,'on');
     for i = 1:length(lats)
+        if idx > length(U_all{i}); continue; end
+
         lat_base = lats(i);
         lon_base = longs(i);
-        scale = 0.05;
-        lat_tip = lat_base + V_all{i}(idx) * scale;
-        lon_tip = lon_base + U_all{i}(idx) * scale;
-        geoplot([lat_base, lat_tip], [lon_base, lon_tip], 'Color', colors{i}, 'LineWidth', 2)
+        scale = 0.03;
+        lat_tip(i) = lat_base + V_all{i}(idx) * scale;
+        lon_tip(i) = lon_base + U_all{i}(idx) * scale;
+
+        % Plot arrow
+        hArrows(i) = geoplot(gx, [lat_base, lat_tip(i)], [lon_base, lon_tip(i)], ...
+                             'Color', colors{i}, 'LineWidth', 2, 'DisplayName','');
+
+        % Open circle at base
+        hMarkers(i) = geoscatter(gx, lat_base, lon_base, 50, ...
+                                 'MarkerEdgeColor', colors{i}, ...
+                                 'MarkerFaceColor','none', 'LineWidth',1.5,'DisplayName','');
     end
+
+    % --- Compute difference arrow (2 - 3) ---
+    % Midpoint between instrument 2 and 3
+    lon_base_diff = (longs(2) + longs(3)) / 2;
+    lat_base_diff = (lats(2) + lats(3)) / 2;
+
+    % Compute difference vector
+    lon_diff = (lon_tip(2) - longs(2)) - (lon_tip(3) - longs(3));
+    lat_diff = (lat_tip(2) - lats(2)) - (lat_tip(3) - lats(3));
+
+    % Tip of difference arrow
+    lon_tip_diff = lon_base_diff + lon_diff;
+    lat_tip_diff = lat_base_diff + lat_diff;
+
+    % Plot difference arrow (black)
+    hArrows(end+1) = geoplot(gx, [lat_base_diff, lat_tip_diff], ...
+                             [lon_base_diff, lon_tip_diff], ...
+                             'Color', [0 0 0], 'LineWidth',2,'DisplayName','');
+
+    % Open circle at base of difference arrow
+    hMarkers(end+1) = geoscatter(gx, lat_base_diff, lon_base_diff, 50, ...
+                                 'MarkerEdgeColor',[0 0 0], ...
+                                 'MarkerFaceColor','none','LineWidth',1.5,'DisplayName','');
+
+    % Set map limits
+    geolimits(gx, [34.4653 34.4736], [-120.133 -120.125]);
+
+    % Add timestamp title
+    title(gx, datestr(T_all{4}(idx), 'mmm dd, yyyy HH:MM'));
+
+    drawnow
     frame = getframe(gcf);
     writeVideo(v, frame);
-    cla
 end
-close(v)
+
+close(v);
+
+
+% %% Make MP4 of Vectors on Map
+% v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release2/animations/geoplot_animation.mp4', 'MPEG-4');
+% v.FrameRate = 4;
+% open(v)
+% 
+% figure;
+% gx = geoaxes;
+% grid(gx, 'off');       % turn off the grid
+% hold(gx, 'on');
+% geobasemap satellite
+% 
+% % --- Create dummy arrows for persistent legend ---
+% hArrowsLegend = gobjects(length(colors), 1);
+% for i = 1:length(colors)
+%     hArrowsLegend(i) = geoplot(gx, [0 0], [0 0], 'Color', colors{i}, 'LineWidth', 2);
+% end
+% legend(hArrowsLegend, labels, 'Location', 'northeast')
+% 
+% % --- Animate arrows and base circles ---
+% for idx = 1:length(tq)
+%     % Delete previous frame arrows and markers
+%     if exist('hArrows','var'); delete(hArrows); end
+%     if exist('hMarkers','var'); delete(hMarkers); end
+% 
+%     hold(gx, 'on')
+%     for i = 1:length(lats)
+%         if idx > length(U_all{i})
+%             continue
+%         end
+%         lat_base = lats(i);
+%         lon_base = longs(i);
+%         scale = 0.03;
+%         lat_tip = lat_base + V_all{i}(idx) * scale;
+%         lon_tip = lon_base + U_all{i}(idx) * scale;
+% 
+%         % Plot arrow
+%         hArrows(i) = geoplot(gx, [lat_base, lat_tip], [lon_base, lon_tip],...
+%                              'Color', colors{i}, 'LineWidth', 2, 'DisplayName','');
+% 
+%         % Plot open circle at base (excluded from legend)
+%         hMarkers(i) = geoscatter(gx, lat_base, lon_base, 50, ...
+%                                  'MarkerEdgeColor', colors{i}, ...
+%                                  'MarkerFaceColor','none', 'LineWidth', 1.5, 'DisplayName','');
+%     end
+% 
+%     % Set map limits
+%     geolimits(gx, [34.4653 34.4736], [-120.133 -120.125])
+% 
+%     % Add timestamp title
+% 
+%     title(gx, datestr(T_all{4}(idx), 'mmm dd, yyyy HH:MM'))
+% 
+%     % Capture frame
+%     drawnow
+%     frame = getframe(gcf);
+%     writeVideo(v, frame);
+% end
+% 
+% close(v)
