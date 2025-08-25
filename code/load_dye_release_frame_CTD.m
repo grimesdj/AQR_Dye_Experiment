@@ -30,6 +30,7 @@ idx = ismember(TYPEs,{'DUET','RBR-CTD'});
 N   = sum(idx);
 %
 R1  = struct('Time',[],'Temperature',[],'Pressure',[],'PressureOffset',[],'Salinity',[],'Conductivity',[],'Depth_deploy',[],'mab',[]);
+ADCP1=struct('Time',[],'Temperature',[],'Pressure',[],'PressureOffset',[],'Salinity',[],'Conductivity',[],'Depth_deploy',[],'mab',[]);
 R23 = struct('Time',[],'Temperature',[],'Pressure',[],'PressureOffset',[],'Salinity',[],'Conductivity',[],'Depth_deploy',[],'mab',[]);
 R2  = struct('Time',[],'Temperature',[],'Pressure',[],'PressureOffset',[],'Salinity',[],'Conductivity',[],'Depth_deploy',[],'mab',[]);
 R3  = struct('Time',[],'Temperature',[],'Pressure',[],'PressureOffset',[],'Salinity',[],'Conductivity',[],'Depth_deploy',[],'mab',[]);
@@ -105,6 +106,7 @@ for ii = 1:N% i put the adcps at the end, so this shouldn't barf
     % first get Release1,then combined Release2-Release3, then individual Release2 & Release3,
     Nt  = size(rbr.Time,1);
     iR1 = find(rbr.Time>=datenum(release_times.StartTime_UTC_(1)) & rbr.Time<=datenum(release_times.EndTime_UTC_(1)));
+    iADCP1 = find(rbr.Time>=datenum('03-Jul-2024 18:35:00') & rbr.Time<=datenum('03-Jul-2024 22:24:59'));    
     iR23 = find(rbr.Time>=datenum(release_times.StartTime_UTC_(2)) & rbr.Time<=datenum(release_times.EndTime_UTC_(3)));
     iR2 = find(rbr.Time>=datenum(release_times.StartTime_UTC_(2)) & rbr.Time<=datenum(release_times.EndTime_UTC_(2)));
     iR3 = find(rbr.Time>=datenum(release_times.StartTime_UTC_(3)) & rbr.Time<=datenum(release_times.EndTime_UTC_(3)));
@@ -112,6 +114,7 @@ for ii = 1:N% i put the adcps at the end, so this shouldn't barf
     fields = fieldnames(rbr);
     fields = fields(~ismember(fields,'Time'));
     if isempty(R1.Time)
+        ADCP1(1).Time= rbr.Time(iADCP1);
         R1(1).Time = rbr.Time(iR1);
         R2(1).Time = rbr.Time(iR2);
         R23(1).Time = rbr.Time(iR23);                
@@ -122,6 +125,8 @@ for ii = 1:N% i put the adcps at the end, so this shouldn't barf
         if length(rbr.(field))==Nt
             tmp        = interp1(rbr.Time,rbr.(field),R1.Time);
             R1.(field) = cat(2,R1.(field),tmp);
+            tmp        = interp1(rbr.Time,rbr.(field),ADCP1.Time);
+            ADCP1.(field) = cat(2,ADCP1.(field),tmp);
             tmp        = interp1(rbr.Time,rbr.(field),R2.Time);
             R2.(field) = cat(2,R2.(field),tmp);
             tmp        = interp1(rbr.Time,rbr.(field),R23.Time);
@@ -130,6 +135,7 @@ for ii = 1:N% i put the adcps at the end, so this shouldn't barf
             R3.(field) = cat(2,R3.(field),tmp);
         else
             R1.(field) = cat(2,R1.(field),rbr.(field));
+            ADCP1.(field) = cat(2,ADCP1.(field),rbr.(field));            
             R2.(field) = cat(2,R2.(field),rbr.(field));            
             R23.(field) = cat(2,R23.(field),rbr.(field));
             R3.(field) = cat(2,R3.(field),rbr.(field));

@@ -11,7 +11,8 @@ dye_cal_file      = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/dye_cal
 data_dir          = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/';
 archive_dir       = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/2024_PROCESSED_DATA/';
 eco_dir = [data_dir,'ECOtriplet',filesep]; 
-sbe_dir = [data_dir,'SBE56s',filesep];
+sbe56_dir = [data_dir,'SBE56s',filesep];
+sbe36_dir = [data_dir,'SBE37s',filesep];
 rbr_dir = [data_dir,'RBR',filesep];
 pme_root= [data_dir,'PME_'];
 ysi_dir = [data_dir,'YSI',filesep];
@@ -50,7 +51,8 @@ for ii = 1:length(moorings)
     out(1).Longitude = mooring_loc_data{3}(ind_loc');
     out(1).Time_deploy = char(mooring_loc_data{4}(ind_loc',:));
     out(1).Depth_deploy = mooring_loc_data{5}(ind_loc');
-%
+    fprintf('\n working on mooring: %s\n',moorings{ii})
+    %
 % 3) load and interpolate data
 % 3c) switch based on instrument type,
 %     create instrument specific structure,
@@ -72,6 +74,7 @@ for ii = 1:length(moorings)
         type = char(instrument_type(inds(jj)));
         SN   = instrument_SN(inds(jj));
         mab  = instrument_mab(inds(jj));
+        fprintf('\t loading instrument: %s-%d\n',type,SN)        
         switch type
           case 'SBE'
             sbeFileStr = sprintf(['%s',filesep,'SBE56s',filesep,'SN_%d.csv'],data_dir,SN);
@@ -96,8 +99,8 @@ for ii = 1:length(moorings)
             sbe_temp = cellfun(@str2num,sbe_data{3});
             % put info into structure array
             sbe = struct('Time',sbe_time,'Temperature',sbe_temp,'Latitude',out.Latitude,'Longitude',out.Longitude,'Time_deploy',out.Time_deploy,'Depth_deploy',out.Depth_deploy,'mab',mab);
-            sbe_dir  = [archive_dir,filesep,deblank(moorings{ii}),filesep,'L0',filesep,'SBE_56',filesep];
-            sbe_file = [sbe_dir,num2str(SN,'%04d')];
+            sbe56_dir  = [archive_dir,filesep,deblank(moorings{ii}),filesep,'L0',filesep,'SBE_56',filesep];
+            sbe_file = [sbe56_dir,num2str(SN,'%04d')];
             % save raw data to .nc and .mat in mooring dir
             save(sbe_file,'-struct','sbe')
             ncfile = [sbe_file,'.nc'];
@@ -117,6 +120,8 @@ for ii = 1:length(moorings)
             title(sprintf('SBE-SN%04d',SN),'interpreter','latex')
             set(gca,'tickdir','out','xlim',datetime([min(time) max(time)],'convertfrom','datenum'),'ticklabelinterpreter','latex')
             exportgraphics(fig0,[sbe_file,'.pdf'])
+          case 'SBE37'
+            disp('need to draft load functino for SBE37')
           case {'RBR','SOLO','DUET'}
             rbrFileStr = sprintf([data_dir,filesep,'RBR',filesep,'SN_%04d*.rsk'],SN);
             rbrFile = dir(rbrFileStr);
@@ -281,9 +286,11 @@ for ii = 1:length(moorings)
             dye = cat(1,dye,dye_interp);
             dye_depth = cat(1,dye_depth,mab);
             %
-            temp_interp = interp1(pme_time,pme_temp,time);
-            temp = cat(1,temp,temp_interp);
-            temp_depth = cat(1,temp_depth,mab);
+            % not using PME temperature... not reliable!
+            disp('!!!!!!!WARNING: NOT LOGGING PME-TEMPERATURE !!!!!!!!!!!')
+% $$$             temp_interp = interp1(pme_time,pme_temp,time);
+% $$$             temp = cat(1,temp,temp_interp);
+% $$$             temp_depth = cat(1,temp_depth,mab);
             %
             figure(fig0),clf
             ax1 = subplot(2,1,1);
@@ -464,9 +471,10 @@ for ii = 1:length(moorings)
             dye = cat(1,dye,dye_interp);
             dye_depth = cat(1,dye_depth,mab);
             % interpolate to time vector and prep to save in mooring struct
-            temp_interp = interp1(ysi_time,ysi_temp,time);
-            temp = cat(1,temp,temp_interp);
-            temp_depth = cat(1,temp_depth,mab);
+            disp('!!!!!!!WARNING: NOT LOGGING YSI-TEMPERATURE !!!!!!!!!!!')            
+% $$$             temp_interp = interp1(ysi_time,ysi_temp,time);
+% $$$             temp = cat(1,temp,temp_interp);
+% $$$             temp_depth = cat(1,temp_depth,mab);
             % interpolate to time vector and prep to save in mooring struct
             pres_interp = interp1(ysi_time,ysi_pres-ysi_pres_offset,time);
             pres = cat(1,pres,pres_interp);
@@ -500,6 +508,7 @@ for ii = 1:length(moorings)
             exportgraphics(fig0,[ysi_file,'.pdf'])
         end
     end
+    fprintf('\t interpolating to common time vector: \n')        
     % 3b) interpolate to mooring time vector,
     %     log instrument depth, and other notes
     out(1).Time        = time;
@@ -518,6 +527,7 @@ for ii = 1:length(moorings)
     out(1).Instrument_SN= instrument_SN(inds);
     %
     %
+    fprintf('\t archiving L1 data for: %s \n',moorings{ii})            
     % 4) archive to /L1/instrument_type/
     out_file = [archive_dir,filesep,deblank(moorings{ii}),filesep,'L1',filesep,'mooring_',deblank(moorings{ii})];
     % save raw data to .nc and .mat in mooring dir
@@ -530,6 +540,8 @@ for ii = 1:length(moorings)
     %
     presFlag = size(pres,2)==length(time);
     saltFlag = size(salt,2)==length(time);
+    %
+    fprintf('\t making compendium plots for: %s \n',moorings{ii})            
     %
     figure(fig1),clf
     ax1 = subplot(2+presFlag+saltFlag,1,1);

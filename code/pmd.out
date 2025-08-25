@@ -1,0 +1,223 @@
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2023 The MathWorks, Inc.
+                  R2023b (23.2.0.2365128) 64-bit (maci64)
+                              August 23, 2023
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+[Warning: Function ismac has the same name as a MATLAB built-in. We suggest you
+rename the function to avoid a potential name conflict.] 
+[> In path (line 109)
+In addpath>doPathAddition (line 116)
+In addpath (line 80)
+In startup (line 12)] 
+[Warning: Function ispc has the same name as a MATLAB built-in. We suggest you
+rename the function to avoid a potential name conflict.] 
+[> In path (line 109)
+In addpath>doPathAddition (line 116)
+In addpath (line 80)
+In startup (line 12)] 
+[Warning: Function ismac has the same name as a MATLAB built-in. We suggest you
+rename the function to avoid a potential name conflict.] 
+[> In path (line 109)
+In addpath>doPathAddition (line 116)
+In addpath (line 80)
+In startup (line 12)] 
+[Warning: Function ispc has the same name as a MATLAB built-in. We suggest you
+rename the function to avoid a potential name conflict.] 
+[> In path (line 109)
+In addpath>doPathAddition (line 116)
+In addpath (line 80)
+In startup (line 12)] 
+>> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> 2025-07-24 10:35:00.570 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Regular", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+2025-07-24 10:35:00.570 MATLAB[63851:9363261] CoreText note: Set a breakpoint on CTFontLogSystemFontNameRequest to debug.
+2025-07-24 10:35:00.574 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Bold", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+2025-07-24 10:35:00.577 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Regular", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+2025-07-24 10:35:00.578 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Bold", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+>> >> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ working on mooring: E
+	 loading instrument: SBE-13618
+	 loading instrument: ECO-BIO-8683
+	 loading instrument: SBE-13592
+	 loading instrument: PME-339378
+!!!!!!!WARNING: NOT LOGGING PME-TEMPERATURE !!!!!!!!!!!
+	 loading instrument: DUET-7222
+Setting default values for all RSKtools parameters
+mksqlite Version 2.5 build: Unversioned directory, an interface from MATLAB to SQLite
+(c) 2008-2017 by Martin Kortmann <mail@kortmann.de>
+                 Andreas Martin  <andimartin@users.sourceforge.net>
+based on SQLite Version 3.16.2 - http://www.sqlite.org
+mksqlite utilizes:
+ - DEELX perl compatible regex engine Version 1.3 (Sswater@gmail.com)
+ - BLOSC/LZ4 1.3.0-rc3.dev compression algorithm (Francesc Alted / Yann Collett) 
+ - MD5 Message-Digest Algorithm (RFC 1321) implementation by Alexander Peslyak
+   
+Platform: MACI64, little endian
+
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//RBR/SN_7222*.rsk
+	 interpolating to common time vector: 
+	 archiving L1 data for: E 
+	 making compendium plots for: E 
+
+ working on mooring: M1
+	 loading instrument: SOLO-1169
+	 loading instrument: SOLO-942
+	 loading instrument: SOLO-1930
+	 loading instrument: SOLO-1167
+	 loading instrument: SOLO-956
+	 loading instrument: SOLO-958
+	 loading instrument: SOLO-959
+	 loading instrument: SOLO-1172
+	 loading instrument: SOLO-1177
+	 loading instrument: SOLO-958
+	 loading instrument: RBR-C-F-214015
+	 loading instrument: PME-626920
+!!!!!!!WARNING: NOT LOGGING PME-TEMPERATURE !!!!!!!!!!!
+	 loading instrument: SBE-26511
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//SBE56s/SN_26511.csv
+	 loading instrument: RBR-V-F-235288
+	 interpolating to common time vector: 
+	 archiving L1 data for: M1 
+	 making compendium plots for: M1 
+
+ working on mooring: M2
+	 loading instrument: SOLO-1171
+	 loading instrument: SOLO-1176
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//RBR/SN_1176*.rsk
+	 loading instrument: SOLO-1175
+	 loading instrument: SOLO-1173
+	 loading instrument: SOLO-940
+	 loading instrument: SOLO-957
+	 loading instrument: SOLO-955
+	 loading instrument: SOLO-938
+	 loading instrument: SOLO-954
+	 loading instrument: ECO-BIO-8682
+	 loading instrument: RBR-V-F-235289
+	 loading instrument: SBE37-26637
+need to draft load functino for SBE37
+	 interpolating to common time vector: 
+	 archiving L1 data for: M2 
+	 making compendium plots for: M2 
+
+ working on mooring: M3
+	 loading instrument: SOLO-963
+	 loading instrument: SOLO-950
+	 loading instrument: SOLO-961
+	 loading instrument: SOLO-949
+	 loading instrument: SOLO-960
+	 loading instrument: SOLO-964
+	 loading instrument: SOLO-948
+	 loading instrument: SOLO-1170
+	 loading instrument: SOLO-951
+	 loading instrument: RBR-1150
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//RBR/SN_1150*.rsk
+	 loading instrument: RBR-C-F-214016
+	 loading instrument: RBR-962
+	 loading instrument: PME-610038
+!!!!!!!WARNING: NOT LOGGING PME-TEMPERATURE !!!!!!!!!!!
+	 loading instrument: RBR-CTD-865
+	 loading instrument: RBR-V-F-235287
+	 interpolating to common time vector: 
+	 archiving L1 data for: M3 
+	 making compendium plots for: M3 
+
+ working on mooring: M4
+	 loading instrument: SOLO-965
+	 loading instrument: SBE-13633
+	 loading instrument: SBE-13599
+	 loading instrument: SBE-13629
+	 loading instrument: SBE-13596
+	 loading instrument: SBE-13585
+	 loading instrument: SBE-13623
+	 loading instrument: SBE-13622
+	 loading instrument: RBR-1932
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//RBR/SN_1932*.rsk
+	 loading instrument: SBE-13604
+	 loading instrument: RBR-952
+	 loading instrument: RBR-939
+	 loading instrument: RBR-943
+	 loading instrument: RBR-1939
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//RBR/SN_1939*.rsk
+	 loading instrument: PME-880819
+!!!!!!!WARNING: NOT LOGGING PME-TEMPERATURE !!!!!!!!!!!
+	 loading instrument: RBR-941
+	 loading instrument: PME-906652
+!!!!!!!WARNING: NOT LOGGING PME-TEMPERATURE !!!!!!!!!!!
+	 loading instrument: RBR-CTD-866
+	 interpolating to common time vector: 
+	 archiving L1 data for: M4 
+	 making compendium plots for: M4 
+
+ working on mooring: N
+	 loading instrument: SBE-13593
+	 loading instrument: ECO-307
+	 loading instrument: SBE-13624
+	 loading instrument: YSI-5124
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/YSI//SN_5124.csv
+	 interpolating to common time vector: 
+	 archiving L1 data for: N 
+	 making compendium plots for: N 
+
+ working on mooring: NE
+	 loading instrument: SBE-13550
+	 loading instrument: ECO-656
+	 loading instrument: SBE-13621
+	 loading instrument: YSI-5120
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/YSI//SN_5120.csv
+	 interpolating to common time vector: 
+	 archiving L1 data for: NE 
+	 making compendium plots for: NE 
+
+ working on mooring: NW
+	 loading instrument: SBE-13616
+	 loading instrument: ECO-472
+	 loading instrument: SBE-13617
+	 loading instrument: YSI-5123
+!!!!!!!WARNING: NOT LOGGING YSI-TEMPERATURE !!!!!!!!!!!
+	 interpolating to common time vector: 
+	 archiving L1 data for: NW 
+	 making compendium plots for: NW 
+
+ working on mooring: S
+	 loading instrument: SBE-13627
+	 loading instrument: ECO-372
+	 loading instrument: SBE-13630
+	 loading instrument: YSI-5118
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/YSI//SN_5118.csv
+	 interpolating to common time vector: 
+	 archiving L1 data for: S 
+	 making compendium plots for: S 
+
+ working on mooring: SE
+	 loading instrument: SBE-13634
+	 loading instrument: ECO-605
+	 loading instrument: SBE-13610
+	 loading instrument: YSI-5127
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/YSI//SN_5127.csv
+	 interpolating to common time vector: 
+	 archiving L1 data for: SE 
+	 making compendium plots for: SE 
+
+ working on mooring: SW
+	 loading instrument: SBE-13632
+	 loading instrument: ECO-309
+	 loading instrument: SBE-13546
+	 loading instrument: YSI-5115
+!!!!!!!WARNING: NOT LOGGING YSI-TEMPERATURE !!!!!!!!!!!
+	 interpolating to common time vector: 
+	 archiving L1 data for: SW 
+	 making compendium plots for: SW 
+
+ working on mooring: W
+	 loading instrument: SBE-13620
+	 loading instrument: ECO-470
+	 loading instrument: SBE-13626
+	 loading instrument: YSI-308
+!!!!!!!WARNING: NOT LOGGING YSI-TEMPERATURE !!!!!!!!!!!
+	 interpolating to common time vector: 
+	 archiving L1 data for: W 
+	 making compendium plots for: W 
+>> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> 
