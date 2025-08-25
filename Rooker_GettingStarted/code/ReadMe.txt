@@ -123,10 +123,50 @@ load_VECTOR_data_function.m
 %       atmTime = two datetimes when instrument was in the air
 %       depTime = start and end times of deployment
 
- 
+
+load_and_process_sig1000_to_RDI_matrix_format_function.m
+ %  
+% 
+%   USAGE: A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
+%       Config          = Structure with instrument configuration data
+%       rootDIR         = directory for raw sig1K .mat file
+%       fRoot           = root of file name for raw sig1K .mat file
+%       L0dir           = Directory to save L0 data
+%       filePrefix      = L0 file root
+%       hab             = Instrument Height Above Bottom (m)
+%       echo_mode       = (logical) Echo Mode status (0 == off)
+%       deployTime      = time the instrument was deployed
+%       recoverTime     = time the instrument was recovered
+%       HeadingOffset   = Heading declination in nautical degrees
+%       
+%
+
+% main_process_sig1000_function.m
+% 
+%   USAGE: (script) loads and processes raw sig1K data into L0
+%   '.mat' files
+% 
+%    REQUIRES USER TO ENTER:
+%       adcp_ID         = index of ADCP to be used
+%       adcp_file_roots = file roots for target ADCPs
+%       adcp_mooring_ID = mooring ID for selected ADCPs
+%       echo_mode       = (logical) Echo Mode status
+%       time_shift      = time zone compensation
+%       rootDIR         = Raw data directory
+%       fRoot           = Raw data file root
+%       outRoot         = parent directory of L0 and L1 dircetories
+%       dtAvg           = Average sample interval (seconds)
+%       atmosphTime     = two times when the instrument was in the air
+%       deployTime      = time the instrument was deployed
+%       recoverTime     = time the instrument was recovered
+%
 
 
-
-
-
-
+ time_average_and_rotate_sig1000_RDI_matrix_format_function.m
+%
+%   USAGE: time_average_and_rotate_sig1000_RDI_matrix_format_function(L0dir, L0FRoot, filePrefix, dtAvg, echo_mode)
+%       L0dir     = Directory for L0 files
+%       L0FRoot   = L0 file root
+%       dtAvg     = Average sample interval (seconds) 
+%       echo_mode = (logical) Echo Mode status (0 == off)
+% 
