@@ -3,7 +3,7 @@
 clear all; close all;
 
 %% File Setup and Color Definitions
-files = dir('../../../../Kelp_data/Summer2025/Rooker/Release1/L0/*.mat');
+files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
 colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
 labels = cell(1, length(files));
 h1 = gobjects(1, length(files));
@@ -100,7 +100,7 @@ end
 close(3)
 
 %% Make MP4 of Vectors on Map with Midpoint Diff Arrow
-v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release1/animations/Release1_Currents.mp4', 'MPEG-4');
+v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release2/animations/Release2_Currents.mp4', 'MPEG-4');
 v.FrameRate = 5;
 open(v)
 
@@ -117,6 +117,9 @@ for i = 1:length(colors)
     hArrowsLegend(i) = geoplot(gx, [0 0], [0 0], 'Color', colors{i}, 'LineWidth', 2);
 end
 % Dummy for diff arrow (black)
+lon_diffdot = [];
+lat_diffdot = [];
+
 hArrowsLegend(end) = geoplot(gx, [0 0], [0 0], 'Color', [0 0 0], 'LineWidth', 2);
 
 legend(hArrowsLegend, [labels, {'Diff 2-3'}], 'Location', 'northeast');
@@ -155,7 +158,8 @@ for idx = 1:length(tq)
     % Compute difference vector
     lon_diff = (lon_tip(2) - longs(2)) - (lon_tip(3) - longs(3));
     lat_diff = (lat_tip(2) - lats(2)) - (lat_tip(3) - lats(3));
-
+    lon_diffdot = [lon_diffdot lon_diff];
+    lat_diffdot = [lat_diffdot lat_diff];
     % Tip of difference arrow
     lon_tip_diff = lon_base_diff + lon_diff;
     lat_tip_diff = lat_base_diff + lat_diff;
@@ -184,6 +188,14 @@ end
 close(v);
 
 
+figure, scatter(lon_diffdot, lat_diffdot)
+hold on
+p = polyfit(lon_diffdot, lat_diffdot, 1);
+yfit = polyval(p, lon_diffdot);
+plot(lon_diffdot, yfit, 'r-', 'LineWidth', 2)
+title('M1 vs M2')
+
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/difference_scatter.png')
 % %% Make MP4 of Vectors on Map
 % v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release2/animations/geoplot_animation.mp4', 'MPEG-4');
 % v.FrameRate = 4;
