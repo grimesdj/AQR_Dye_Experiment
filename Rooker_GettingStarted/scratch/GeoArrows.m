@@ -221,94 +221,94 @@ ylabel('Latitude Current Difference (m/s)', 'FontSize', 14)
 xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
 legend('VEC vs M2', '1 \sigma')
 
-% %% Make MP4 of Vectors on Map with Midpoint Diff Arrow
-% v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release2/animations/Release2_Currents.mp4', 'MPEG-4');
-% v.FrameRate = 5;
-% open(v)
-% 
-% % Create visible figure
-% fig = figure('Visible','on');
-% gx = geoaxes(fig);
-% grid(gx,'off');
-% hold(gx,'on');
-% geobasemap(gx,'satellite');
-% 
-% % --- Create dummy arrows for persistent legend ---
-% hArrowsLegend = gobjects(length(colors)+1, 1); % +1 for diff arrow
-% for i = 1:length(colors)
-%     hArrowsLegend(i) = geoplot(gx, [0 0], [0 0], 'Color', colors{i}, 'LineWidth', 2);
-% end
-% % Dummy for diff arrow (black)
-% lon_diffdot = [];
-% lat_diffdot = [];
-% 
-% hArrowsLegend(end) = geoplot(gx, [0 0], [0 0], 'Color', [0 0 0], 'LineWidth', 2);
-% 
-% legend(hArrowsLegend, [labels, {'Diff 2-3'}], 'Location', 'northeast');
-% 
-% % --- Animate arrows and base circles ---
-% for idx = 1:length(tq)
-%     % Delete previous arrows/markers
-%     if exist('hArrows','var'); delete(hArrows); end
-%     if exist('hMarkers','var'); delete(hMarkers); end
-% 
-%     hold(gx,'on');
-%     for i = 1:length(lats)
-%         if idx > length(U_all{i}); continue; end
-% 
-%         lat_base = lats(i);
-%         lon_base = longs(i);
-%         scale = 0.03;
-%         lat_tip(i) = lat_base + V_all{i}(idx) * scale;
-%         lon_tip(i) = lon_base + U_all{i}(idx) * scale;
-% 
-%         % Plot arrow
-%         hArrows(i) = geoplot(gx, [lat_base, lat_tip(i)], [lon_base, lon_tip(i)], ...
-%                              'Color', colors{i}, 'LineWidth', 2, 'DisplayName','');
-% 
-%         % Open circle at base
-%         hMarkers(i) = geoscatter(gx, lat_base, lon_base, 50, ...
-%                                  'MarkerEdgeColor', colors{i}, ...
-%                                  'MarkerFaceColor','none', 'LineWidth',1.5,'DisplayName','');
-%     end
-% 
-%     % --- Compute difference arrow (2 - 3) ---
-%     % Midpoint between instrument 2 and 3
-%     lon_base_diff = (longs(2) + longs(3)) / 2;
-%     lat_base_diff = (lats(2) + lats(3)) / 2;
-% 
-%     % Compute difference vector
-%     lon_diff = (lon_tip(2) - longs(2)) - (lon_tip(3) - longs(3));
-%     lat_diff = (lat_tip(2) - lats(2)) - (lat_tip(3) - lats(3));
-%     lon_diffdot = [lon_diffdot lon_diff];
-%     lat_diffdot = [lat_diffdot lat_diff];
-%     % Tip of difference arrow
-%     lon_tip_diff = lon_base_diff + lon_diff;
-%     lat_tip_diff = lat_base_diff + lat_diff;
-% 
-%     % Plot difference arrow (black)
-%     hArrows(end+1) = geoplot(gx, [lat_base_diff, lat_tip_diff], ...
-%                              [lon_base_diff, lon_tip_diff], ...
-%                              'Color', [0 0 0], 'LineWidth',2,'DisplayName','');
-% 
-%     % Open circle at base of difference arrow
-%     hMarkers(end+1) = geoscatter(gx, lat_base_diff, lon_base_diff, 50, ...
-%                                  'MarkerEdgeColor',[0 0 0], ...
-%                                  'MarkerFaceColor','none','LineWidth',1.5,'DisplayName','');
-% 
-%     % Set map limits
-%     geolimits(gx, [34.4653 34.4736], [-120.133 -120.125]);
-% 
-%     % Add timestamp title
-%     title(gx, datestr(T_all{4}(idx), 'mmm dd, yyyy HH:MM'));
-% 
-%     drawnow
-%     frame = getframe(gcf);
-%     writeVideo(v, frame);
-% end
-% 
-% close(v);
-% 
+%% Make MP4 of Vectors on Map with Midpoint Diff Arrow
+v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release2/animations/Release2_Currents.mp4', 'MPEG-4');
+v.FrameRate = 5;
+open(v)
+
+% Create visible figure
+fig = figure('Visible','on');
+gx = geoaxes(fig);
+grid(gx,'off');
+hold(gx,'on');
+geobasemap(gx,'satellite');
+
+% --- Create dummy arrows for persistent legend ---
+hArrowsLegend = gobjects(length(colors)+1, 1); % +1 for diff arrow
+for i = 1:length(colors)
+    hArrowsLegend(i) = geoplot(gx, [0 0], [0 0], 'Color', colors{i}, 'LineWidth', 2);
+end
+% Dummy for diff arrow (black)
+lon_diffdot = [];
+lat_diffdot = [];
+
+hArrowsLegend(end) = geoplot(gx, [0 0], [0 0], 'Color', [0 0 0], 'LineWidth', 2);
+
+legend(hArrowsLegend, [labels, {'Diff 2-3'}], 'Location', 'northeast');
+
+% --- Animate arrows and base circles ---
+for idx = 1:length(tq)
+    % Delete previous arrows/markers
+    if exist('hArrows','var'); delete(hArrows); end
+    if exist('hMarkers','var'); delete(hMarkers); end
+
+    hold(gx,'on');
+    for i = 1:length(lats)
+        if idx > length(U_all{i}); continue; end
+
+        lat_base = lats(i);
+        lon_base = longs(i);
+        scale = 0.03;
+        lat_tip(i) = lat_base + V_all{i}(idx) * scale;
+        lon_tip(i) = lon_base + U_all{i}(idx) * scale;
+
+        % Plot arrow
+        hArrows(i) = geoplot(gx, [lat_base, lat_tip(i)], [lon_base, lon_tip(i)], ...
+                             'Color', colors{i}, 'LineWidth', 2, 'DisplayName','');
+
+        % Open circle at base
+        hMarkers(i) = geoscatter(gx, lat_base, lon_base, 50, ...
+                                 'MarkerEdgeColor', colors{i}, ...
+                                 'MarkerFaceColor','none', 'LineWidth',1.5,'DisplayName','');
+    end
+
+    % --- Compute difference arrow (2 - 3) ---
+    % Midpoint between instrument 2 and 3
+    lon_base_diff = (longs(2) + longs(3)) / 2;
+    lat_base_diff = (lats(2) + lats(3)) / 2;
+
+    % Compute difference vector
+    lon_diff = (lon_tip(2) - longs(2)) - (lon_tip(3) - longs(3));
+    lat_diff = (lat_tip(2) - lats(2)) - (lat_tip(3) - lats(3));
+    lon_diffdot = [lon_diffdot lon_diff];
+    lat_diffdot = [lat_diffdot lat_diff];
+    % Tip of difference arrow
+    lon_tip_diff = lon_base_diff + lon_diff;
+    lat_tip_diff = lat_base_diff + lat_diff;
+
+    % Plot difference arrow (black)
+    hArrows(end+1) = geoplot(gx, [lat_base_diff, lat_tip_diff], ...
+                             [lon_base_diff, lon_tip_diff], ...
+                             'Color', [0 0 0], 'LineWidth',2,'DisplayName','');
+
+    % Open circle at base of difference arrow
+    hMarkers(end+1) = geoscatter(gx, lat_base_diff, lon_base_diff, 50, ...
+                                 'MarkerEdgeColor',[0 0 0], ...
+                                 'MarkerFaceColor','none','LineWidth',1.5,'DisplayName','');
+
+    % Set map limits
+    geolimits(gx, [34.4653 34.4736], [-120.133 -120.125]);
+
+    % Add timestamp title
+    title(gx, datestr(T_all{4}(idx), 'mmm dd, yyyy HH:MM'));
+
+    drawnow
+    frame = getframe(gcf);
+    writeVideo(v, frame);
+end
+
+close(v);
+
 % 
 % figure, scatter(lon_diffdot, lat_diffdot)
 % hold on
