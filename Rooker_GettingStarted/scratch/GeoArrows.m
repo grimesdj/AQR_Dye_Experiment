@@ -221,6 +221,15 @@ ylabel('Latitude Current Difference (m/s)', 'FontSize', 14)
 xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
 legend('VEC vs M2', '1 \sigma')
 
+figure(3)
+exportgraphics(figure(1), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/timeseries/10_min_avg.png')
+exportgraphics(figure(2), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/QuiverPlot.png')
+exportgraphics(figure(3), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/DifferenceScatter.png')
+exportgraphics(figure(4), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsVEC.png')
+exportgraphics(figure(5), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsM2.png')
+exportgraphics(figure(6), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/VECvsM2.png')
+
+
 %% Make MP4 of Vectors on Map with Midpoint Diff Arrow
 v = VideoWriter('../../../../Kelp_data/Summer2025/Rooker/figures/Release2/animations/Release2_Currents.mp4', 'MPEG-4');
 v.FrameRate = 5;
