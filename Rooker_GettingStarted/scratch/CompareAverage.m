@@ -1,0 +1,142 @@
+clear all; 
+close all;
+
+%% File Setup and Color Definitions
+files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
+colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
+labels = cell(1, length(files));
+h1 = gobjects(1, length(files));
+h2 = gobjects(1, length(files));
+
+%% Averaged Velocities
+addpath('../code')
+[T_all, U_all, V_all] = LPF(files);
+
+% normalizing vector size
+[~, sizeLimit] = size(U_all{2});
+
+% Compare inside instruments to outside instruments
+AQDvsM1 = [U_all{1}(1 , 1:sizeLimit)-U_all{2}; V_all{1}(1, 1:sizeLimit)-V_all{2}];
+M2vsM1  = [U_all{3}-U_all{2}; V_all{3}-V_all{2}];
+VECvsM1 = [U_all{4}(1 , 1:sizeLimit)-U_all{2}; V_all{4}(1, 1:sizeLimit)-V_all{2}];
+
+%% Plot difference scatter in-out
+figure
+scatter(AQDvsM1(1,:), AQDvsM1(2,:), 'b.')
+hold on
+scatter(M2vsM1(1,:),M2vsM1(2,:) , 'm.')
+scatter(VECvsM1(1,:),VECvsM1(2,:) , 'g.')
+
+% Generate and plot trendlines
+AQDtrend = polyfit(AQDvsM1(1,:), AQDvsM1(2,:), 1);
+yfit = polyval(AQDtrend, AQDvsM1(1,:));
+plot(AQDvsM1(1,:), yfit, 'b-', 'LineWidth', 2)
+
+M2trend = polyfit(M2vsM1(1,:), M2vsM1(2,:), 1);
+yfit = polyval(M2trend, M2vsM1(1,:));
+plot(M2vsM1(1,:), yfit, 'm-', 'LineWidth', 2)
+
+VECtrend = polyfit(VECvsM1(1,:), VECvsM1(2,:), 1);
+yfit = polyval(VECtrend, VECvsM1(1,:));
+plot(VECvsM1(1,:), yfit, 'g-', 'LineWidth', 2)
+
+% Formatting and such
+title("Inside Instruments vs M1 ADCP ( X - M1 )", "FontSize", 18)
+legend(labels{[1 3 4]})
+ylabel('Latitude Current Difference (m/s)', 'FontSize', 14)
+xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
+
+%% Compare AQD - VEC
+AQDvsVEC = [U_all{1}(1 , 1:sizeLimit)-U_all{4}(1, 1:sizeLimit); V_all{1}(1, 1:sizeLimit)-V_all{4}(1, 1:sizeLimit)];
+figure, scatter(AQDvsVEC(1,:), AQDvsVEC(2,:), '.')
+
+% mean and covariance
+mu = [mean(AQDvsVEC(1,:)), mean(AQDvsVEC(2,:))];
+Sigma = cov(AQDvsVEC(1,:), AQDvsVEC(2,:));
+
+% eigen decomposition
+[eigvec,eigval] = eig(Sigma);
+
+% parametric ellipse
+theta = linspace(0,2*pi,200);
+ellipse = [cos(theta); sin(theta)]';
+
+% scale by sqrt of eigenvalues (std dev)
+ellipse = ellipse * sqrt(eigval) * eigvec';
+
+% shift to mean
+ellipse = ellipse + mu;
+hold on
+plot(ellipse(:,1), ellipse(:,2), 'r','LineWidth',2)
+
+% Formatting
+title([labels{1} ' vs ' labels{4}], "FontSize", 18)
+ylabel('Latitude Current Difference (m/s)', 'FontSize', 14)
+xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
+legend('AQD vs  VEC', '1 \sigma')
+
+%% Compare AQD - M2
+AQDvsM2 = [U_all{1}(1 , 1:sizeLimit)-U_all{3}(1, 1:sizeLimit); V_all{1}(1, 1:sizeLimit)-V_all{3}(1, 1:sizeLimit)];
+figure, scatter(AQDvsM2(1,:), AQDvsM2(2,:), '.')
+
+% mean and covariance
+mu = [mean(AQDvsM2(1,:)), mean(AQDvsM2(2,:))];
+Sigma = cov(AQDvsM2(1,:), AQDvsM2(2,:));
+
+% eigen decomposition
+[eigvec,eigval] = eig(Sigma);
+
+% parametric ellipse
+theta = linspace(0,2*pi,200);
+ellipse = [cos(theta); sin(theta)]';
+
+% scale by sqrt of eigenvalues (std dev)
+ellipse = ellipse * sqrt(eigval) * eigvec';
+
+% shift to mean
+ellipse = ellipse + mu;
+hold on
+plot(ellipse(:,1), ellipse(:,2), 'r','LineWidth',2)
+
+% Formatting
+title([labels{1} ' vs ' labels{3}], "FontSize", 18)
+ylabel('Latitude Current Difference (m/s)', 'FontSize', 14)
+xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
+legend('AQD vs M2', '1 \sigma')
+
+%% Compare VEC - M2
+VECvsM2 = [U_all{4}(1 , 1:sizeLimit)-U_all{3}(1, 1:sizeLimit); V_all{4}(1, 1:sizeLimit)-V_all{3}(1, 1:sizeLimit)];
+figure, scatter(VECvsM2(1,:), VECvsM2(2,:), '.')
+
+% mean and covariance
+mu = [mean(VECvsM2(1,:)), mean(VECvsM2(2,:))];
+Sigma = cov(VECvsM2(1,:), VECvsM2(2,:));
+
+% eigen decomposition
+[eigvec,eigval] = eig(Sigma);
+
+% parametric ellipse
+theta = linspace(0,2*pi,200);
+ellipse = [cos(theta); sin(theta)]';
+
+% scale by sqrt of eigenvalues (std dev)
+ellipse = ellipse * sqrt(eigval) * eigvec';
+
+% shift to mean
+ellipse = ellipse + mu;
+hold on
+plot(ellipse(:,1), ellipse(:,2), 'r','LineWidth',2)
+
+% Formatting
+title([labels{4} ' vs ' labels{3}], "FontSize", 18)
+ylabel('Latitude Current Difference (m/s)', 'FontSize', 14)
+xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
+legend('VEC vs M2', '1 \sigma')
+
+figure(3)
+exportgraphics(figure(1), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/timeseries/10_min_avg.png')
+exportgraphics(figure(2), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/QuiverPlot.png')
+exportgraphics(figure(3), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/DifferenceScatter.png')
+exportgraphics(figure(4), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsVEC.png')
+exportgraphics(figure(5), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsM2.png')
+exportgraphics(figure(6), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/VECvsM2.png')

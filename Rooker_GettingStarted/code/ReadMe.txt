@@ -170,3 +170,20 @@ load_and_process_sig1000_to_RDI_matrix_format_function.m
 %       dtAvg     = Average sample interval (seconds) 
 %       echo_mode = (logical) Echo Mode status (0 == off)
 % 
+
+
+ LPF.m
+%   
+% USAGE: [T_all, U_all, V_all] = LPF(files)
+% 
+% loads given files containing time series data and 
+%  returns 3 cell arrays, containing 10-min averaged data
+% 
+%   files = Struct (# of files x 1) containing dir() info
+%   
+%   T_all = interpolated time
+%   U_all = East Velocities
+%   V_all = North Velocities
+%   labels = labels from struct (may shrink this func later
+%
+NOTE: it seems there may be a scaling issue with the quiver plot 09/2025
