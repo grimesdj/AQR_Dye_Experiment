@@ -1,6 +1,13 @@
-function pca_function(L0Dir, L0Name)
-% first create random variable then rotate 30-degrees counter clockwise
-A = load([L0Dir, '/', L0Name, '.mat']);
+function pca_function(Dir, FileName)
+%   USAGE: pca_function(L0Dir, L0Name)
+% 
+%   Dir   = Directory of data
+%   FileName  = File Name
+% 
+% 
+% 
+
+A = load([Dir, '/', FileName, '.mat']);
 
 %VX = fillmissing(A.Velocity_X, 'nearest');
 %VY = fillmissing(A.Velocity_Y, 'nearest');
@@ -96,7 +103,7 @@ xlabel(' major-axis ')
 ylabel(' minor-axis ')
 
 disp('Saving PCA data')
-save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
+save([Dir,'/',FileName,'_PCA.mat'],'-struct','A')
 
 
 end

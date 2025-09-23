@@ -4,13 +4,13 @@ close all;
 %% File Setup and Color Definitions
 files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
 colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
-labels = cell(1, length(files));
+%labels = cell(1, length(files));
 h1 = gobjects(1, length(files));
 h2 = gobjects(1, length(files));
 
 %% Averaged Velocities
 addpath('../code')
-[T_all, U_all, V_all] = LPF(files);
+[T_all, U_all, V_all, labels] = LPF(files); % gotta get labels out of there
 
 % normalizing vector size
 [~, sizeLimit] = size(U_all{2});
@@ -140,3 +140,13 @@ exportgraphics(figure(3), '../../../../Kelp_data/Summer2025/Rooker/figures/Relea
 exportgraphics(figure(4), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsVEC.png')
 exportgraphics(figure(5), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsM2.png')
 exportgraphics(figure(6), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/VECvsM2.png')
+
+for i = 1:length(labels)
+    U = U_all{i};
+    V = V_all{i};
+    T = T_all{i};
+    label = labels{i};
+
+    save(['../../../../Kelp_data/Summer2025/Rooker/Release2/LPF/' labels{i} '.mat'], ...
+         'U', 'V', 'T', 'label');
+end
