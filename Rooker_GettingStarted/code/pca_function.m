@@ -70,7 +70,7 @@ u1  = uv1(:,1);
 v1  = uv1(:,2);
 % plot vectors (scaled by eigen-value) on figure
 hold on,
-plot( u1, v1, '.c')
+plot( u1, v1, '.g')
 p2 = plot( [0;sqrt(eig(1))*V(1,1)], [0;sqrt(eig(1))*V(2,1)],'--b', [0;sqrt(eig(2))*V(1,2)], [0;sqrt(eig(2))*V(2,2)],'--b');
 %
 axis equal
