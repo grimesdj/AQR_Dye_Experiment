@@ -25,14 +25,14 @@ end
 
 
 %% Time Series Plot Setup
-figure;
+tp = figure;
 ax1 = subplot(2, 1, 1); hold(ax1, 'on'); ylabel(ax1, 'East Velocity');
 ax2 = subplot(2, 1, 2); hold(ax2, 'on'); ylabel(ax2, 'North Velocity'); xlabel(ax2, 'Time');
 datetick(ax1, 'x', 'keeplimits'); datetick(ax2, 'x', 'keeplimits');
 sgtitle('10-min Avg Velocities at 1.2 MAB')
 
 %% Quiver Plot Setup
-figure;
+qp = figure;
 for i = 1:length(dataCell)
 
     data = dataCell{i};
@@ -54,8 +54,8 @@ for i = 1:length(dataCell)
 
     % Plot time series
     figure(1);
-    h1(i) = plot(ax1, t, u_filt);
-    h2(i) = plot(ax2, t, v_filt);
+    h1(i) = plot(ax1, t, u_filt,'LineWidth', 1);
+    h2(i) = plot(ax2, t, v_filt,'LineWidth', 1);
     
     % Downsample to 10-minute intervals
     [~, unique_idx] = unique(minutes(t - t(1)));
@@ -69,10 +69,22 @@ for i = 1:length(dataCell)
     % Plot quiver per instrument
     figure(2)
     subplot(length(dataCell), 1, i)
-    quiver(datenum(tq), zeros(size(tq)), u_ds, v_ds, 'AutoScale', 'off')
-    ylabel('Velocity'); title(data.Config.SN)
-    datetick('x', 'keeplimits')
+    
+    % Time relative to start, in seconds
+    tq_rel = seconds(tq - tq(1));
 
+    % Convert velocity to displacement per 10 min
+    dt = 600*100*3;  % scaling
+    u_disp = u_ds * dt;
+    v_disp = v_ds * dt;
+
+    % Plot quiver
+    quiver(tq_rel, zeros(size(tq_rel)), u_disp, v_disp, 'AutoScale', 'off')
+    axis equal  % ensure same scale in x and y for correct arrow directions
+    yticklabels([])
+    xticklabels([])
+    title(data.Config.SN)
+ 
     % Save Global Vars
     U_all{i} = u_ds;
     V_all{i} = v_ds;
@@ -81,6 +93,9 @@ for i = 1:length(dataCell)
 end
 xlabel('Time')
 sgtitle('Current Vectors at 1.2 MAB')
+
+quivers = get(qp, 'Children');
+linkaxes(quivers, 'x')
 
 % Add legends
 figure(1)
