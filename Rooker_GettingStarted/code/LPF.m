@@ -1,21 +1,28 @@
-function [T_all, U_all, V_all, labels] = LPF(files)
+function [T_all, U_all, V_all] = LPF(dataCell, labels, colors)
 %   
-% USAGE: [T_all, U_all, V_all] = LPF(files)
+% USAGE: [T_all, U_all, V_all] = LPF(dataCell, labels, colors)
 % 
-% loads given files containing time series data and 
-%  returns 3 cell arrays, containing 10-min averaged data
+%   takes time series data and 
+%  returns 3 cell arrays, containing 10-min averaged data, u, v, and time
 % 
-%   files = Struct (# of files x 1) containing dir() info
-%   
+%   dataCell = cell array (# of files x 1) containing data structures
+%   labels = {optional} Cell array of labels for graphs
+%   colors = {optional} Cell array of RGB vals for graphs
+%    
+%
 %   T_all = interpolated time
 %   U_all = East Velocities
 %   V_all = North Velocities
-%   labels = labels from struct (may shrink this func later
+%   
 
-colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
-labels = cell(1, length(files));
-h1 = gobjects(1, length(files));
-h2 = gobjects(1, length(files));
+%% Defaults
+if nargin < 3
+    colors = num2cell(lines(length(dataCell)), 2);
+    if nargin < 2
+        labels = num2cell(1:length(dataCell));
+    end
+end
+
 
 %% Time Series Plot Setup
 figure;
@@ -26,19 +33,13 @@ sgtitle('10-min Avg Velocities at 1.2 MAB')
 
 %% Quiver Plot Setup
 figure;
-for i = 1:length(files)
-    data = load(fullfile(files(i).folder, files(i).name));
+for i = 1:length(dataCell)
 
-    % Determine appropriate bin
-    if size(data.Velocity_East, 2) == 1
-        bin = 1;
-    else
-        bin = round((1.237 - data.Config.blank) / data.Config.binSize);
-    end
+    data = dataCell{i};
 
     % Extract and clean data
-    u = data.Velocity_East(:, bin);
-    v = data.Velocity_North(:, bin);
+    u = data.Velocity_East(:, data.bin);
+    v = data.Velocity_North(:, data.bin);
     t = data.Time;
     dt = double(data.Config.dt);
 
@@ -55,8 +56,7 @@ for i = 1:length(files)
     figure(1);
     h1(i) = plot(ax1, t, u_filt);
     h2(i) = plot(ax2, t, v_filt);
-    labels{i} = data.Config.SN;
-
+    
     % Downsample to 10-minute intervals
     [~, unique_idx] = unique(minutes(t - t(1)));
     t = t(unique_idx);
@@ -68,7 +68,7 @@ for i = 1:length(files)
 
     % Plot quiver per instrument
     figure(2)
-    subplot(length(files), 1, i)
+    subplot(length(dataCell), 1, i)
     quiver(datenum(tq), zeros(size(tq)), u_ds, v_ds, 'AutoScale', 'off')
     ylabel('Velocity'); title(data.Config.SN)
     datetick('x', 'keeplimits')
@@ -89,7 +89,7 @@ legend(ax2, h2, labels, 'Location', 'best')
 datetick(ax1); datetick(ax2)
 
 % Set colors
-for i = 1:length(files)
+for i = 1:length(dataCell)
     h1(i).Color = colors{i};
     h2(i).Color = colors{i};
 end

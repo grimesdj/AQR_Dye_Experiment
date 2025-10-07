@@ -1,24 +1,44 @@
 clear all; 
 close all;
 
-%% File Setup and Color Definitions
+%% File Setup
 files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
 colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
-%labels = cell(1, length(files));
-h1 = gobjects(1, length(files));
-h2 = gobjects(1, length(files));
+
+for i = 1:length(files)
+    dataCell{i} = load(fullfile(files(i).folder, files(i).name));
+    labels{i} = dataCell{i}.Config.SN;
+    
+    % Determine appropriate bin
+    if size(dataCell{i}.Velocity_East, 2) == 1
+        dataCell{i}.bin = 1;
+    else
+        dataCell{i}.bin = round((1.237 - dataCell{i}.Config.blank) / dataCell{i}.Config.binSize);
+    
+    end
+end
+
 
 %% Averaged Velocities
 addpath('../code')
-[T_all, U_all, V_all, labels] = LPF(files); % gotta get labels out of there
+[T_all, U_all, V_all] = LPF(dataCell, labels, colors);
 
 % normalizing vector size
-[~, sizeLimit] = size(U_all{2});
+[~, sizeLimit] = size(U_all{2}); % gonna make this a max function later
 
-% Compare inside instruments to outside instruments
-AQDvsM1 = [U_all{1}(1 , 1:sizeLimit)-U_all{2}; V_all{1}(1, 1:sizeLimit)-V_all{2}];
-M2vsM1  = [U_all{3}-U_all{2}; V_all{3}-V_all{2}];
-VECvsM1 = [U_all{4}(1 , 1:sizeLimit)-U_all{2}; V_all{4}(1, 1:sizeLimit)-V_all{2}];
+AQD = [U_all{1}(1, 1:sizeLimit); V_all{1}(1, 1:sizeLimit)];
+M1  = [U_all{2}(1, 1:sizeLimit); V_all{2}(1, 1:sizeLimit)];
+M2  = [U_all{3}(1, 1:sizeLimit); V_all{3}(1, 1:sizeLimit)];
+VEC = [U_all{4}(1, 1:sizeLimit); V_all{4}(1, 1:sizeLimit)];
+
+
+% Compare inside instruments to M1 (Inst - M1)
+AQDvsM1 = AQD-M1;
+M2vsM1  = M2-M1;
+VECvsM1 = VEC-M1;
+
+
+
 
 %% Plot difference scatter in-out
 figure
@@ -47,7 +67,7 @@ ylabel('Latitude Current Difference (m/s)', 'FontSize', 14)
 xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
 
 %% Compare AQD - VEC
-AQDvsVEC = [U_all{1}(1 , 1:sizeLimit)-U_all{4}(1, 1:sizeLimit); V_all{1}(1, 1:sizeLimit)-V_all{4}(1, 1:sizeLimit)];
+AQDvsVEC = AQD-VEC;
 figure, scatter(AQDvsVEC(1,:), AQDvsVEC(2,:), '.')
 
 % mean and covariance
@@ -76,8 +96,9 @@ xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
 legend('AQD vs  VEC', '1 \sigma')
 
 %% Compare AQD - M2
-AQDvsM2 = [U_all{1}(1 , 1:sizeLimit)-U_all{3}(1, 1:sizeLimit); V_all{1}(1, 1:sizeLimit)-V_all{3}(1, 1:sizeLimit)];
-figure, scatter(AQDvsM2(1,:), AQDvsM2(2,:), '.')
+AQDvsM2 = AQD-M2;
+figure
+scatter(AQDvsM2(1,:), AQDvsM2(2,:), '.')
 
 % mean and covariance
 mu = [mean(AQDvsM2(1,:)), mean(AQDvsM2(2,:))];
@@ -105,8 +126,9 @@ xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
 legend('AQD vs M2', '1 \sigma')
 
 %% Compare VEC - M2
-VECvsM2 = [U_all{4}(1 , 1:sizeLimit)-U_all{3}(1, 1:sizeLimit); V_all{4}(1, 1:sizeLimit)-V_all{3}(1, 1:sizeLimit)];
-figure, scatter(VECvsM2(1,:), VECvsM2(2,:), '.')
+VECvsM2 = VEC-M2;
+figure
+scatter(VECvsM2(1,:), VECvsM2(2,:), '.')
 
 % mean and covariance
 mu = [mean(VECvsM2(1,:)), mean(VECvsM2(2,:))];
@@ -146,16 +168,16 @@ filestem = '../../../../Kelp_data/Summer2025/Rooker/Release2/LPF';
 
 labels = replace(labels, ' ', '');
 
-for i = 1:length(labels)
-    close all
-    Velocity_X = U_all{i}';
-    Velocity_Y = V_all{i}';
-    Time = datenum(T_all{i}');
-    label = labels{i};
-
-    save([filestem '/' labels{i} '.mat'], ...
-         'Velocity_X', 'Velocity_Y', 'Time', 'label');
-    pca_function(filestem, labels{i})
-    title(labels{i})
-end
+%for i = 1:length(labels)
+%     close all
+%     Velocity_X = U_all{i}';
+%     Velocity_Y = V_all{i}';
+%     Time = datenum(T_all{i}');
+%     label = labels{i};
+% 
+%     save([filestem '/' labels{i} '.mat'], ...
+%          'Velocity_X', 'Velocity_Y', 'Time', 'label');
+%     pca_function(filestem, labels{i})
+%     title(labels{i})
+% end
 
