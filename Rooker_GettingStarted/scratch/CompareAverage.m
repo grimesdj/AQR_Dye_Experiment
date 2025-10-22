@@ -60,6 +60,11 @@ VECtrend = polyfit(VECvsM1(1,:), VECvsM1(2,:), 1);
 yfit = polyval(VECtrend, VECvsM1(1,:));
 plot(VECvsM1(1,:), yfit, 'g-', 'LineWidth', 2)
 
+slope = mean([AQDtrend M2trend VECtrend]);
+theta = atan2d(slope, 1);
+sprintf('Angle of max difference variability is %f degrees', theta)
+
+
 % Formatting and such
 title("Inside Instruments vs M1 ADCP ( X - M1 )", "FontSize", 18)
 legend(labels{[1 3 4]})
@@ -157,7 +162,7 @@ legend('VEC vs M2', '1 \sigma')
 
 % figure(3)
 % exportgraphics(figure(1), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/timeseries/10_min_avg.png')
-% exportgraphics(figure(2), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/QuiverPlot.png')
+exportgraphics(figure(2), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/QuiverPlot.png')
 % exportgraphics(figure(3), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/DifferenceScatter.png')
 % exportgraphics(figure(4), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsVEC.png')
 % exportgraphics(figure(5), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsM2.png')
@@ -168,16 +173,16 @@ filestem = '../../../../Kelp_data/Summer2025/Rooker/Release2/LPF';
 
 labels = replace(labels, ' ', '');
 
-%for i = 1:length(labels)
-%     close all
-%     Velocity_X = U_all{i}';
-%     Velocity_Y = V_all{i}';
-%     Time = datenum(T_all{i}');
-%     label = labels{i};
-% 
-%     save([filestem '/' labels{i} '.mat'], ...
-%          'Velocity_X', 'Velocity_Y', 'Time', 'label');
-%     pca_function(filestem, labels{i})
-%     title(labels{i})
-% end
+for i = 1:length(labels)
+    
+    Velocity_X = U_all{i}';
+    Velocity_Y = V_all{i}';
+    Time = datenum(T_all{i}');
+    label = labels{i};
+    sprintf('Saving %s...', labels{i})
+    save([filestem '/' labels{i} '.mat'], ...
+         'Velocity_X', 'Velocity_Y', 'Time', 'label');
+    pca_function(filestem, labels{i})
+    title(labels{i})
+end
 
