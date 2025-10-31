@@ -173,6 +173,9 @@ filestem = '../../../../Kelp_data/Summer2025/Rooker/Release2/LPF';
 
 labels = replace(labels, ' ', '');
 
+disp('Saving has been disabled to prevent accidental overwriting...')
+return
+
 for i = 1:length(labels)
     
     Velocity_X = U_all{i}';
@@ -185,4 +188,7 @@ for i = 1:length(labels)
     pca_function(filestem, labels{i})
     title(labels{i})
 end
+
+
+
 

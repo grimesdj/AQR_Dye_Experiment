@@ -16,7 +16,7 @@ v = mean(VY, 2, 'omitnan');
 uv = [u(:) v(:)];
 uv = uv(~any(isnan(uv),2), :); 
 
-% --- PCA using covariance ---
+% PCA using covariance
 C = cov(uv);
 [V, D] = eig(C);
 [eigVals, idx] = sort(diag(D), 'descend');
@@ -29,6 +29,7 @@ majorAxis = V(:,1);
 theta = atan2(majorAxis(2), majorAxis(1));
 theta = rad2deg(theta);     
 fprintf('Rotation angle = %.2f degrees\n', theta);
+
 
 % Ensure right-handed coordinate system
 if det(V) < 0

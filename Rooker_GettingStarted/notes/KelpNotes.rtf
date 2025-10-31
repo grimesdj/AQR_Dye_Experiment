@@ -1,0 +1,43 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww28600\viewh18000\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 KELP NOTES:\
+\
+Jason Rooker\
+\
+Here I will be keeping track of some of the results that ave seen from analyzing the data\
+\
+ -For statistics taken across the entire dataset, AQD numbers are not accurate\
+\
+ - There is a clear major axis of variability between M! (Outside) and the inside Instrunments.\
+	 - Line of best fit shows that all three inside instruments have this variability at nearly the same angle\
+\
+- The major axis of all instruments (with the exception of course of AQD) seem to be either directly offshore or directly onshore, which is about 10 degrees off from magnetic north\
+\
+ - I have used the PCA_function to save the 10 min average data into new datasets rotated, but I don\'92t think there is any reason to use this, since the difference between major and minor axes is very small, and the major axis is essentially north\
+	- still using PCA will make up for any compass errors, as well as any curving of flow due to vorticity\
+\
+- next steps\
+	 	- make sure all 10 min avg data is rotated to the same direction, and compare std, cos, and drag ratio = they are not\
+		- find angle of variance of difference vector  = 13ish degrees\
+\
+ - Time to figure out how to quantify drag\
+\
+	- I would like some kind of quantity that can be applied to any kelp forest regardless of size: Energy loss per unit volume due to drag is pretty easy. Units of J/m^3\
+	- using Bernoulli\'92s equation for energy, we find that energy loss due to drag is E_d = 1/2*\\rho_w*(v_outside^2-v_inside^2), where v is actually equal to RMS!!!\
+	- if you divide this value by the volume of the forest, you get a measure that is representative of Stress, that is force per unit area (where the velocity is normal to the area surface)\
+\
+Let\'92s not get too excited now. \
+\
+First step is to make sure that all data is rotated correctly. This means using the PCA data except rotating the AQD data the same amount at \
+\
+		TO DO:\
+		\
+		X ROTATE AND SAVE AQD LPF DATA TO VECTOR ORIENTATION\
+		O CALCULATE ABSOLUTE VALUE AVERAGE VELOCITY DATA\
+		O CALCULATE DIFFERENCE VELOCITY\
+		O FIND ENERGY LOSS}
