@@ -46,7 +46,15 @@ for i = 1:length(dataCell)
     % Lowpass filter
     Nf = 600 / dt;
     flt = hamming(Nf); flt = flt / sum(flt);
-    nanFlag = ~isnan(u);
+      disp('UNDERCONSTRUCTION')  
+        %fixing NaNs with linear interp
+        ids = 1:length(data.Velocity_East);
+        valid = ~isnan(u);
+        u_interp = u;
+        v_interp = v;
+        u_interp(~valid) = 
+        v_interp(~valid) = 
+    
     flag_flt = conv(nanFlag, flt, 'same');
     u(~nanFlag) = 0; v(~nanFlag) = 0;
     u_filt = conv(u, flt, 'same') ./ flag_flt;
