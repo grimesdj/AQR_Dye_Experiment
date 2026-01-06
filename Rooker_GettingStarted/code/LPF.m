@@ -26,10 +26,11 @@ end
 
 %% Time Series Plot Setup
 tp = figure;
-ax1 = subplot(2, 1, 1); hold(ax1, 'on'); ylabel(ax1, 'East Velocity');
-ax2 = subplot(2, 1, 2); hold(ax2, 'on'); ylabel(ax2, 'North Velocity'); xlabel(ax2, 'Time');
+ax1 = subplot(2, 1, 1); hold(ax1, 'on'); ylabel(ax1, 'East Velocity', 'FontSize', 18);
+ax2 = subplot(2, 1, 2); hold(ax2, 'on'); ylabel(ax2, 'North Velocity', 'FontSize', 18); 
+xlabel(ax2, 'Time', 'FontSize', 18);
 datetick(ax1, 'x', 'keeplimits'); datetick(ax2, 'x', 'keeplimits');
-sgtitle('10-min Avg Velocities at 1.2 MAB')
+sgtitle('10-min Avg Velocities at 1.2 MAB', 'Fontsize', 25)
 
 %% Quiver Plot Setup
 qp = figure;
@@ -37,24 +38,17 @@ for i = 1:length(dataCell)
 
     data = dataCell{i};
 
+   
     % Extract and clean data
-    u = data.Velocity_East(:, data.bin);
+    u = data.Velocity_East(:, data.bin);  
     v = data.Velocity_North(:, data.bin);
     t = data.Time;
     dt = double(data.Config.dt);
-
+    
     % Lowpass filter
     Nf = 600 / dt;
     flt = hamming(Nf); flt = flt / sum(flt);
-      disp('UNDERCONSTRUCTION')  
-        %fixing NaNs with linear interp
-        ids = 1:length(data.Velocity_East);
-        valid = ~isnan(u);
-        u_interp = u;
-        v_interp = v;
-        u_interp(~valid) = 
-        v_interp(~valid) = 
-    
+    nanFlag = ~isnan(u);
     flag_flt = conv(nanFlag, flt, 'same');
     u(~nanFlag) = 0; v(~nanFlag) = 0;
     u_filt = conv(u, flt, 'same') ./ flag_flt;
@@ -62,8 +56,9 @@ for i = 1:length(dataCell)
 
     % Plot time series
     figure(1);
-    h1(i) = plot(ax1, t, u_filt,'LineWidth', 1);
-    h2(i) = plot(ax2, t, v_filt,'LineWidth', 1);
+    h1(i) = plot(ax1, t, u_filt,'LineWidth', 1.5);
+    h2(i) = plot(ax2, t, v_filt,'LineWidth', 1.5);
+    linkaxes([ax1 ax2], 'x')
     
     % Downsample to 10-minute intervals
     [~, unique_idx] = unique(minutes(t - t(1)));
@@ -91,7 +86,7 @@ for i = 1:length(dataCell)
     axis equal  % ensure same scale in x and y for correct arrow directions
     yticklabels([])
     xticklabels([])
-    title(data.Config.SN)
+    ylabel(data.Config.SN, 'FontSize', 18)
  
     % Save Global Vars
     U_all{i} = u_ds;
@@ -99,8 +94,8 @@ for i = 1:length(dataCell)
     T_all{i} = tq;
     
 end
-xlabel('Time')
-sgtitle('Current Vectors at 1.2 MAB')
+xlabel('Time', 'FontSize', 18)
+sgtitle('Current Vectors at 1.2 MAB', 'FontSize', 25)
 
 quivers = get(qp, 'Children');
 linkaxes(quivers, 'x')

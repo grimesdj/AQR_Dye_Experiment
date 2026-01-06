@@ -74,8 +74,8 @@ for i = 1:length(files)
     title(sprintf('%s', data.Config.SN))
     datetick('x', 'keeplimits')
 end
-xlabel('Time')
-sgtitle('Current Vectors at 1.2 MAB')
+xlabel('Time', 'FontSize', 18)
+sgtitle('Current Vectors at 1.2 MAB', 'Fontsize', 25)
 
 % Add legends
 figure(1)
@@ -96,7 +96,7 @@ yline(ax2,0)
 
 % These are NOT the correct lat/lons. having a hard time getting them from
 % the info files so I approximated them for now
-
+return
 % Assign Coords
 lats = [34.4690789 34.469615 34.4690706 34.4690789];
 longs = [-120.1278549 -120.130375 -120.1278088 -120.1278549];
