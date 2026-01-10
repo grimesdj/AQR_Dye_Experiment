@@ -187,4 +187,34 @@ LPF.m
 %   U_all = East Velocities
 %   V_all = North Velocities
 %   
-NOTE: it seems there may be a scaling issue with the quiver plot 09/2025
+NOTE: it seems there may be a scaling issue with the quiver plot 09/2025 -> FIXED: Does not have proper axis ticks
+
+
+%% LowPassFilter.m
+% Script: takes L0 data and makes 10 min window Low-Pass Filtered data at 
+% 1.2 MAB. Data from each instrument is compared and Saved
+% 
+% In: Directory where L0 data is saved
+%
+% Out: LPF Data, rotated to principal axes, Comparison Figures.
+
+
+LPF Function: INSIDE LowPassFilter.m!!
+function [T_all, U_all, V_all] = LPF(dataCell, labels, colors)
+%   
+% USAGE: [T_all, U_all, V_all] = LPF(dataCell, labels, colors)
+% 
+%   takes time series data and 
+%  returns 3 cell arrays, containing 10-min averaged data, u, v, and time
+% 
+%   dataCell = cell array (# of files x 1) containing data structures
+%   labels = {optional} Cell array of labels for graphs
+%   colors = {optional} Cell array of RGB vals for graphs
+%    
+%
+%   T_all = interpolated time
+%   U_all = East Velocities
+%   V_all = North Velocities
+%   
+
+
