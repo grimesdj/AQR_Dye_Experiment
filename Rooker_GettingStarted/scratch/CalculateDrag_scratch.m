@@ -1,4 +1,4 @@
-%% Calculate Drag
+pwd%% Calculate Drag
 clear all
 close all
 
