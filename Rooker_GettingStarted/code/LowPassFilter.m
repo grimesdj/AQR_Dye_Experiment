@@ -250,7 +250,7 @@ for i = 1:length(dataCell)
     v = data.Velocity_North(:, data.bin);
     t = data.Time;
     dt = double(data.Config.dt);
-    
+    fprintf('dt = %f\n', data.Config.dt)
     % Lowpass filter
     Nf = 600 / dt;
     flt = hamming(Nf); flt = flt / sum(flt);
@@ -298,8 +298,20 @@ for i = 1:length(dataCell)
     U_all{i} = u_ds;
     V_all{i} = v_ds;
     T_all{i} = tq;
+
+    fs = 1/data.Config.dt;
+    figure
+    [pxx,f] = pwelch(u, hanning(1024), 512, 4096, fs);
+    [pxx_f,f] = pwelch(u_filt, hanning(1024), 512, 4096, fs);
+
+    plot(f,10*log10(pxx)); hold on;
+    plot(f,10*log10(pxx_f),'r','LineWidth',1.5);
+    xlabel('Frequency [Hz]'); ylabel('PSD [dB/Hz]');
+    legend('Original','Filtered');
+    title(sprintf('Spectral Energy for %s', data.Config.SN), 'FontSize',25)
     
 end
+get(figure(2))
 xlabel('Time', 'FontSize', 18)
 sgtitle('Current Vectors at 1.2 MAB', 'FontSize', 25)
 
@@ -318,6 +330,7 @@ for i = 1:length(dataCell)
     h2(i).Color = colors{i};
 end
 yline(ax1, 0); yline(ax2, 0);
+
 
 end
 
