@@ -1,4 +1,4 @@
-pwd%% Calculate Drag
+%% Calculate Drag
 clear all
 close all
 
@@ -16,8 +16,9 @@ VEC     = load([files(1).folder, '/', files(4).name]);
 outV    = [M1.PCA_X M1.PCA_Y];
 
 % Averaging M2 and VEC
-meanx   = mean([M2.PCA_X, VEC.PCA_X(1:length(M2.PCA_X))], 2);
-meany   = mean([M2.PCA_Y, VEC.PCA_Y(1:length(M2.PCA_Y))], 2);
+fprintf('Seeing what this looks like without the avg\n')
+meanx   = M2.PCA_X; %mean([M2.PCA_X, VEC.PCA_X(1:length(M2.PCA_X))], 2);
+meany   = M2.PCA_Y;%mean([M2.PCA_Y, VEC.PCA_Y(1:length(M2.PCA_Y))], 2);
 inV     = [meanx meany];
 
 %% Find Representative Stats
@@ -69,27 +70,27 @@ ylabel('Velocity, v (m/s)', 'FontSize', 18)
 
 % make scatters in vs out
 
-% Normalize Vars
-normoU = outV(:,1)./std(outV(:,1));
-normiU = inV(:,1) ./ std(inV(:,1));
+% Allocate Vars
+oU = outV(:,1);
+iU = inV(:,1);
 
-normoV = outV(:,2)./std(outV(:,2));
-normiV = inV(:,2) ./ std(inV(:,2));
+oV = outV(:,2);
+iV = inV(:,2); 
 
 % u scatter
 figure;
 ufig = subplot(1,2,1);
-scatter(ufig, normoV, normiU, 25,  'b', 'filled')
+scatter(ufig, oU, iU, 25,  'b', 'filled')
 ylabel('Inside Velocity, $u_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 xlabel('Outside Velocity, $u_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-title('Inside vs Outside Velocities', 'FontSize', 30)
+sgtitle('Raw Inside vs Outside Velocities', 'FontSize', 30)
 
 
 % u best fit
-Pu = polyfit(normoU, normiU, 1); 
-uline = polyval(Pu, normoU);
+Pu = polyfit(oU, iU, 1); 
+uline = polyval(Pu, oU);
 hold on
-[xs, idx] = sort(normoU);
+[xs, idx] = sort(oU);
 plot(ufig, xs, uline(idx), 'r--', 'LineWidth', 1)
 legend('$u$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pu(1)), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
@@ -97,15 +98,15 @@ axis equal
 
 % v scatter
 vfig = subplot(1, 2, 2);
-scatter(vfig, normoV, normiV, 25, 'r', 'filled')
+scatter(vfig, oV, iV, 25, 'r', 'filled')
 ylabel('Inside Velocity, $v_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 xlabel('Outside Velocity, $v_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 
 % v best fit
-Pv = polyfit(normoV, normiV, 1);
-vline = polyval(Pv, normoV);
+Pv = polyfit(oV, iV, 1);
+vline = polyval(Pv, oV);
 hold on
-[xs, idx] = sort(normoV);
+[xs, idx] = sort(oV);
 plot(vfig, xs, vline(idx), 'b--', 'LineWidth', 1)
 legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pv(1)), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
@@ -118,3 +119,94 @@ fprintf('Slope redux: %.3f%%\n', m_redux)
 
 
 %exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Redux_Scatter.png')
+
+% Normalize Vars
+norm_oU = (oU-mean(oU)) ./ std(oU);
+norm_iU = (iU-mean(iU)) ./ std(iU);
+
+norm_oV = (oV-mean(oV)) ./ std(oV);
+norm_iV = (iV-mean(iV)) ./ std(iV);
+
+% u scatter
+figure;
+ufig = subplot(1,2,1);
+scatter(ufig, norm_oU, norm_iU, 25,  'b', 'filled')
+ylabel('Inside Velocity, $u_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+xlabel('Outside Velocity, $u_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+sgtitle('Norm Inside vs Outside Velocities', 'FontSize', 30)
+
+
+% u best fit
+Pu = polyfit(norm_oU, norm_iU, 1); 
+uline = polyval(Pu, norm_oU);
+hold on
+[xs, idx] = sort(norm_oU);
+plot(ufig, xs, uline(idx), 'r--', 'LineWidth', 1)
+legend('$u$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pu(1)), ...
+    'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+axis equal
+
+% v scatter
+vfig = subplot(1, 2, 2);
+scatter(vfig, norm_oV, norm_iV, 25, 'r', 'filled')
+ylabel('Inside Velocity, $v_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+xlabel('Outside Velocity, $v_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+
+% v best fit
+Pv = polyfit(norm_oV, norm_iV, 1);
+vline = polyval(Pv, norm_oV);
+hold on
+[xs, idx] = sort(norm_oV);
+plot(vfig, xs, vline(idx), 'b--', 'LineWidth', 1)
+legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pv(1)), ...
+    'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+axis equal
+
+% Slope Redux
+m = [Pu(1) Pv(1)];
+m_redux = (1-m)*100;
+fprintf('Slope redux: %.3f%%\n', m_redux)
+
+
+% % u scatter
+% figure;
+% ufig = subplot(1,2,1);
+% scatter(ufig, outV(:,1), inV(:,1), 25,  'b', 'filled')
+% ylabel('Inside Velocity, $u_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+% xlabel('Outside Velocity, $u_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+% title('Inside vs Outside Velocities', 'FontSize', 30)
+% 
+% 
+% % u best fit
+% Pu = polyfit(outV(:,1), inV(:,1), 1); 
+% uline = polyval(Pu, outV(:,1));
+% hold on
+% [xs, idx] = sort(outV(:,1));
+% plot(ufig, xs, uline(idx), 'r--', 'LineWidth', 1)
+% legend('$u$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pu(1)), ...
+%     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+% axis equal
+% 
+% % v scatter
+% vfig = subplot(1, 2, 2);
+% scatter(vfig, outV(:,2), inV(:,2), 25, 'r', 'filled')
+% ylabel('Inside Velocity, $v_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+% xlabel('Outside Velocity, $v_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+% 
+% % v best fit
+% Pv = polyfit(outV(:,2), inV(:,2), 1);
+% vline = polyval(Pv, outV(:,2));
+% hold on
+% [xs, idx] = sort(outV(:,2));
+% plot(vfig, xs, vline(idx), 'b--', 'LineWidth', 1)
+% legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pv(1)), ...
+%     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+% axis equal
+% 
+% % Slope Redux
+% m = [Pu(1) Pv(1)];
+% m_redux = (1-m)*100;
+% fprintf('Slope redux: %.3f%%\n', m_redux)
+% 
+% 
+% exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Redux_Scatter.png')
