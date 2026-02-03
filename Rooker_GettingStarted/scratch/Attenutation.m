@@ -129,6 +129,10 @@ exportgraphics(gcf, [figstem, 'magnitude_coherence.png'])
 % hour periods. That kind of harmonics seems like stokes 2nd order waves?
 
 get(figure(2))
+fig2 = gcf;
+fig5 = gcf;
+get(fig5)
+linkaxes([ax1 ax2], 'x')
 xlim([datetime('09-Jul-2024 00:00:00') datetime('09-Jul-2024 10:00:00')])
 
 exportgraphics(gcf, [figstem, 'detrend_zoom.png'])
