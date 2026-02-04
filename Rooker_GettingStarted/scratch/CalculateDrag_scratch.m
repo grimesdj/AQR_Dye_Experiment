@@ -4,21 +4,22 @@ close all
 
 %% Load data
 filestem = '../../../../Kelp_data/Summer2025/Rooker/Release2/LPF';
-files = dir([filestem, '/*PCA.mat']);
+files = dir([filestem, '/*_PCA.mat']);
+
 
 AQD     = load([files(1).folder, '/', files(1).name]);
 M1      = load([files(1).folder, '/', files(2).name]);
 M2      = load([files(1).folder, '/', files(3).name]);
 VEC     = load([files(1).folder, '/', files(4).name]);
 
-
 % for standarazing puropses
-outV    = [M1.PCA_X M1.PCA_Y];
+outV    = [M1.Velocity_X M1.Velocity_Y];
+fprintf('Using East and North instead of PCA\n')
 
 % Averaging M2 and VEC
 fprintf('Seeing what this looks like without the avg\n')
-meanx   = M2.PCA_X; %mean([M2.PCA_X, VEC.PCA_X(1:length(M2.PCA_X))], 2);
-meany   = M2.PCA_Y;%mean([M2.PCA_Y, VEC.PCA_Y(1:length(M2.PCA_Y))], 2);
+meanx   = M2.Velocity_X; %mean([M2.PCA_X, VEC.PCA_X(1:length(M2.PCA_X))], 2);
+meany   = M2.Velocity_Y;%mean([M2.PCA_Y, VEC.PCA_Y(1:length(M2.PCA_Y))], 2);
 inV     = [meanx meany];
 
 %% Find Representative Stats
@@ -63,8 +64,8 @@ plot(ellipseout(:,1), ellipseout(:,2), 'r--', 'LineWidth', 2)
 plot(ellipsein(:,1), ellipsein(:,2), 'b--', 'LineWidth', 2)
 legend('Outside Velocity', 'Inside Velocity', 'Outside RMS', 'Inside RMS')
 title('Velocities Outside vs. Inside Kelp Forest', 'FontSize', 25)
-xlabel('Velocity, u (m/s)', 'FontSize', 18)
-ylabel('Velocity, v (m/s)', 'FontSize', 18)
+xlabel('Velocity, East (m/s)', 'FontSize', 18)
+ylabel('Velocity, N (m/s)', 'FontSize', 18)
 
 %exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/RMS.png')
 
@@ -81,8 +82,8 @@ iV = inV(:,2);
 figure;
 ufig = subplot(1,2,1);
 scatter(ufig, oU, iU, 25,  'b', 'filled')
-ylabel('Inside Velocity, $u_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-xlabel('Outside Velocity, $u_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+ylabel('Inside Velocity, $E_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+xlabel('Outside Velocity, $E_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 sgtitle('Raw Inside vs Outside Velocities', 'FontSize', 30)
 
 
@@ -99,8 +100,8 @@ axis equal
 % v scatter
 vfig = subplot(1, 2, 2);
 scatter(vfig, oV, iV, 25, 'r', 'filled')
-ylabel('Inside Velocity, $v_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-xlabel('Outside Velocity, $v_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+ylabel('Inside Velocity, $N_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+xlabel('Outside Velocity, $N_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 
 % v best fit
 Pv = polyfit(oV, iV, 1);
