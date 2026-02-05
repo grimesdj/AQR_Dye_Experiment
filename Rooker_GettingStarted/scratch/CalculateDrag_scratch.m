@@ -50,10 +50,10 @@ muin    = mean(inV);
 
 % plot it!
 figure
-plot(outV(:,1), outV(:,2), 'r.', 'LineWidth', 2)
+plot(outV(:,1), outV(:,2), 'r.', 'MarkerSize', 10)
 
 hold on
-plot(inV(:,1), inV(:,2), 'b.', 'LineWidth', 2)
+plot(inV(:,1), inV(:,2), 'b.', 'MarkerSize', 10)
 
 % plot error ellipse
 t = 0:.01:2*pi;
@@ -79,12 +79,11 @@ oV = outV(:,2);
 iV = inV(:,2); 
 
 % u scatter
-figure;
-ufig = subplot(1,2,1);
-scatter(ufig, oU, iU, 25,  'b', 'filled')
+ufig = figure;
+scatter(oU, iU, 25,  'b', 'filled')
 ylabel('Inside Velocity, $E_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 xlabel('Outside Velocity, $E_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-sgtitle('Raw Inside vs Outside Velocities', 'FontSize', 30)
+sgtitle('East Inside vs Outside Velocities', 'FontSize', 30)
 
 
 % u best fit
@@ -92,26 +91,33 @@ Pu = polyfit(oU, iU, 1);
 uline = polyval(Pu, oU);
 hold on
 [xs, idx] = sort(oU);
-plot(ufig, xs, uline(idx), 'r--', 'LineWidth', 1)
+plot(xs, uline(idx), 'r--', 'LineWidth', 1)
 legend('$u$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pu(1)), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+
+grid on
 axis equal
+xlim(gca, [-0.25, 0.25])
 
 % v scatter
-vfig = subplot(1, 2, 2);
-scatter(vfig, oV, iV, 25, 'r', 'filled')
+vfig = figure;
+scatter(oV, iV, 25, 'r', 'filled')
 ylabel('Inside Velocity, $N_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 xlabel('Outside Velocity, $N_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+sgtitle('North Inside vs Outside Velocities', 'FontSize', 30)
 
 % v best fit
 Pv = polyfit(oV, iV, 1);
 vline = polyval(Pv, oV);
 hold on
 [xs, idx] = sort(oV);
-plot(vfig, xs, vline(idx), 'b--', 'LineWidth', 1)
+plot(xs, vline(idx), 'b--', 'LineWidth', 1)
 legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pv(1)), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+
+grid on
 axis equal
+xlim(gca, [-0.25, 0.25])
 
 % Slope Redux
 m = [Pu(1) Pv(1)];
@@ -129,39 +135,52 @@ norm_oV = (oV-mean(oV)) ./ std(oV);
 norm_iV = (iV-mean(iV)) ./ std(iV);
 
 % u scatter
-figure;
-ufig = subplot(1,2,1);
-scatter(ufig, norm_oU, norm_iU, 25,  'b', 'filled')
+unfig = figure;
+scatter(norm_oU, norm_iU, 25,  'b', 'filled')
 ylabel('Inside Velocity, $u_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 xlabel('Outside Velocity, $u_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-sgtitle('Norm Inside vs Outside Velocities', 'FontSize', 30)
+sgtitle('Normalized East Inside vs Outside Velocities', 'FontSize', 30)
 
 
 % u best fit
-Pu = polyfit(norm_oU, norm_iU, 1); 
-uline = polyval(Pu, norm_oU);
-hold on
-[xs, idx] = sort(norm_oU);
-plot(ufig, xs, uline(idx), 'r--', 'LineWidth', 1)
-legend('$u$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pu(1)), ...
+hold on % why do about orth regressions return 1??????????
+[coef, ~, lat] = pca([norm_oU norm_iU]);
+a_orth = coef(2,1) / coef(1,1);
+xx = linspace(-3, 3, 100);
+yy = a_orth * xx;
+plot(xx, yy, 'k--', 'LineWidth', 2)
+legend('$u$ Velocity Data', sprintf('Best Fit Slope = %.2f', a_orth), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+% u orthoganal fit
+
+
+
+grid on
 axis equal
+xlim(gca, [-10, 10])
 
 % v scatter
-vfig = subplot(1, 2, 2);
-scatter(vfig, norm_oV, norm_iV, 25, 'r', 'filled')
+vnfig = figure;
+scatter(norm_oV, norm_iV, 25, 'r', 'filled')
 ylabel('Inside Velocity, $v_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 xlabel('Outside Velocity, $v_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+sgtitle('Normalized North Inside vs Outside Velocities', 'FontSize', 30)
 
 % v best fit
-Pv = polyfit(norm_oV, norm_iV, 1);
-vline = polyval(Pv, norm_oV);
 hold on
-[xs, idx] = sort(norm_oV);
-plot(vfig, xs, vline(idx), 'b--', 'LineWidth', 1)
-legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pv(1)), ...
+[coef, ~, lat] = pca([norm_oV norm_iV]);
+a_orth = coef(2,1) / coef(1,1);
+xx = linspace(-3, 3, 100);
+yy = a_orth * xx;
+plot(xx, yy, 'k--', 'LineWidth', 2)
+legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', a_orth), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
+% v orthoganal fit
+
+
+grid on
 axis equal
+xlim(gca, [-10, 10])
 
 % Slope Redux
 m = [Pu(1) Pv(1)];
