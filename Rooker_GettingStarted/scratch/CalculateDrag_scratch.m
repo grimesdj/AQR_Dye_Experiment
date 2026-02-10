@@ -91,13 +91,15 @@ Pu = polyfit(oU, iU, 1);
 uline = polyval(Pu, oU);
 hold on
 [xs, idx] = sort(oU);
-plot(xs, uline(idx), 'r--', 'LineWidth', 1)
+plot(xs, uline(idx), 'k--', 'LineWidth', 1.5)
 legend('$u$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pu(1)), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
 
 grid on
 axis equal
 xlim(gca, [-0.25, 0.25])
+
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/East_rdux.png')
 
 % v scatter
 vfig = figure;
@@ -111,7 +113,7 @@ Pv = polyfit(oV, iV, 1);
 vline = polyval(Pv, oV);
 hold on
 [xs, idx] = sort(oV);
-plot(xs, vline(idx), 'b--', 'LineWidth', 1)
+plot(xs, vline(idx), 'k--', 'LineWidth', 1.5)
 legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pv(1)), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
 
@@ -125,7 +127,7 @@ m_redux = (1-m)*100;
 fprintf('Slope redux: %.3f%%\n', m_redux)
 
 
-%exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Redux_Scatter.png')
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/North_rdux.png')
 
 % Normalize Vars
 norm_oU = (oU-mean(oU)) ./ std(oU);
@@ -159,6 +161,9 @@ grid on
 axis equal
 xlim(gca, [-10, 10])
 
+
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/norm_East_rdux.png')
+
 % v scatter
 vnfig = figure;
 scatter(norm_oV, norm_iV, 25, 'r', 'filled')
@@ -181,6 +186,9 @@ legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', a_orth), ...
 grid on
 axis equal
 xlim(gca, [-10, 10])
+
+
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/norm_North_rdux.png')
 
 % Slope Redux
 m = [Pu(1) Pv(1)];

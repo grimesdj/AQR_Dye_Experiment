@@ -112,6 +112,7 @@ axis equal
 title('Magnitudes in vs out')
 
 [cxy, f] = mscohere(mag_in, mag_out, [], [], [], 1/600);
+
 T = 1./f;
 figure
 semilogx(T, cxy, 'LineWidth', 1.5)
@@ -122,6 +123,7 @@ set(gca, 'XDir', 'reverse')
 title('M1 vs M2 Magnitudes Coherence', 'FontSize', 20)
 xlabel('Period, T [s]', 'FontSize', 16)
 ylabel('Correlation Coefficient, r [\phi]', 'FontSize', 16)
+yline(0.34) % error bar
 
 exportgraphics(gcf, [figstem, 'magnitude_coherence.png'])
 
