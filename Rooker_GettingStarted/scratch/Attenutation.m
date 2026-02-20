@@ -111,6 +111,7 @@ scatter(mag_in/std(mag_in), mag_out/std(mag_out), 'black', 'filled')
 axis equal
 title('Magnitudes in vs out')
 
+% Magnitude Coherence
 [cxy, f] = mscohere(mag_in, mag_out, [], [], [], 1/600);
 
 T = 1./f;
@@ -125,10 +126,49 @@ xlabel('Period, T [s]', 'FontSize', 16)
 ylabel('Correlation Coefficient, r [\phi]', 'FontSize', 16)
 yline(0.34) % error bar
 
-exportgraphics(gcf, [figstem, 'magnitude_coherence.png'])
+%exportgraphics(gcf, [figstem, 'magnitude_coherence.png'])
 
 % Looks like theres some correlation on the order of 2 hour periods and 1
 % hour periods. That kind of harmonics seems like stokes 2nd order waves?
+
+% East Coherence
+[cxy, f] = mscohere(u_in, u_out, [], [], [], 1/600);
+
+T = 1./f;
+%figure
+hold on
+semilogx(T, cxy, 'LineWidth', 1.5)
+xlim([600 86400]);
+xline((360/28.984104)*60*60, 'r--', 'Principal lunar semidiurnal constituent', 'LabelVerticalAlignment','bottom')
+xline((360/15.041069)*60*60, 'r--', 'Lunar diurnal constituent', 'LabelVerticalAlignment','bottom')
+set(gca, 'XDir', 'reverse')
+title('M1 vs M2 East Coherence', 'FontSize', 20)
+xlabel('Period, T [s]', 'FontSize', 16)
+ylabel('Correlation Coefficient, r [\phi]', 'FontSize', 16)
+yline(0.34) % error bar
+
+%exportgraphics(gcf, [figstem, 'east_coherence.png'])
+
+% North Coherence
+[cxy, f] = mscohere(v_in, v_out, [], [], [], 1/600);
+
+T = 1./f;
+%figure
+hold on
+semilogx(T, cxy, 'LineWidth', 1.5)
+xlim([600 86400]);
+xline((360/28.984104)*60*60, 'r--', 'Principal lunar semidiurnal constituent', 'LabelVerticalAlignment','bottom')
+xline((360/15.041069)*60*60, 'r--', 'Lunar diurnal constituent', 'LabelVerticalAlignment','bottom')
+set(gca, 'XDir', 'reverse')
+title('M1 vs M2 North Coherence', 'FontSize', 20)
+xlabel('Period, T [s]', 'FontSize', 16)
+ylabel('Correlation Coefficient, r [\phi]', 'FontSize', 16)
+yline(0.34) % error bar
+
+legend('Magnitude', 'East', 'North')
+
+%exportgraphics(gcf, [figstem, 'east_coherence.png'])
+
 
 get(figure(2))
 fig2 = gcf;
