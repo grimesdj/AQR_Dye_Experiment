@@ -27,6 +27,8 @@ for i = 1:length(files)
     end
 end
 
+keyboard
+
 %% Averaged Velocities
 addpath('../code')
 [T_all, U_all, V_all] = LPF(dataCell, labels, colors);
@@ -251,6 +253,7 @@ for i = 1:length(dataCell)
     t = data.Time;
     dt = double(data.Config.dt);
     fprintf('dt = %f\n', data.Config.dt)
+    
     % Lowpass filter
     Nf = 600 / dt;
     flt = hamming(Nf); flt = flt / sum(flt);
