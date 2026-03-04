@@ -1,4 +1,4 @@
-%% LowPassFilter
+%% Compare Average
 % Script: takes L0 data and makes 10 min window Low-Pass Filtered data at 
 % 1.2 MAB. Data from each instrument is compared and Saved
 % 
@@ -27,14 +27,13 @@ for i = 1:length(files)
     end
 end
 
-keyboard
-
 %% Averaged Velocities
 addpath('../code')
 [T_all, U_all, V_all] = LPF(dataCell, labels, colors);
 
+
 % normalizing vector size
-[~, sizeLimit] = size(U_all{2}); % gonna make this a max function later
+sizeLimit = max(size(U_all{1})); % gonna make this a max function later
 
 AQD = [U_all{1}(1, 1:sizeLimit); V_all{1}(1, 1:sizeLimit)];
 M1  = [U_all{2}(1, 1:sizeLimit); V_all{2}(1, 1:sizeLimit)];
@@ -46,8 +45,6 @@ VEC = [U_all{4}(1, 1:sizeLimit); V_all{4}(1, 1:sizeLimit)];
 AQDvsM1 = AQD-M1;
 M2vsM1  = M2-M1;
 VECvsM1 = VEC-M1;
-
-
 
 
 %% Plot difference scatter in-out
@@ -183,9 +180,9 @@ filestem = '../../../../Kelp_data/Summer2025/Rooker/Release2/LPF';
 
 labels = replace(labels, ' ', '');
 
-disp('Saving has been disabled to prevent accidental overwriting...')
+disp('Saving has NOT been disabled to prevent accidental overwriting...')
 
-return
+
 
 for i = 1:length(labels)
     
@@ -251,18 +248,23 @@ for i = 1:length(dataCell)
     u = data.Velocity_East(:, data.bin);  
     v = data.Velocity_North(:, data.bin);
     t = data.Time;
-    dt = double(data.Config.dt);
-    fprintf('dt = %f\n', data.Config.dt)
+    dt = double(data.Config.dt)
     
     % Lowpass filter
-    Nf = 600 / dt;
-    flt = hamming(Nf); flt = flt / sum(flt);
+    Nf = round(600 / dt);   % 10 minute smoothing
+    flt = hamming(Nf);
+    flt = flt / sum(flt);
+
     nanFlag = ~isnan(u);
     flag_flt = conv(nanFlag, flt, 'same');
-    u(~nanFlag) = 0; v(~nanFlag) = 0;
+
+    u(~nanFlag) = 0;
+    v(~nanFlag) = 0;
+
     u_filt = conv(u, flt, 'same') ./ flag_flt;
     v_filt = conv(v, flt, 'same') ./ flag_flt;
 
+   
     % Plot time series
     figure(1);
     h1(i) = plot(ax1, t, u_filt,'LineWidth', 1.5);
@@ -297,24 +299,26 @@ for i = 1:length(dataCell)
     xticklabels([])
     ylabel(data.Config.SN, 'FontSize', 18)
  
-    % Save Global Vars
-    U_all{i} = u_ds;
-    V_all{i} = v_ds;
-    T_all{i} = tq;
+   % Save Global Vars
 
-    fs = 1/data.Config.dt;
-    figure
-    [pxx,f] = pwelch(u, hanning(1024), 512, 4096, fs);
-    [pxx_f,f] = pwelch(u_filt, hanning(1024), 512, 4096, fs);
+   % interpolate
+   % dt_common in seconds
+    dt_common = 1;  % slowest instrument 1 Hz
 
-    plot(f,10*log10(pxx)); hold on;
-    plot(f,10*log10(pxx_f),'r','LineWidth',1.5);
-    xlabel('Frequency [Hz]'); ylabel('PSD [dB/Hz]');
-    legend('Original','Filtered');
-    title(sprintf('Spectral Energy for %s', data.Config.SN), 'FontSize',25)
+    % build common time vector in datenum units (days)
+    t_start = max(cellfun(@(d) d.Time(1), dataCell));
+    t_end   = min(cellfun(@(d) d.Time(end), dataCell));
+
+    t_common = t_start : (dt_common/86400) : t_end;  % 1 sec = 1/86400 days
     
+    % interpolate u/v to t_common
+    U_all{i} = interp1(t, u_filt, t_common, 'linear');
+    V_all{i} = interp1(t, v_filt, t_common, 'linear');
+    T_all{i} = t_common;
+
+
+
 end
-get(figure(2))
 xlabel('Time', 'FontSize', 18)
 sgtitle('Current Vectors at 1.2 MAB', 'FontSize', 25)
 
@@ -333,7 +337,6 @@ for i = 1:length(dataCell)
     h2(i).Color = colors{i};
 end
 yline(ax1, 0); yline(ax2, 0);
-
 
 end
 
