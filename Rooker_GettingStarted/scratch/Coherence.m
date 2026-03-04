@@ -74,9 +74,12 @@ title('East Coherence M1 vs M2', 'FontSize', 25)
 
 [Ncxy,f] = mscohere(v_in,v_out,hamming(M),noverlap,NFFT,1/300);
 
+T = 1./f;
+
 figure
 % plot!
 plot(f, Ncxy, 'k', 'LineWidth', 2.5)
+set(gca, 'XDir', 'reverse')
 xlabel('Frequency [Hz]')
 ylabel('Coherence')
 yline(Ccrit, 'r--', 'Label', '95% Confidence', 'LineWidth', 1.5)
