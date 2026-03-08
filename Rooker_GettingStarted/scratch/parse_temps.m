@@ -7,10 +7,10 @@ load("../../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat")
 
 
 % setup for freq transform
+
+dt = (R23.Time(2) - R23.Time(1))*24*60*60;  
+fs = 1/dt;                             
 N = length(R23.Time);
-timerange = seconds(days(R1.Time(end) - R1.Time(1)));
-dt = round(N/timerange);
-fs = 1/dt;
 
 time = datetime(R23.Time, 'ConvertFrom', 'datenum');
 
@@ -33,7 +33,7 @@ NFFT = floor(w*2);
 
 [PSD, f] = pwelch(temp, w, noverlap ,NFFT, fs);
 figure
-loglog(f, PSD, 'LineWidth',2)
+semilogx(f, PSD, 'LineWidth',2)
 legend(sprintf('%.3f MAB', R1.mab(1)), ...
     sprintf('%.3f MAB', R23.mab(2)), ...
     sprintf('%.3f MAB', R23.mab(3)), ...
@@ -48,10 +48,51 @@ data.Time = time;
 data.dt = dt;
 
 
-[T_all, Temp_all] = LPF({data});
-
+[Time_LPF, Temp_LPF] = LPF({data});
+t = Time_LPF{1};
+T = Temp_LPF{1};
 figure
-plot(T_all{1}, Temp_all{1})
+plot(t, T)
+
+
+% setup for freq transform
+N = length(t);
+timerange = days(t(end) - t(1));
+dt = round(N./timerange);
+fs = 1/dt;
+
+time = t;
+
+% original
+figure
+plot(time, T, 'LineWidth', 1)
+title('original')
+
+% de-trend
+temp = detrend(T);
+figure
+%temp = temp - movmean(temp, fs*2000);
+plot(time, temp, 'LineWidth', 1)
+title('detrend')
+
+% Freq
+w = floor(N/2);
+noverlap = w/2;
+NFFT = floor(w*2);
+
+[PSD, f] = pwelch(temp, w, noverlap ,NFFT, fs);
+figure
+semilogx(f, PSD, 'LineWidth',2)
+legend(sprintf('%.3f MAB', R1.mab(1)), ...
+    sprintf('%.3f MAB', R23.mab(2)), ...
+    sprintf('%.3f MAB', R23.mab(3)), ...
+    sprintf('%.3f MAB', R23.mab(4)), ...
+    sprintf('%.3f MAB', R23.mab(5)))
+
+title('PSD spec - LPF')
+
+
+
 
 %save() % save PSD in its own folder in data and use coherence.m to analyze
 
