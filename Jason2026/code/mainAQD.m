@@ -1,4 +1,4 @@
-% load_and_process_AQD.m
+% mainAQD.m
 % 
 %   USAGE: loads AQD data from textfiles into .mat files
 % 
@@ -37,11 +37,11 @@ tos = 0;
 %
 % Generate and save raw data
 disp('Generating raw data')
-%loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
-
+loadAQD(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
+return
 % Generate and save L0
 disp('Generating L0 data')
-%L0_AQD(outputFile, L0Dir, L0Name);
+L0_AQD(outputFile, L0Dir, L0Name);
 
 % % Create Plots
 % disp('Generating figures')
