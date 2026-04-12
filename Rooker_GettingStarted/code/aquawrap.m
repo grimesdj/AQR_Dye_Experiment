@@ -32,10 +32,19 @@ filt_diff = (v_wrapped - medfilt1(v_wrapped,150))./Vr;
 filt_diff1 = filt_diff;
 suspect_pts = abs(filt_diff)>1; % seems that you have to input the threshold based on deployment
 
-figure, plot(v_wrapped(:, 1), '.')
-hold on, plot(find(suspect_pts(:,1)),v_wrapped(suspect_pts(:,1)), 'r.')
-hold on, plot(find(~suspect_pts(:,1)),v_wrapped(~suspect_pts(:, 1)), 'g.')
+figure, %plot(v_wrapped(:, 1), '.')
+hold on, plot(find(suspect_pts(:,1)),v_wrapped(suspect_pts(:,1)), 'r.', 'MarkerSize', 10)
+hold on, plot(find(~suspect_pts(:,1)),v_wrapped(~suspect_pts(:, 1)), 'g.', 'MarkerSize', 10)
+
+ylabel('Velocity, [m/s]', 'FontSize', 16)
+xlabel('Point Index #', 'FontSize', 16)
+lgd = legend('Velocity Wrapped Points', 'Non-Wrapped Points', 'fontsize', 16);
+keyboard
+
+disp('Unwrapping...')
 for ncol = 1:nt
+prog = ncol/nt * 100;
+fprintf('%.2f%% Complete\r', prog)
 %ncol = 30;
 
 si = find(suspect_pts(:, ncol));
@@ -51,6 +60,7 @@ v_unwrap(si, ncol) = v_wrapped(si, ncol) - r*2*Vr(ncol);
 
 end
 
+fprintf('\n --- Unwrapped! --- \n')
 %plots;
 figure(1),clf
 ax1 = subplot(3,1,1);
@@ -74,5 +84,7 @@ title('Unwrap')
 colorbar
 caxis([-1,1])
 linkaxes([ax1 ax2 ax3],'x')
+
+
 end
 

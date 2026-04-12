@@ -34,8 +34,7 @@ sgtitle('10-min Avg Velocities at 1.2 MAB', 'Fontsize', 25)
 
 %% Quiver Plot Setup
 qp = figure;
-for i = 1:length(dataCell)
-
+for i = 1:1
     data = dataCell{i};
 
    

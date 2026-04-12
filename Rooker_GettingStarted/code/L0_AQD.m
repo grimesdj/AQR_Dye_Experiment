@@ -13,6 +13,7 @@ fprintf('\n============================\nDo you want to unwrap beam Velocities?'
 unwrap = input('(1 = yes; 0 = no)');
 if unwrap == 1
     for beam = 1:3 
+        fprintf('Unwrapping Beam #%d\n', beam)
         [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
     end
     

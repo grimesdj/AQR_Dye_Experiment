@@ -28,7 +28,7 @@ clear all
 close all
 % stages of processing
 % 1) define deployment number:
-adcp_ID  = 1;
+adcp_ID  = 2;
 adcp_file_roots = {'S103071A014_KELP1','S104339A001_KELP1'};
 adcp_mooring_ID = {'M2', 'M1'};
 echo_mode = 0;
@@ -96,16 +96,16 @@ Config.Descriptions = Descriptions;
 %
 % load and pre-process data.
 disp('load and pre-process data')
-loadSIG1K(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
+%loadSIG1K(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
 %
 
 % Fetch Release times
 disp('fetching data to fit release times')
-R1 = fetch_sig1k(L0Dir, R1startTime, R1endTime);
-R23 = fetch_sig1k(L0Dir, R2startTIme, R2endTime);
+R1 = fetch_sig1k(L0dir, R1startTime, R1endTime);
+R23 = fetch_sig1k(L0dir, R2startTIme, R2endTime);
 
- disp('still need to save')
- 
+disp('still need to save - how did I originally save the fetched signals?')
+
 
 
 

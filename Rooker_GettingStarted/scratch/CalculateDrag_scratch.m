@@ -3,7 +3,7 @@ clear all
 close all
 
 %% Load data
-filestem = '../../../../Kelp_data/Summer2025/Rooker/Release2/LPF';
+filestem = '../../../../Kelp_data/Summer2025/Rooker/Release1/LPF';
 files = dir([filestem, '/*_PCA.mat']);
 
 
@@ -18,8 +18,8 @@ fprintf('Using East and North instead of PCA\n')
 
 % Averaging M2 and VEC
 fprintf('Seeing what this looks like without the avg\n')
-meanx   = M2.Velocity_X; %mean([M2.PCA_X, VEC.PCA_X(1:length(M2.PCA_X))], 2);
-meany   = M2.Velocity_Y;%mean([M2.PCA_Y, VEC.PCA_Y(1:length(M2.PCA_Y))], 2);
+meanx   = AQD.Velocity_X; %mean([M2.PCA_X, VEC.PCA_X(1:length(M2.PCA_X))], 2);
+meany   = AQD.Velocity_Y;%mean([M2.PCA_Y, VEC.PCA_Y(1:length(M2.PCA_Y))], 2);
 inV     = [meanx meany];
 
 %% Find Representative Stats
@@ -67,7 +67,7 @@ title('Velocities Outside vs. Inside Kelp Forest', 'FontSize', 25)
 xlabel('Velocity, East (m/s)', 'FontSize', 18)
 ylabel('Velocity, N (m/s)', 'FontSize', 18)
 
-%exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/RMS.png')
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Release1_RMS.png')
 
 % make scatters in vs out
 
@@ -80,10 +80,10 @@ iV = inV(:,2);
 
 % u scatter
 ufig = figure;
-scatter(oU, iU, 25,  'b', 'filled')
+scatter(oU(1:100:end), iU(1:100:end), 25,  'b', 'filled')
 ylabel('Inside Velocity, $E_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
 xlabel('Outside Velocity, $E_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-sgtitle('East Inside vs Outside Velocities', 'FontSize', 30)
+sgtitle('Alongshore Inside vs Outside Velocities', 'FontSize', 30)
 
 
 % u best fit
@@ -99,21 +99,28 @@ grid on
 axis equal
 xlim(gca, [-0.25, 0.25])
 
-exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/East_rdux.png')
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Release1_East_rdux.png')
 
 % v scatter
 vfig = figure;
-scatter(oV, iV, 25, 'r', 'filled')
-ylabel('Inside Velocity, $N_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-xlabel('Outside Velocity, $N_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
-sgtitle('North Inside vs Outside Velocities', 'FontSize', 30)
+scatter(oV(1:100:end), iV(1:100:end), 25, 'r', 'filled')
+ylabel('Inside Velocity, $U_{in}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+xlabel('Outside Velocity, $U_{out}$ (m/s)', 'FontSize', 20, 'Interpreter','latex')
+sgtitle('Cross-Shore Inside vs Outside Velocities', 'FontSize', 30)
 
 % v best fit
+
+% define extended x-range (e.g., 10% beyond data)
+xmin = min(oV) - 0.1;
+xmax = max(oV) + 0.1;
+
+x_ext = linspace(xmin, xmax, 100);
+
 Pv = polyfit(oV, iV, 1);
-vline = polyval(Pv, oV);
+vline = polyval(Pv, x_ext);
 hold on
 [xs, idx] = sort(oV);
-plot(xs, vline(idx), 'k--', 'LineWidth', 1.5)
+plot(x_ext, vline, 'k--', 'LineWidth', 2)
 legend('$v$ Velocity Data', sprintf('Best Fit Slope = %.2f', Pv(1)), ...
     'Interpreter', 'latex', 'FontSize', 14, 'location', 'southeast');
 
@@ -127,7 +134,7 @@ m_redux = (1-m)*100;
 fprintf('Slope redux: %.3f%%\n', m_redux)
 
 
-exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/North_rdux.png')
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Release1_North_rdux.png')
 
 % Normalize Vars
 norm_oU = (oU-mean(oU)) ./ std(oU);
@@ -162,7 +169,7 @@ axis equal
 xlim(gca, [-10, 10])
 
 
-exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/norm_East_rdux.png')
+exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/Release1_norm_East_rdux.png')
 
 % v scatter
 vnfig = figure;
@@ -188,7 +195,7 @@ axis equal
 xlim(gca, [-10, 10])
 
 
-exportgraphics(gcf, '../../../../Kelp_data/Summer2025/Rooker/figures/norm_North_rdux.png')
+exportgraphics(gcf, ['../../../../Kelp_data/Summer2025/Rooker/figures/Release1_norm_North_rdux.png'])
 
 % Slope Redux
 m = [Pu(1) Pv(1)];

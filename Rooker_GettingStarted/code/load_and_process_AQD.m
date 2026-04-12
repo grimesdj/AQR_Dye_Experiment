@@ -41,7 +41,7 @@ disp('Generating raw data')
 
 % Generate and save L0
 disp('Generating L0 data')
-%L0_AQD(outputFile, L0Dir, L0Name);
+L0_AQD(outputFile, L0Dir, L0Name);
 
 % % Create Plots
 % disp('Generating figures')

@@ -224,3 +224,88 @@ title('Coherent Outside Velocity Driven by Inside Velocity');
 datetick(gca,'keeplimits')
 
 % --- Disc end ---
+
+
+
+%% PSD for wave reduction
+
+% East Outside
+[EOpxx,f] = pwelch(u_out,hamming(M),noverlap,NFFT,1/d);
+
+% East inside
+[EIpxx,f] = pwelch(u_in,hamming(M),noverlap,NFFT,1/d);
+
+% relative difference
+df = EOpxx - EIpxx;
+rdf = df./EOpxx;
+rdfm = movmean(rdf, length(EIpxx)/3);
+
+T = (1./f)./60^2;
+
+figure;
+plot(T, EOpxx, 'b', 'LineWidth', 2)
+hold on
+plot(T, EIpxx, 'g', 'LineWidth', 2)
+%plot(f, df, 'r--', 'LineWidth', 1.5)
+set(gca, 'XScale', 'log')
+set(gca, 'XDir', 'reverse')
+set(gca, 'YScale', 'log')
+set(gca, 'XTick', [0.25 0.5 1 3 6 12 24])
+%xlim([1/(d*N) 1/(2*d)])
+ylim([10^-3 10^2])
+ylabel('Power Spectral Density, [m^2/s]')
+xlabel('Period, T [hours]')
+grid on
+set(gca, 'FontSize', 18)
+
+
+figure
+plot(T, rdf*100, 'b', 'LineWidth', 1.5)
+hold on
+plot(T, rdfm*100, 'r--', 'LineWidth', 2)
+set(gca, 'XScale', 'log')
+set(gca, 'XDir', 'reverse')
+set(gca, 'XTick', [0.25 0.5 1 3 6 12 24])
+ylabel('Relative Flow Reduction, [%]')
+xlabel('Period, T [hours]')
+grid on
+set(gca, 'FontSize', 18)
+
+threshold = 0.9 * max(rdf);  % 60% of peak
+idxBand = rdf >= threshold;
+T_band = T(idxBand);
+T_min = min(T_band);
+T_max = max(T_band);
+
+xline([T_min T_max], 'm-.', 'LineWidth', 1.5)
+text(sqrt(T_min*T_max), -max(rdf*100)*0.9, 'Highest-reduction band', 'Color','m', 'HorizontalAlignment','center');
+
+lgd = legend('Relative Flow Reduction (RFR)', 'Smoothed RFR', 'Location','southwest');
+
+exportgraphics(gcf, '../../../../Documents/CSURF/2026/RelRed.png')
+
+% compute cross-spectral density
+[Sxy,f] = cpsd(u_out, u_in, hamming(M), noverlap, NFFT, 1/d);
+
+% compute PSD of driver
+[Sxx,~] = pwelch(u_out, hamming(M), noverlap, NFFT, 1/d);
+
+% compute gain function
+G = Sxy ./ Sxx;
+
+% predicted inside PSD from outside
+S_pred = abs(G).^2 .* Sxx;
+
+% reduction PSD
+Reduction = Sxx - S_pred;
+RelRed = (Sxx - S_pred) ./ Sxx * 100;
+
+figure
+plot(T, RelRed, 'k', 'LineWidth', 2)
+set(gca, 'XScale', 'log')
+set(gca, 'XDir', 'reverse')
+set(gca, 'XTick', [0.25 0.5 1 3 6 12 24])
+ylabel('Relative Flow Reduction, [%]')
+xlabel('Period, T [hours]')
+grid on
+set(gca, 'FontSize', 18)

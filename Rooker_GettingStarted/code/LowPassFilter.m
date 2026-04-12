@@ -11,7 +11,7 @@ clear all;
 close all;
 
 %% File Setup
-files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
+files = dir('../../../../Kelp_data/Summer2025/Rooker/Release1/L0/*.mat');
 colors = {[0, 0, 1], [1, 0, 0], [1, 0, 1], [0, 1, 0]};
 
 for i = 1:length(files)
@@ -168,15 +168,15 @@ xlabel('Longitude Current Difference (m/s)', 'FontSize', 14)
 legend('VEC vs M2', '1 \sigma')
 
 % figure(3)
-exportgraphics(figure(1), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/timeseries/10_min_avg.png')
-exportgraphics(figure(2), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/QuiverPlot.png')
-exportgraphics(figure(3), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/DifferenceScatter.png')
-exportgraphics(figure(4), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsVEC.png')
-exportgraphics(figure(5), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/AQDvsM2.png')
-exportgraphics(figure(6), '../../../../Kelp_data/Summer2025/Rooker/figures/Release2/VECvsM2.png')
+exportgraphics(figure(1), '../../../../Kelp_data/Summer2025/Rooker/figures/Release1/timeseries/10_min_avg.png')
+exportgraphics(figure(2), '../../../../Kelp_data/Summer2025/Rooker/figures/Release1/QuiverPlot.png')
+exportgraphics(figure(3), '../../../../Kelp_data/Summer2025/Rooker/figures/Release1/DifferenceScatter.png')
+exportgraphics(figure(4), '../../../../Kelp_data/Summer2025/Rooker/figures/Release1/AQDvsVEC.png')
+exportgraphics(figure(5), '../../../../Kelp_data/Summer2025/Rooker/figures/Release1/AQDvsM2.png')
+exportgraphics(figure(6), '../../../../Kelp_data/Summer2025/Rooker/figures/Release1/VECvsM2.png')
 
 
-filestem = '../../../../Kelp_data/Summer2025/Rooker/Release2/LPF';
+filestem = '../../../../Kelp_data/Summer2025/Rooker/Release1/LPF';
 
 labels = replace(labels, ' ', '');
 
@@ -231,15 +231,15 @@ end
 
 %% Time Series Plot Setup
 tp = figure;
-ax1 = subplot(2, 1, 1); hold(ax1, 'on'); ylabel(ax1, 'East Velocity', 'FontSize', 18);
-ax2 = subplot(2, 1, 2); hold(ax2, 'on'); ylabel(ax2, 'North Velocity', 'FontSize', 18); 
+ax1 = subplot(2, 1, 1); hold(ax1, 'on'); ylabel(ax1, {'Alongshore', 'Velocity'}, 'FontSize', 18);
+ax2 = subplot(2, 1, 2); hold(ax2, 'on'); ylabel(ax2, {'Cross-Shore', 'Velocity'}, 'FontSize', 18); 
 xlabel(ax2, 'Time', 'FontSize', 18);
 datetick(ax1, 'x', 'keeplimits'); datetick(ax2, 'x', 'keeplimits');
-sgtitle('10-min Avg Velocities at 1.2 MAB', 'Fontsize', 25)
+sgtitle('10-min LPF Velocities at 1.2 MAB', 'Fontsize', 20)
 
 %% Quiver Plot Setup
 qp = figure;
-for i = 1:length(dataCell)
+for i = 1:2%:length(dataCell)
 
     data = dataCell{i};
 
@@ -330,6 +330,10 @@ figure(1)
 legend(ax1, h1, labels, 'Location', 'best')
 legend(ax2, h2, labels, 'Location', 'best')
 datetick(ax1); datetick(ax2)
+
+ylim(ax1, [-0.1 0.1])
+ylim(ax2, [-0.1 0.1])
+exportgraphics(figure(1), '../../../../Kelp_data/Summer2025/Rooker/figures/Release1/timeseries/AQD_10_min_avg.png')
 
 % Set colors
 for i = 1:length(dataCell)
