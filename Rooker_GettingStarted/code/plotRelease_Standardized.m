@@ -46,6 +46,7 @@ dt = datetime(datestr(Data.Time(dye)));
          xlabel(['Velocity, '  ENUlabel(beam)  '(m/s)'])
      % Export Histogram
          figname = ["../../../../Kelp_data/Summer2025/Rooker/figures/Release" + releaseNum + "/histogram/" + version + "_hist_r" + releaseNum + "_beam" + beam + "_bin" + bindex + ".pdf"];
+         set(gca, 'Fontsize', 18)
          exportgraphics(gcf, figname);
          close(gcf)
      end

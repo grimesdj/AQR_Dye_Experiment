@@ -180,9 +180,9 @@ filestem = '../../../../Kelp_data/Summer2025/Rooker/Release1/LPF';
 
 labels = replace(labels, ' ', '');
 
-disp('Saving has NOT been disabled to prevent accidental overwriting...')
+disp('Saving has been disabled to prevent accidental overwriting...')
 
-
+return
 
 for i = 1:length(labels)
     
@@ -312,8 +312,8 @@ for i = 1:2%:length(dataCell)
     t_common = t_start : (dt_common/86400) : t_end;  % 1 sec = 1/86400 days
     
     % interpolate u/v to t_common
-    U_all{i} = interp1(t, u_filt, t_common, 'linear');
-    V_all{i} = interp1(t, v_filt, t_common, 'linear');
+    U_all{i} = interp1(t, u_filt, tq, 'linear');
+    V_all{i} = interp1(t, v_filt, tq, 'linear');
     T_all{i} = t_common;
 
 

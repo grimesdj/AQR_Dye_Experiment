@@ -79,7 +79,7 @@ title('North Velocities', 'FontSize', 16)
 fprintf('Does not look much different, not surprising...\n\n')
 
 figstem = '../../../../Kelp_data/Summer2025/Rooker/figures/attenuation/';
-exportgraphics(gcf, [figstem, 'detrend_EN_M1M2.png'])
+%exportgraphics(gcf, [figstem, 'detrend_EN_M1M2.png'])
 
 %% Caclulate Attenuation
 
@@ -126,7 +126,7 @@ xlabel('Period, T [s]', 'FontSize', 16)
 ylabel('Correlation Coefficient, r [\phi]', 'FontSize', 16)
 yline(0.34) % error bar
 
-%exportgraphics(gcf, [figstem, 'magnitude_coherence.png'])
+%%exportgraphics(gcf, [figstem, 'magnitude_coherence.png'])
 
 % Looks like theres some correlation on the order of 2 hour periods and 1
 % hour periods. That kind of harmonics seems like stokes 2nd order waves?
@@ -147,7 +147,7 @@ xlabel('Period, T [s]', 'FontSize', 16)
 ylabel('Correlation Coefficient, r [\phi]', 'FontSize', 16)
 yline(0.34) % error bar
 
-%exportgraphics(gcf, [figstem, 'east_coherence.png'])
+%%exportgraphics(gcf, [figstem, 'east_coherence.png'])
 
 % North Coherence
 [cxy, f] = mscohere(v_in, v_out, [], [], [], 1/600);
@@ -167,7 +167,7 @@ yline(0.34) % error bar
 
 legend('Magnitude', 'East', 'North')
 
-%exportgraphics(gcf, [figstem, 'east_coherence.png'])
+%%exportgraphics(gcf, [figstem, 'east_coherence.png'])
 
 
 get(figure(2))
@@ -177,4 +177,4 @@ get(fig5)
 linkaxes([ax1 ax2], 'x')
 xlim([datetime('09-Jul-2024 00:00:00') datetime('09-Jul-2024 10:00:00')])
 
-exportgraphics(gcf, [figstem, 'detrend_zoom.png'])
+%exportgraphics(gcf, [figstem, 'detrend_zoom.png'])
