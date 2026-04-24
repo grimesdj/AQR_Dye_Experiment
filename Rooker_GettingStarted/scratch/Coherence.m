@@ -265,7 +265,7 @@ legend('Outside', 'Inside')
 figure
 plot(T, rdf*100, 'b', 'LineWidth', 1.5)
 hold on
-plot(T, rdfm*100, 'r--', 'LineWidth', 2)
+%plot(T, rdfm*100, 'r--', 'LineWidth', 2)
 set(gca, 'XScale', 'log')
 set(gca, 'XDir', 'reverse')
 set(gca, 'XTick', [0.25 0.5 1 3 6 12 24])
@@ -283,7 +283,7 @@ T_max = max(T_band);
 xline([T_min T_max], 'm-.', 'LineWidth', 1.5)
 text(sqrt(T_min*T_max), 0, {'High Cross-Shore','Coherence'}, 'Color','m', 'HorizontalAlignment','center', 'fontsize', 18);
 
-lgd = legend('Relative Flow Reduction (RFR)', 'Smoothed RFR', 'Location','southwest');
+lgd = legend('Relative Flow Reduction (RFR)', 'Location','southwest');
 
 
 
