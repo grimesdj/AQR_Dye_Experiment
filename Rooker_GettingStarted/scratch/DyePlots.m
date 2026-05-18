@@ -4,7 +4,7 @@ function DyePlots(p, CTD1, R1, R2, R3)
 %clear all
 %close all
 
-%load("../../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat")
+load("../../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat")
 
 
 

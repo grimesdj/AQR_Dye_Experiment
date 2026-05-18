@@ -1,0 +1,121 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww28600\viewh18000\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 KELP NOTES:\
+\
+Jason Rooker\
+\
+Here I will be keeping track of some of the results that ave seen from analyzing the data\
+\
+ -For statistics taken across the entire dataset, AQD numbers are not accurate\
+\
+ - There is a clear major axis of variability between M! (Outside) and the inside Instrunments.\
+	 - Line of best fit shows that all three inside instruments have this variability at nearly the same angle\
+\
+- The major axis of all instruments (with the exception of course of AQD) seem to be either directly offshore or directly onshore, which is about 10 degrees off from magnetic north\
+\
+ - I have used the PCA_function to save the 10 min average data into new datasets rotated, but I don\'92t think there is any reason to use this, since the difference between major and minor axes is very small, and the major axis is essentially north\
+	- still using PCA will make up for any compass errors, as well as any curving of flow due to vorticity\
+\
+- next steps\
+	 	- make sure all 10 min avg data is rotated to the same direction, and compare std, cos, and drag ratio = they are not\
+		- find angle of variance of difference vector  = 13ish degrees\
+\
+ - Time to figure out how to quantify drag\
+\
+	- I would like some kind of quantity that can be applied to any kelp forest regardless of size: Energy loss per unit volume due to drag is pretty easy. Units of J/m^3\
+	- using Bernoulli\'92s equation for energy, we find that energy loss due to drag is E_d = 1/2*\\rho_w*(v_outside^2-v_inside^2), where v is actually equal to RMS!!!\
+	- if you divide this value by the volume of the forest, you get a measure that is representative of Stress, that is force per unit area (where the velocity is normal to the area surface)\
+\
+Let\'92s not get too excited now. \
+\
+First step is to make sure that all data is rotated correctly. This means using the PCA data except rotating the AQD data the same amount at \
+\
+		TO DO:\
+		\
+		X ROTATE AND SAVE AQD LPF DATA TO VECTOR ORIENTATION\
+		X CALCULATE ABSOLUTE VALUE AVERAGE VELOCITY DATA\
+		X CALCULATE DIFFERENCE VELOCITY\
+		X FIND ENERGY LOSS\
+\
+Ok so from Grimes:\
+\
+\'93\expnd0\expndtw0\kerning0
+\'a0One other thing you might look at is a scatter plot between the u-component outside vs inside the kelp and v-component. See figures 8-9 in the attached paper. The best-fit line gives a statistical measure of the flow speed reduction (u_outside-u_inside), but does not account for a phase shift between the two... So, good for tides, not for internal waves.\'a0\'93\
+\kerning1\expnd0\expndtw0 \
+		SCATTERPLOT:\
+			Y = U INSIDE\
+			X = U OUTSIDE\
+				do same for v\
+							slope of best fit line == ratio of flows (ish)  \'97\'97\'97> DIVIDE BY THE STD to get units straight. Slope is in m^2*s^-2!\
+\
+Scatterplot done!\
+I also tried it without PCA data to see if it was any better (it wasn\'92t)\
+\
+Scatterplot shows that there is VERY LOW correlation between in velocities and out velocities EVEN WHEN looking at the Magnitudes ( m = \\sqrt(u^2 + v^2) ). When plotting non-normallized values, however, there is VERY CLEAR attenuation (smaller std)\
+		\
+		we are not trying to prove correlations, but attenuation. Don\'92t we expect the correlations to be low, since the kelp forest is theoretically changing the flow path??\
+\
+anyways, what im seeing when I plot coherence is interesting. As one would expect, there\'92s high correlation on the order of T = 24h, and it falls off steadily to almost 0 in the 3-6 hour range. However,  there is a peak in correlations (around 0.6) near T = 2h, and again near T = 1h. To me this seems to hint at the fact that there is a 2h stokes 2nd order wave here that is broad enough to be similar at both locations. Im not seeing any 2 hour tidal constituents so im very curious to see what this 2 hour wave might be\'85\
+\
+Putting that aside for now, my next step is to take a look at the paper that Grimes sent me and see what exactly they did and why their data looked so strongly correlated. \
+\
+According to Rosman(2007): \'93
+\f1\fs26\fsmilli13333 \expnd0\expndtw0\kerning0
+[
+\fs18\fsmilli9333 6
+\fs26\fsmilli13333 ] Records of temperature taken during Jackson\'92s experiments had spectral peaks at diurnal and semidiurnal frequencies and a high coherence with across-shore velocity at these timescales, suggestive of low frequency internal waves propagating onshore [Jackson, 1984].
+\f0\fs24 \kerning1\expnd0\expndtw0 \'94\
+\
+		I don\'92t understand why this is significant because I would think that this indicative of tides, which are well-documented. \
+\
+In figures 8 and 9 in Rosman(2007), the scatter plots are NOT normalized, and therefore the same as my initial plots without dividing by the standard deviations. They are only calculating flow volume reduction factor, and using RMS as the effective magnitude. 	\
+\'93
+\f1\fs26\fsmilli13333 \expnd0\expndtw0\kerning0
+We find that this factor is relatively consistent across mean currents, subtidal variations and tidal band variations. At higher frequencies the correlation between different sites dies off significantly.\'94 \
+
+\fs24 \
+
+\f0 \kerning1\expnd0\expndtw0 I am sort of wondering about the use of the word \'91correlation\'92 here. This is a very meticulously worded paper, but here it seems like they are not adhering to the strict definition of correlation as a normalized covariance. also what do they mean by correction dies off siginificantly? Are they talking about consistent flow reductions, or are they talking about consistent reduction factors?\
+\
+\
+\
+\
+\
+02/10/2026\
+\
+Coherence is a big deal and somehow gets around phase shift? \'97> because it\'92s all in frequency space!\
+\
+Coherence has some error bar that is sort of a function of sample size. Anything above this bar is considered a statistically significant result\
+	I need to make my coherence have this error bar. \
+\
+Coherence between two signals does not make much sense unless there are associated spectra!\
+	so now I need to make the psd spectra for M1 and M2 and do the coherence for east and north sepeately\
+\
+\
+\
+\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+Pack up 2025\
+\
+Make it simple, make a readme\
+\
+Make 2025 scripts and funcs able to handle M3 \'97\'97 M3 mooring proc in the repo/code folder ??\
+\
+\
+Repo/evalADCP/code || figures \'97 eval moorings and such\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+}

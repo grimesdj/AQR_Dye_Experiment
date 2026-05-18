@@ -11,12 +11,16 @@ ax1 = subplot(2,1,1);
 plot(A.Time,A.Temperature)
 ylabel(ax1,'$T$ [$^\circ$]','interpreter','latex')
 set(ax1,'xticklabel','','ticklabelinterpreter','latex','tickdir','out')
+set(gca, "FontSize", 18)
 ax2 = subplot(2,1,2);
 plot(A.Time,A.Pressure)
-ylabel(ax2,'$P$ [m]','interpreter','latex')
+ylabel(ax2,'Depth, $h$ [m]','interpreter','latex')
 xlabel(ax2,'time [s]','interpreter','latex')
 set(ax2,'ticklabelinterpreter','latex','tickdir','out')
 figName = [figDir,'/',inputFile,'_temperature_pressure.png'];
+set(gca, "FontSize", 18)
+datetick(gca, 'keeplimits')
+
 exportgraphics(fig0,figName)
 %
 %

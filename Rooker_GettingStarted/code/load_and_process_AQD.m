@@ -41,17 +41,11 @@ disp('Generating raw data')
 
 % Generate and save L0
 disp('Generating L0 data')
-%L0_AQD(outputFile, L0Dir, L0Name);
+L0_AQD(outputFile, L0Dir, L0Name);
 
-% Rotate to Principas axes
-disp('Applying PCA rotation')
-pca_function(L0Dir, L0Name)
-
-
-
-% Create Plots
-disp('Generating figures')
-L0_plots(L0Dir, L0Name, figDir, inputFile)
+% % Create Plots
+% disp('Generating figures')
+% L0_plots(L0Dir, L0Name, figDir, inputFile)
 
 
 fprintf('\n====================\n\nDone!\n\n====================\n')
