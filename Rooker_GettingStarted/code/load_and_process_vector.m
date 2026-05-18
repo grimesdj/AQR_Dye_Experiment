@@ -39,7 +39,7 @@ tos = 0;
 %
 % returns structure A with all vector data
 %if ~exist([outputDir,'/',outputName,'.mat'],'file')
- load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
+load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
     
 %else
 %     A = load([outputDir,'/',outputName,'.mat']);

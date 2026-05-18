@@ -1,1 +1,7 @@
-./estimate_bulk_CTDF_stats_by_release.m:figname = [figdir,'CTDF_temp_pdf.png'];
+.//estimate_bulk_CTDF_stats_by_release.m:% where was release relative to maximum stratification?
+.//load_dye_release_frame_CTD.m:figname = [root_dir,'/data/Release1/figures/R1_Release_Stratification.pdf'];
+.//load_dye_release_frame_CTD.m:figname = [root_dir,'/data/Release2/figures/R2_Release_Stratification.pdf'];
+.//load_dye_release_frame_CTD.m:figname = [root_dir,'/data/Release3/figures/R3_Release_Stratification.pdf'];
+.//load_dye_release_frame_CTD.m:figname = [root_dir,'/data/Release2/figures/R23_Release_Stratification.pdf'];
+.//load_dye_release_frame_CTD.m:% mean stratification at release depth
+.//load_dye_release_frame_CTD.m:% estimate the standard plume (vertical) thickness using mean stratification
