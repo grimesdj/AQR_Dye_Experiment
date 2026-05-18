@@ -1,6 +1,6 @@
-function load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+function loadVEC(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
 % 
-%   USAGE: load_VECTOR_data_function(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
+%   USAGE: loadVEC(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
 %       inputDir  = Directory where textfiles are
 %       inputFile = file root for AQD files
 %       fileName  = Directory and file root
@@ -42,6 +42,11 @@ while ~feof(fid);
         i = strfind(value,'Hz');
         sample_rate = str2num(value(1:i-1));
         dt          = 1./sample_rate;
+    elseif strcmp(string, 'Nominal velocity range')
+        i = strfind(value,'m/s');
+        VRange = str2num(value(1:i-1));
+        disp('Nominal Velocity Range Seems to be in dm/s rather than m/s? -> dividing by 10')
+        VRange = VRange / 10;
     elseif strcmp(string,'Head frequency')
         i = strfind(value,'kHz');
         head_freq = str2num(value(1:i-1));
@@ -233,7 +238,7 @@ if ~strcmp(coords,'ENU')
         H = [ cos(hh) sin(hh) 0*hh;...
              -sin(hh) cos(hh) 0*hh;...
               0*hh      0*hh  0*hh+1];
-        ENU = H*[Velocity_X(dep)';Velocity_Y(dep)';Velocity_Z(dep)'];
+        ENU = H*[Velocity_X';Velocity_Y';Velocity_Z'];
         Velocity_East  = ENU(1,:)';
         Velocity_North = ENU(2,:)';
         Velocity_Up    = ENU(3,:)';    
@@ -262,8 +267,12 @@ A.Config= meta_data;
 sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspeed,'heading',head,'pitch',pitch,'roll',roll,'temperature',temperature);
 A.sensor    = sensor_data;
 A.Sound_Speed    = sspeed(dep_sensor);
-Range = (A.Sound_Speed.^2)/(8*6*1000*1.01);
-A.VRange = interp1(A.Time_sensor, Range, A.Time);
+%Range = (A.Config.sample_rate*(A.Sound_Speed).^2)./(8*A.Config.head_frequency_kHz*1000);
+
+%%%%% Fix velocity Range %%%%%%%%%%
+
+
+A.VRange = VRange * ones(size(A.Time));
 A.Seconds   = Seconds(dep);
 if fixedHead
     A.fixed_heading = headingOffset;
@@ -296,18 +305,38 @@ save([outputFile,'.mat'],'-struct','A')
 
 % Summary figure
 figure
-ax1 = subplot(2, 1, 1);
-plot(ax1, A.Time, A.Velocity_East, 'b.')
-ylabel({'East', 'Velocity, [m/s]'})
+ax1 = subplot(3, 1, 1);
+plot(ax1, A.Time, A.Velocity_Beam1, '.')
+ylabel({'Beam 1', 'Velocity, [m/s]'})
 set(gca, "Xtick", [])
 set(gca, 'fontsize', 18)
+hold on 
+vr = plot(ax1, A.Time, A.VRange, 'r', A.Time, -1*A.VRange, 'r');
+grid minor
+legend(vr, 'Maximum Velocity Range', 'Location','northeast')
 
-ax2 = subplot(2, 1, 2);
-plot(ax2, A.Time, A.Velocity_North, 'r.')
-ylabel({'North', 'Velocity, [m/s]'})
+
+ax2 = subplot(3, 1, 2);
+plot(ax2, A.Time, A.Velocity_Beam2, '.')
+ylabel({'Beam 2', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+hold on 
+plot(ax2, A.Time, A.VRange, 'r', A.Time, -1*A.VRange, 'r');
+
+ax3 = subplot(3, 1, 3);
+plot(ax3, A.Time, A.Velocity_Beam3, '.')
+ylabel({'Beam 3', 'Velocity, [m/s]'})
 datetick(gca,'x','mmm-dd HH:MM','keeplimits')
 set(gca, 'fontsize', 18)
-linkaxes([ax1 ax2], 'x')
+linkaxes([ax1 ax2 ax3], 'x')
+grid minor
+hold on 
+plot(ax3, A.Time, A.VRange, 'r', A.Time, -1*A.VRange, 'r');
 
-sgtitle('VEC Raw East and North Velocities', 'Fontsize', 25)
+sgtitle('VEC Raw Beam Velocities', 'Fontsize', 25)
+
+
+keyboard
 end

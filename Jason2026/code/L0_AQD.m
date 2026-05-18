@@ -13,7 +13,7 @@ fprintf('\n============================\nDo you want to unwrap beam Velocities?'
 unwrap = input('(1 = yes; 0 = no)');
 if unwrap == 1
     for beam = 1:3 
-        [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = aquawrap(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
+        [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = unwrap_AQD(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
     end
     
     A.Correlation_Beam1(find(A.Suspect_Beam1)) = 999;
@@ -103,6 +103,34 @@ A.Velocity_Z(~A.qcFlag)=nan;
 disp('skipping nc file for now')
 
 %
+
+% Summary figure
+figure
+ax1 = subplot(3, 1, 1);
+plot(ax1, A.Time, A.Velocity_Beam1, '.')
+ylabel({'Beam 1', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+ylim([-1 1])
+
+ax2 = subplot(3, 1, 2);
+plot(ax2, A.Time, A.Velocity_Beam2, '.')
+ylabel({'Beam 2', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+ylim([-1 1])
+
+ax3 = subplot(3, 1, 3);
+plot(ax3, A.Time, A.Velocity_Beam3, '.')
+ylabel({'Beam 3', 'Velocity, [m/s]'})
+datetick(gca,'x','mmm-dd HH:MM','keeplimits')
+set(gca, 'fontsize', 18)
+linkaxes([ax1 ax2 ax3], 'x')
+ylim([-1 1])
+
+sgtitle('AQD L0 Beam Velocities', 'Fontsize', 25)
 
 disp('Saving L0 data')
 save([L0Dir,'/',L0Name,'.mat'],'-struct','A')

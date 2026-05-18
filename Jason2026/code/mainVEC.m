@@ -39,10 +39,10 @@ tos = 0;
 %
 % returns structure A with all vector data
 %if ~exist([outputDir,'/',outputName,'.mat'],'file')
- loadVEC(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
+loadVEC(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
     
 
- return
+return
 %else
 %     A = load([outputDir,'/',outputName,'.mat']);
 %     pressure = A.Pressure;
