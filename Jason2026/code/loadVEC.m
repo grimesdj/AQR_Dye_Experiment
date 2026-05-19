@@ -267,12 +267,8 @@ A.Config= meta_data;
 sensor_data = struct('date',date,'battery_voltage',batt_volt,'sound_speed',sspeed,'heading',head,'pitch',pitch,'roll',roll,'temperature',temperature);
 A.sensor    = sensor_data;
 A.Sound_Speed    = sspeed(dep_sensor);
-%Range = (A.Config.sample_rate*(A.Sound_Speed).^2)./(8*A.Config.head_frequency_kHz*1000);
-
-%%%%% Fix velocity Range %%%%%%%%%%
-
-
-A.VRange = VRange * ones(size(A.Time));
+Range = ((A.Sound_Speed).^2)./(8*A.Config.head_frequency_kHz*1000*0.1);
+A.VRange = interp1(A.Time_sensor, Range, A.Time);
 A.Seconds   = Seconds(dep);
 if fixedHead
     A.fixed_heading = headingOffset;
@@ -337,6 +333,5 @@ plot(ax3, A.Time, A.VRange, 'r', A.Time, -1*A.VRange, 'r');
 
 sgtitle('VEC Raw Beam Velocities', 'Fontsize', 25)
 
-
-keyboard
 end
+

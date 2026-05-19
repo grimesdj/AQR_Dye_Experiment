@@ -11,9 +11,9 @@
 %       depTime = start and end times of deployment
 %       
 
-
 clear all
 close all
+
 % Enter input /directory/ and fileName root without file extension
 inputDir  = '../../../../Kelp_data/data/Release1/raw';
 inputFile = 'KELP1_AquadoppHR';
@@ -26,8 +26,14 @@ outputFile= [outputDir, '/', outputName];
 L0Dir   = '../../../../Kelp_data/Summer2025/Rooker/Release1/L0';
 L0Name  = [inputFile,'_L0'];
 % Enter time when instrument was in air for pressure offset
-atmTime = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00')];
-depTime = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
+Rnum = input('Release Number?');
+if Rnum == 1
+    atmTime = [datenum('03-Jul-2024 17:30:00'), datenum('03-Jul-2024 18:10:00')];
+    depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
+elseif Rnum == 2
+    atmTime = [datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
+    depTime  = [datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
+end
 % Enter path to save figures
 figDir = [outputDir,'/../figures/'];
 if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
@@ -331,6 +337,8 @@ sgtitle('AQD Raw Beam Velocities', 'Fontsize', 25)
 end
 
 % EOF
+
+
 function L0_AQD(outputFile, L0Dir, L0Name)
 % 
 %   USAGE: L0_AQD(outputFile, L0Dir, L0Name)
