@@ -44,7 +44,7 @@ filePrefix= sprintf('ADCP_%s_',adcp_mooring_ID{adcp_ID});
 %
 % 4a) current/echo average interval (seconds)
 dtAvg     = 300;
-L0dir     = [outRoot, filesep, adcp_mooring_ID{adcp_ID},filesep,'L0',filesep,'ADCP',filesep];
+L0dir     = [outRoot, adcp_mooring_ID{adcp_ID}, '/','L0', '/','ADCP','/'];
 L0FRoot   = sprintf('%sL0_%dmin',filePrefix,dtAvg/60);
 L1dir     = [outRoot, filesep, adcp_mooring_ID{adcp_ID},filesep,'L1',filesep,'ADCP',filesep];
 L1FRoot   = sprintf('%sL1',filePrefix);
@@ -96,17 +96,26 @@ Config.Descriptions = Descriptions;
 %
 % load and pre-process data.
 disp('load and pre-process data')
-%loadSIG1K(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
+loadSIG1K(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset);
 %
 
+R1atmTime = [datenum('03-Jul-2024 17:30:00'), datenum('03-Jul-2024 18:10:00')];
+R1depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
+R23atmTime = [datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
+R23depTime  = [datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
+
 % Fetch Release times
-disp('fetching data to fit release times')
-R1 = fetch_sig1k(L0dir, R1startTime, R1endTime);
-R23 = fetch_sig1k(L0dir, R2startTIme, R2endTime);
+disp('fetching data to fit release 1 times')
+R1 = fetch_sig1k(L0dir, R1depTime(1), R1depTime(2));
 
-disp('still need to save - how did I originally save the fetched signals?')
+disp('Saving Release 1')
+save([outRoot,'/Release1/', adcp_mooring_ID, '.mat'],'-struct','R1')
 
+disp('fetching data to fit release 2 times')
+R23 = fetch_sig1k(L0dir, R23depTime(1), R23depTime(2));
 
+disp('Saving Release 2')
+save([outRoot,'/Release2/', adcp_mooring_ID, '.mat'],'-struct','R23')
 
 
 
@@ -132,6 +141,55 @@ disp('still need to save - how did I originally save the fetched signals?')
 % set(ax,'ydir','normal','ticklabelinterpreter','latex','tickdir','out','plotboxaspectratio',[1.5 1 1])
 % figname = sprintf('%s/figures/%s_spectra.pdf',L1dir,L1FRoot);
 % exportgraphics(fig,figname)
+
+
+
+
+
+
+%% Functions
+
+function Data = fetch_sig1k(inputDir, startTime, endTime)
+%%
+% 
+% USAGE: Opens signature1000 ADCP files based on deployment times
+%
+%   inputDir: Directory where the .mat's can be found
+%   statTime: Start of deployment (I think it can be in any date format)
+%   endTIme: End of deployment
+%
+%   % Returns: Structure 'Data' with sig1K data
+%
+%%
+
+files = dir([inputDir, '*.mat']);
+
+for i = 1:length(files)
+    
+    if (~contains(files(i).name, 'config') && ~contains(files(i).name, 'min'))
+        Times = load([files(i).folder, filesep, files(i).name], 'Time');
+        if any((Times.Time >= datenum(startTime)) & Times.Time<= datenum(endTime))
+            Sig =  load([files(i).folder, filesep, files(i).name]);
+        end
+    end
+end
+Data.Time = Sig.Time;
+Data.Velocity_East = Sig.Velocity_East';
+Data.Velocity_North = Sig.Velocity_North';
+Data.Velocity_Up = Sig.Velocity_Up';
+Data.Velocity_Beam1 = Sig.Velocity_Beam(:,:,1)';
+Data.Velocity_Beam2 = Sig.Velocity_Beam(:,:,2)';
+Data.Velocity_Beam3 = Sig.Velocity_Beam(:,:,3)';
+
+Data.Correlation_Minimum = min(Sig.Correlation_Beam(:,:,1)', min(Sig.Correlation_Beam(:,:,2)', Sig.Correlation_Beam(:,:,3)'));
+Data.Amplitude_Minimum = min(Sig.Amplitude_Beam(:,:,1)', min(Sig.Amplitude_Beam(:,:,2)', Sig.Amplitude_Beam(:,:,3)'));
+Data.Pressure = Sig.Pressure(2,:)';
+Data.Heading = Sig.Heading(:, :)';
+Data.Pitch = Sig.Pitch(:,:)';
+Data.Roll = Sig.Roll(:,:)';
+end
+
+% EOF
 
 
 

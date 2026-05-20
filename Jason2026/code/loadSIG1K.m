@@ -205,20 +205,28 @@ end
 
 % Summary figure
 figure
-ax1 = subplot(2, 1, 1);
-plot(ax1, A.Time, A.Velocity_East, 'b.')
-ylabel({'East', 'Velocity, [m/s]'})
+ax1 = subplot(3, 1, 1);
+plot(ax1, A.Time, A.Velocity_Beam1, '.')
+ylabel({'Beam 1', 'Velocity, [m/s]'})
 set(gca, "Xtick", [])
 set(gca, 'fontsize', 18)
+grid minor
 
-ax2 = subplot(2, 1, 2);
-plot(ax2, A.Time, A.Velocity_North, 'r.')
-ylabel({'North', 'Velocity, [m/s]'})
+ax2 = subplot(3, 1, 2);
+plot(ax2, A.Time, A.Velocity_Beam2, '.')
+ylabel({'Beam 2', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+
+ax3 = subplot(3, 1, 3);
+plot(ax3, A.Time, A.Velocity_Beam3, '.')
+ylabel({'Beam 3', 'Velocity, [m/s]'})
 datetick(gca,'x','mmm-dd HH:MM','keeplimits')
 set(gca, 'fontsize', 18)
-linkaxes([ax1 ax2], 'x')
+linkaxes([ax1 ax2 ax3], 'x')
+grid minor
 
-sgtitle('SIG1K Raw East and North Velocities', 'Fontsize', 25)
-
+sgtitle('VEC L0 Beam Velocities', 'Fontsize', 25)
 
 end
