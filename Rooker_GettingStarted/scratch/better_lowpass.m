@@ -6,48 +6,97 @@ close all
 %% Load Data
 
 % grab files
-load('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/KELP2_AquadoppHR_L0.mat');
+files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
 
-LPF = hamming_filter(Velocity_North(:,10), 1/600, Config.dt);
+% take a look inside (0_o)
+for i = 1:length(files)
+    fname = [files(i).folder,filesep,files(i).name];
+    obj = matfile(fname);
+    CF = obj.Config;
+    SN = CF.SN;
+    SN = matlab.lang.makeValidName(SN);
+    tag = SN(1:3);
 
+    % cant use data(i) because structs not exactly the same \fp
+    data.(tag) = load(fname);
 
-
-
-
-
-
-
-function y = hamming_filter(x, wpass, fs)
-
-
-N = (1/wpass) * fs;
-
-w = hamming(N);
-w = w/sum(w);
-
-mask = ~isnan(x);
-
-x0 = x;
-x0(~mask) = 0;
-
-y = conv(x0,w,'same') ./ conv(double(mask),w,'same');
-
-y(conv(double(mask),w,'same') < 0.5) = NaN;
-
-figure
-subplot(2, 1, 1)
-plot(x, 'LineWidth', 2)
-ylabel({'Original', 'Data'})
-set(gca, 'FontSize', 18)
-
-subplot(2, 1, 2)
-plot(y, 'LineWidth', 2)
-ylabel({'Original', 'filtered'})
-set(gca, 'FontSize', 18)
+    bins = size(data.(tag).Velocity_East, 2);
+    data.(tag).Config.binnum = 1:bins;
+    
+    % make smoothie
+    fprintf('Smoothing %s\n', tag)
+    [LPF(i).Velocity_East, LPF(i).fsd, LPF(i).idx] = hamming_filter(data.(tag).Velocity_East, 1/600, 1/data.(tag).Config.dt, 1);
+    LPF(i).Velocity_North = hamming_filter(data.(tag).Velocity_North, 1/600, 1/data.(tag).Config.dt);
 
 
-figure
-scatter(x,y)
+    fprintf('done!\n')
+
+    %% East
+    
+    % O. G.
+    figure
+    ax1 = subplot(2, 1, 1);
+    img = imagesc(data.(tag).Time, data.(tag).Config.binnum, data.(tag).Velocity_East');
+    set(img, 'Alphadata', ~isnan(data.(tag).Velocity_East'))
+    set(gca, 'YDir','normal')
+    cb = colorbar;
+    ylabel(cb, 'Velocity, [m/s]', 'FontSize', 18)
+    colormap(cmocean('balance'))
+    clim([-0.5 0.5])
+    datetick('x', 'keeplimits')
+    ylabel('Original')
+    set(gca, 'FontSize', 18)
+    
+    % smoothed
+    ax2 = subplot(2, 1, 2);
+    img = imagesc(data.(tag).Time(LPF(i).idx), data.(tag).Config.binnum, LPF(i).Velocity_East');
+    set(img, 'Alphadata', ~isnan(LPF(i).Velocity_East'))
+    set(gca, 'YDir','normal')
+    cb = colorbar;
+    ylabel(cb, 'Velocity, [m/s]', 'FontSize', 18)
+    colormap(cmocean('balance'))
+    clim([-0.05 0.05])
+    datetick('x', 'keeplimits')
+    ylabel('Smoothed')
+    set(gca, 'FontSize', 18)
+    
+    % eh
+    linkaxes([ax1 ax2], 'x')
+    sgtitle([tag ' East'], 'fontsize', 22)
+    
+    
+    %% North
+    
+    % O.G.
+    figure
+    ax1 = subplot(2, 1, 1);
+    img = imagesc(data.(tag).Time, data.(tag).Config.binnum, data.(tag).Velocity_North');
+    set(img, 'Alphadata', ~isnan(data.(tag).Velocity_North'))
+    set(gca, 'YDir','normal')
+    cb = colorbar;
+    ylabel(cb, 'Velocity, [m/s]', 'FontSize', 18)
+    colormap(cmocean('balance'))
+    clim([-0.5 0.5])
+    datetick('x', 'keeplimits')
+    ylabel('Original')
+    set(gca, 'FontSize', 18)
+    
+    % smoothed
+    ax2 = subplot(2, 1, 2);
+    img = imagesc(data.(tag).Time(LPF(i).idx), data.(tag).Config.binnum, LPF(i).Velocity_North');
+    set(img, 'Alphadata', ~isnan(LPF(i).Velocity_North'))
+    set(gca, 'YDir','normal')
+    cb = colorbar;
+    ylabel(cb, 'Velocity, [m/s]', 'FontSize', 18)
+    colormap(cmocean('balance'))
+    clim([-0.05 0.05])
+    datetick('x', 'keeplimits')
+    ylabel('Smoothed')
+    set(gca, 'FontSize', 18)
+    
+    % ehh
+    linkaxes([ax1 ax2], 'x')
+    sgtitle([tag, ' North'], 'fontsize', 22)
 
 end
 
