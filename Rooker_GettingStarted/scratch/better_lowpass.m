@@ -1,12 +1,16 @@
-% a better lowpass method
+%% Produce Low-Pass data
 
 clear all
 close all
 
 %% Load Data
 
+releasenum = string(2);
+
+
 % grab files
-files = dir('../../../../Kelp_data/Summer2025/Rooker/Release2/L0/*.mat');
+filepath = ['../../../../Kelp_data/Summer2025/Rooker/Release' + releasenum + '/L0/*.mat'];
+files = dir(filepath);
 
 % take a look inside (0_o)
 for i = 1:length(files)
@@ -16,6 +20,7 @@ for i = 1:length(files)
     SN = CF.SN;
     SN = matlab.lang.makeValidName(SN);
     tag = SN(1:3);
+    fprintf('loading %s...\n', tag)
 
     % cant use data(i) because structs not exactly the same \fp
     data.(tag) = load(fname);
@@ -23,12 +28,22 @@ for i = 1:length(files)
     bins = size(data.(tag).Velocity_East, 2);
     data.(tag).Config.binnum = 1:bins;
     
+    % correct time
+    if i == 1
+        thresh = 100; % keeping the AQD nans just because theres so many data gaps and the correlations are good
+    else
+        thresh = 80;
+    end
+
+    [~, data.(tag).Velocity_East]  = correct_burst(data.(tag).Time, data.(tag).Velocity_East, 1/data.(tag).Config.dt);
+    [data.(tag).Time, data.(tag).Velocity_North] = correct_burst(data.(tag).Time, data.(tag).Velocity_North, 1/data.(tag).Config.dt);
+
     % make smoothie
+    fc = 600; % wpass threshold [seconds]
+
     fprintf('Smoothing %s\n', tag)
-    [LPF(i).Velocity_East, LPF(i).fsd, LPF(i).idx] = hamming_filter(data.(tag).Velocity_East, 1/600, 1/data.(tag).Config.dt, 1);
-    LPF(i).Velocity_North = hamming_filter(data.(tag).Velocity_North, 1/600, 1/data.(tag).Config.dt);
-
-
+    [LPF(i).Velocity_East, LPF(i).fsd, LPF(i).idx] = hamming_filter(data.(tag).Velocity_East, 1/fc, 1/data.(tag).Config.dt, 1, 1, thresh);
+    LPF(i).Velocity_North = hamming_filter(data.(tag).Velocity_North, 1/fc, 1/data.(tag).Config.dt, 1, 1, thresh);
     fprintf('done!\n')
 
     %% East
@@ -98,6 +113,223 @@ for i = 1:length(files)
     linkaxes([ax1 ax2], 'x')
     sgtitle([tag, ' North'], 'fontsize', 22)
 
+
+    fprintf('saving %s', tag)
+    savepath = ['../../../../Kelp_data/data/Release' + releasenum + '/LPF/'];
+    savename = string(sprintf('%s_LPF_%dsec.mat', tag, fc));
+    save([savepath + savename], LPF(i), '-struct')
+
+
 end
 
 
+
+%% Functions
+
+function [y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt)
+% 
+% hamming_filter
+%     applies a low-pass filter to data using a hamming filter
+% 
+% USAGE: [y, fsd] = hamming_filter(t, x, wpass, fs, fig, ds)
+%        [y, fsd] = hamming_filter(x, wpass, fs);
+% 
+%     INPUTS:
+%             x         = vector data to be low-passed
+%             wpass     = frequency cutoff (Hz)
+%             fs        = original sampling rate (Hz) (defaults to 1 Hz)
+%             fig       = (optional) figure flag: 1 for figures, 0 for none (defaults to 0)
+%             ds        = (optional) downsample flag: 1 for downsampling, 0 for none (defaults to 1)
+%             nan_filts = (optional) NaN windows that are over a certain
+%                          percent of nans
+% 
+%     OUTPUTS:
+%             y     = filtered data vector
+%             fsd   = new sample rate (Hz)
+%             D     = Downsample factor
+%             
+% 
+%             written by Jason Rooker, May 2026
+
+
+                
+% Defaults
+if nargin < 6 || isempty(nan_filt)
+    nan_filt = 0;
+    if nargin < 5 || isempty(ds)
+        ds = 1;
+    
+        if nargin < 4 || isempty(fig)
+            fig = 0;
+    
+            if nargin < 3 || isempty(fs)
+                fs = 1;
+            end
+        end
+    end
+end
+
+
+% window length
+N = round((1/wpass) * fs);
+
+w = hamming(N);
+w = w/sum(w);
+
+mask = ~isnan(x);
+
+x0 = x;
+x0(~mask) = 0;
+
+% normalization factor
+norm = conv2(double(mask),w,'same');
+y = conv2(x0,w,'same') ./ norm;
+
+% NaN-dense filter to protect statistical integrety for burst data
+thresh = 1-nan_filt/100;
+fprintf('Any points constucted from more than %d%% NaNs set equal to NaN\n', nan_filt)
+y(norm < thresh) = NaN;
+
+% downsample
+if ds
+    D = max(1, round(fs / (4 * wpass)));
+else
+    D = 1;
+end
+
+idx = 1:D:length(x);
+y = y(idx, :);
+fsd = fs/D;
+
+% (optional) figs to make sure it worked
+if fig
+
+    xfig = 1:length(x);
+    figure
+    ax1 = subplot(2, 1, 1);
+    plot(xfig, x, '.', 'LineWidth', 2)
+    ylabel({'Original', 'Data'})
+    set(gca, 'FontSize', 18)
+    grid minor
+    
+    ax2 = subplot(2, 1, 2);
+    plot(xfig(1:D:end), y, '.', 'LineWidth', 2)
+    ylabel({'Filtered', 'Data'})
+    set(gca, 'FontSize', 18)
+    ylim(ax1.YLim)
+    linkaxes([ax1 ax2], 'x')
+    grid minor
+
+end
+
+end
+% EOF
+
+function [t_fix, x_fix] = correct_burst(t, x, fs)
+ % 
+ % correct_burst - if data has bursts of data or time gaps, the missing timesteps can
+ %                     distort figures and filters! this function fills gaps
+ % 
+ %    USAGE:  
+ %            [t_fix, x_fix] = correct_burst(t, x, fs)
+ %            [t_fix, x_fix] = correct_burst(t, x)
+ % 
+ %    INPUTS:
+ %            t = time vector (datenum or datetime)
+ %            x = data array
+ %            fs = (optional) intended sample frequency [Hz]
+ % 
+ %    OUTPUTS:
+ %            t_fix = time with gaps interpolated (NOTE: length(t_fix) > length(t))
+ %            x_fix = data array with NaN columns in time gaps
+ % 
+ %            written by Jason Rooker May 2026
+
+
+% force datnum
+if strcmp(class(t), datetime)
+    t = datenum(t);
+end
+
+% default with optional fs
+if nargin < 3 || isempty(fs)
+    dtds = mode(diff(t))/86400;
+else
+    dtds = 1/(fs * 86400);
+end
+
+% collect segments
+[startINDs, endINDs] = Segment(t, 2);
+
+% make a time vector
+t_fix = [];
+x_fix = [];
+
+% Correct
+for i = 1:length(startINDs)-1
+    t_fix = [t_fix; t(startINDs(i):endINDs(i)); (t(endINDs(i)):dtds:t(startINDs(i+1)))'];
+    x_fix = [x_fix; x(startINDs(i):endINDs(i), :); nan(length(t(endINDs(i)):dtds:t(startINDs(i+1))), size(x, 2))];
+end
+t_fix = [t_fix; t(startINDs(end):endINDs(end))];
+x_fix = [x_fix; x(startINDs(end):endINDs(end), :)];
+
+
+if i
+    if i == 1
+        fprintf("%d time gap corrected\n", i)
+    else
+        fprintf("%d time gaps corrected\n", i)
+    end
+end
+
+% plot fixed data
+figure
+subplot(2, 1, 1);
+plot(x, '.')
+ylabel('Original raw data')
+
+subplot(2, 1, 2);
+plot(x_fix, '.')
+ylabel({'Time gaps', 'filled by NaNs'})
+xlabel('indcies (they should be different)')
+
+% plot fixed time
+figure
+plot(t, '.')
+hold on
+plot(t_fix, '.')
+legend('Original Time', 'Corrected Time')
+
+
+
+
+
+
+%% Outside functions
+
+function [startINDs, endINDs] = Segment(time,cuttoff);
+% 
+% Usage: [startINDs, endINDs] = Segment(time,cuttoff);
+%
+% This function will log the start and end indices for nearly
+% monotonic sections amidst large steps. time is the vector of time
+% stamps to be split up and cuttof is the max number of timesteps to
+% allow before generating new segment. 
+%
+% written by Dr. Derek Grimes
+
+%Clip the timeseries into monotonic segments
+[r,c] = size(time);
+
+dt = diff(time);% in seconds
+
+nominal_sample_rate = nanmedian(dt);
+
+seg_ind = find(dt >= ones(size(dt))*cuttoff*nominal_sample_rate);
+
+startINDs = [0; seg_ind]+1;
+endINDs = [seg_ind; r];
+end
+end
+
+% EOF
