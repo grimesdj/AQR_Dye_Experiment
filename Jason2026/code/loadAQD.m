@@ -24,6 +24,12 @@ while ~feof(fid);
     elseif strcmp(string,'Measurement/Burst interval')
         i = strfind(value,'sec');
         dt = str2num(value(1:i-1));
+    elseif strcmp(string, 'Pulse distance (Lag1)')
+        i = strfind(value, 'm');
+        lag1 = str2num(value(1:i-1));
+    elseif strcmp(string, 'Pulse distance (Lag2)')
+        i = strfind(value, 'm');
+        lag2 = str2num(value(1:i-1));
     elseif strcmp(string,'Number of cells')
         nbins = str2num(value);
     elseif strcmp(string,'Cell size')
@@ -49,8 +55,12 @@ while ~feof(fid);
         line      = fgetl(fid);
         value     = line(39:end);
         T(3,1:3)  = str2num(value);
+    elseif strcmp(string, 'Extended velocity range')
+        disp('Instrument being processed is HR')
+        HRflag = 1;
+        
     end
-clear line string value i
+clear line string value i;
 end
 
 meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
@@ -66,6 +76,7 @@ A1 = [A{:,1}, A{:,2}, A{:,3}, A{:,4}, A{:,5}, A{:,6}, A{:,7}, A{:,8}, A{:,9}, A{
 time = datenum(A1(:,3),A1(:,1),A1(:,2),A1(:,4),A1(:,5),A1(:,6))+tos/24;
 volt = A1(:,11);
 sspeed = A1(:,12);
+vrange = (sspeed.^2)/(8*1000^2*lag1);
 heading = A1(:,13);pitch = A1(:,14);roll = A1(:,15);
 pressure = A1(:,16);
 temperature = A1(:,17);
@@ -76,6 +87,7 @@ A.date  = datestr(time(1));
 A.Time  = time; A.volt = volt;
 A.seconds= (time-time(1))*86400;
 A.sspeed= sspeed;
+A.VRange = vrange;
 A.heading  = heading;A.pitch = pitch;A.roll = roll;
 A.Pressure  = pressure;A.Temperature = temperature;
 A.fname = fileName;

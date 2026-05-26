@@ -3,7 +3,6 @@ close all
 
 %% User Input Data
 
-addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\code'
 
 releasenum = 1; % Enter Release number here
 releasenum = string(releasenum);
@@ -74,15 +73,15 @@ recoverTime = recoverTime + time_shift;
 %
 % load and pre-process data.
 fprintf('loading %s data\n', adcp_mooring_ID{adcp_ID})
-loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime, echo_mode, Descriptions, HeadingOffset)
+%loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime, echo_mode, Descriptions, HeadingOffset)
 %
 % make time-averages
 fprintf('time averaging %s\n', adcp_mooring_ID{adcp_ID})
-time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix)
+time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix, dtAvg, echo_mode, L0FRoot)
 %
 % estimate hourly wave stats
 fprintf('estimating wave stats for %s\n', adcp_mooring_ID{adcp_ID})
-estimate_wave_bulk_stats_SIG1000_RDI_matrix_format
+estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(Config, L0dir, filePrefix)
 
 % fetch for releasenum
 
@@ -318,7 +317,7 @@ end
 % EOF
 
 
-function time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix)
+function time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix, dtAvg, echo_mode, L0FRoot)
 
 %
 load([L0dir,filesep,filePrefix,'config.mat'])
@@ -335,7 +334,7 @@ fprintf('\n \n')
 % define filter parameters
 fc = 1/dtAvg;% frequency cutoff
 Ns = fs/fc;% filter half-width
-if isodd(Ns), Ns=Ns+1; end
+if mod(Ns,2), Ns=Ns+1; end
 Fw = 2*Ns+1;% filter width
 F  = hanning(Ns+1);% Hann-function filter
 F  = F./sum(F);% normalize

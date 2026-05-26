@@ -2,9 +2,13 @@ clear all
 close all
 
 %% User Input Data
+addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\code'
+addpath /Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/code
+
 
 releasenum = 1; % Enter Release number here
 release = string(releasenum);
+unwrap = 1; % 1 for unwrap, 0 for not unwrap
 
 atmTimes = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00'); ...
             datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
@@ -67,10 +71,10 @@ else
     valid = find(A.Time>=depTime(1) & A.Time<=depTime(2));
 end
 %
-vars  = {'Time','volt','seconds','sspeed','heading','pitch','roll','Pressure','Temperature','Amplitude_Beam1','Amplitude_Beam2','Amplitude_Beam3','Velocity_X','Velocity_Y','Velocity_Z','Correlation_Beam1','Correlation_Beam2','Correlation_Beam3','Velocity_Beam1','Velocity_Beam2','Velocity_Beam3','Velocity_East','Velocity_North','Velocity_Up'};
+vars  = {'Time','volt','seconds','sspeed','heading','pitch','roll','Pressure','Temperature','Amplitude_Beam1','Amplitude_Beam2','Amplitude_Beam3','Velocity_X','Velocity_Y','Velocity_Z','Correlation_Beam1','Correlation_Beam2','Correlation_Beam3','Velocity_Beam1','Velocity_Beam2','Velocity_Beam3','Velocity_East','Velocity_North','Velocity_Up', 'VRange'};
 for jj = 1:length(vars)
     var = vars{jj};
-    fprintf('storing valid vars: %s\n', var)
+    fprintf('storing valid vars: %s\r', var)
     dum = A.(var);
     A.(var) = dum(valid,:);
     %eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
@@ -87,10 +91,14 @@ A.qcFlag   =  double( (dum2<=dum1) & min(A.Amplitude_Beam1,min(A.Amplitude_Beam2
 time = datetime(A.Time,'convertFrom','datenum');
 
 %% Fix Velocity Wrapping
-fprintf('\n============================\nDo you want to unwrap beam Velocities?')
-unwrap = input('(1 = yes; 0 = no)');
+
+if ~exist('unwrap')
+    fprintf('\n============================\nDo you want to unwrap beam Velocities?')
+    unwrap = input('(1 = yes; 0 = no)');
+end
 if unwrap == 1
     for beam = 1:3 
+        fprintf('unwrapping beam %d\n', beam)
         [A.(sprintf('Velocity_Beam%d',beam)), A.(sprintf('Suspect_Beam%d', beam))] = unwrap_AQD(A.(sprintf('Velocity_Beam%d',beam)), A.VRange);
     end
     
@@ -210,7 +218,7 @@ imagesc(time,A.dbins',A3.*qcFlag0'),caxis([100 180]),colormap(cmocean('thermal')
 text(time(1),ylims(2),'Z')
 set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 xlabel('time [s]','interpreter','latex')
-figName = [figDir,'/',inputFile,'_amplitude.png'];
+figName = [figDir + filesep + inputFile + '_amplitude.png'];
 exportgraphics(fig1,figName)
 %
 %
@@ -236,7 +244,7 @@ imagesc(time,A.dbins',C3.*qcFlag0'),caxis([0 100]),colormap(cmocean('thermal')),
 text(time(1),ylims(2),'Z')
 set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 xlabel('time [s]','interpreter','latex')
-figName = [figDir,'/',inputFile,'_correlation.png'];
+figName = [figDir + filesep + inputFile + '_correlation.png'];
 exportgraphics(fig1,figName)
 %
 %
@@ -244,6 +252,7 @@ exportgraphics(fig1,figName)
 V1 = conv2(f1,f2,(A.Velocity_X.*A.qcFlag)','same')./on;
 V2 = conv2(f1,f2,(A.Velocity_Y.*A.qcFlag)','same')./on;
 V3 = conv2(f1,f2,(A.Velocity_Z.*A.qcFlag)','same')./on;
+
 %
 fig2 = figure;
 ax1 = subplot(3,1,1);
@@ -262,7 +271,7 @@ imagesc(time,A.dbins',V3.*qcFlag0'),caxis([-0.125 0.125]),colormap(cmocean('bala
 text(time(1),ylims(2),'Z')
 set(ax3,'ydir','normal','ticklabelinterpreter','latex','ylim',ylims)
 xlabel('time [s]','interpreter','latex')
-figName = [figDir,'/',inputFile,'_velocity.png'];
+figName = [figDir + filesep + inputFile + '_velocity.png'];
 exportgraphics(fig2,figName)
 %
 % get the time-averaged current.
@@ -284,7 +293,7 @@ set(hh,'fontsize',9)
 xlabel('m/s','interpreter','latex')
 ylabel('mab','interpreter','latex')
 set(gca,'ticklabelinterpreter','latex','tickdir','out')
-figName = [figDir,'/',inputFile,'_mean_velocity.png'];
+figName = [figDir + filesep + inputFile + '_mean_velocity.png'];
 exportgraphics(fig3,figName)
 %
 A.VelX = V1;
@@ -294,8 +303,23 @@ A.VelZ   = V3;
 A.VelXAvg = Uz;
 A.VelYAvg= Vz;
 A.VelZAvg   = Wz;
+
 %
-save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
+%% QC velocities
+A.Velocity_X(~A.qcFlag') = nan;
+A.Velocity_Y(~A.qcFlag') = nan;
+A.Velocity_Z(~A.qcFlag') = nan;
+
+A.Velocity_Beam1(~A.qcFlag') = nan;
+A.Velocity_Beam2(~A.qcFlag') = nan;
+A.Velocity_Beam3(~A.qcFlag') = nan;
+
+A.Velocity_East(~A.qcFlag') = nan;
+A.Velocity_North(~A.qcFlag') = nan;
+A.Velocity_Up(~A.qcFlag') = nan;
+
+
+save([L0Dir + filesep + L0Name + '.mat'],'-struct','A')
 %
 % add the config info to the structure A to quick save as netcdf4
 fieldNames = fields(A.Config);
@@ -305,7 +329,7 @@ for j = 1:length(fieldNames)
  A.(fieldNames{j}) = A.Config.(fieldNames{j});
 end
 A = orderfields(A,cat(1,fieldNames,originalFields));
-ncfile = [L0Dir,'/',L0Name,'.nc'];
+ncfile = [L0Dir + L0Name + '.nc'];
 if exist(ncfile,'file')
     delete(ncfile)
 end
@@ -331,7 +355,7 @@ figure, plot(v1rot,v2rot,'.')
 hold on, plot(1.5*[-cosd(60) cosd(60)],1.5*[-sind(60) sind(60)],'--r')
 xlabel('$\bar{v}_X$','interpreter','latex')
 ylabel('$\bar{v}_Y$','interpreter','latex')
-figName = [figDir,'/',inputFile,'_depth_avg_XYvel_checker_pattern.png'];
+figName = [figDir + filesep + inputFile + '_depth_avg_XYvel_checker_pattern.png'];
 exportgraphics(gcf,figName)
 %
 %
@@ -346,7 +370,7 @@ subplot(3,1,3)
 bar(vbins, v3H./length(v1bar))
 ylabel('$p(\bar{v}_Z)$','interpreter','latex')
 xlabel('velocity')
-figName = [figDir,'/',inputFile,'_depth_avg_vel_XYrot60deg_histograms.png'];
+figName = [figDir + filesep + inputFile + '_depth_avg_vel_XYrot60deg_histograms.png'];
 exportgraphics(gcf,figName)
 %
 %
@@ -359,12 +383,213 @@ figure, plot(b1bar,b2bar,'.')
 hold on, plot(1.5*[-cosd(60) cosd(60)],1.5*[-sind(60) sind(60)],'--r')
 xlabel('$\bar{v}_X$','interpreter','latex')
 ylabel('$\bar{v}_Y$','interpreter','latex')
-figName = [figDir,'/',inputFile,'_depth_avg_Beam1Beam2_checker_pattern.png'];
+figName = [figDir + filesep + inputFile + '_depth_avg_Beam1Beam2_checker_pattern.png'];
 exportgraphics(gcf,figName)
 
 %% Functions
 
+function A = loadAQD(inputDir, inputFile, tos, fileName)
+
+%% load header data
+%% data for each field starts at column 39 or 40
+hdrFile = sprintf(['%s',filesep,'%s.hdr'], inputDir,inputFile);
+fid = fopen(hdrFile);% open file
+while ~feof(fid);
+    %grab line
+    line = fgetl(fid);
+    %some skipped lines are very short
+    if length(line)<26
+        continue
+    end
+    %
+    % each line has a field name and value
+    string = deblank(line(1:26));
+    value = line(39:end);
+    %
+    % select pertinent fields and allocate variables
+    if     strcmp(string,'Number of measurements')
+        nsamples = str2num(value);
+    elseif strcmp(string,'Number of checksum errors')
+        nerrors = str2num(value);
+    elseif strcmp(string,'Measurement/Burst interval')
+        i = strfind(value,'sec');
+        dt = str2num(value(1:i-1));
+    elseif strcmp(string, 'Pulse distance (Lag1)')
+        i = strfind(value, 'm');
+        lag1 = str2num(value(1:i-1));
+    elseif strcmp(string, 'Pulse distance (Lag2)')
+        i = strfind(value, 'm');
+        lag2 = str2num(value(1:i-1));
+    elseif strcmp(string,'Number of cells')
+        nbins = str2num(value);
+    elseif strcmp(string,'Cell size')
+        i = strfind(value,'cm');
+        cff=100;
+        if isempty(i)
+            i = strfind(value,'mm');
+            cff=1000;
+        end
+        binsize = str2num(value(1:i-1))/cff;% cm-->m
+    elseif strcmp(string,'Blanking distance')
+        i = strfind(value,'m');
+        blank = str2num(value(1:i-1));
+    elseif strcmp(string,'Coordinate system')
+        coords = value(1:3);
+    elseif strcmp(string,'Serial number') & ~exist('sn','var')
+        sn = deblank(value);
+    elseif strcmp(string,'Transformation matrix')
+        T(1,1:3)  = str2num(value);
+        line      = fgetl(fid);
+        value     = line(39:end);
+        T(2,1:3)  = str2num(value);
+        line      = fgetl(fid);
+        value     = line(39:end);
+        T(3,1:3)  = str2num(value);
+    elseif strcmp(string, 'Extended velocity range')
+        disp('Instrument being processed is HR')
+        HRflag = 1;
+        
+    end
+clear line string value i;
+end
+
+meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
+                   'Nbins',nbins,'binSize',binsize,'blank',blank,'coords',coords,'transform_matrix',T);
+fclose(fid);
+%
+%% Extracts date, temp, pressure, heading, pitch, roll
+senFile = sprintf(['%s',filesep,'%s.sen'], inputDir,inputFile);
+fid = fopen(senFile,'r');
+A = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %*[^\n]');
+fclose(fid);
+A1 = [A{:,1}, A{:,2}, A{:,3}, A{:,4}, A{:,5}, A{:,6}, A{:,7}, A{:,8}, A{:,9}, A{:,10}, A{:,11}, A{:,12} A{:,13}, A{:,14}, A{:,15} A{:,16} A{:,17}];
+time = datenum(A1(:,3),A1(:,1),A1(:,2),A1(:,4),A1(:,5),A1(:,6))+tos/24;
+volt = A1(:,11);
+sspeed = A1(:,12);
+vrange = (sspeed.^2)/(8*1000^2*lag1);
+heading = A1(:,13);pitch = A1(:,14);roll = A1(:,15);
+pressure = A1(:,16);
+temperature = A1(:,17);
+clear A A1
+%
+A.Config= meta_data;
+A.date  = datestr(time(1));
+A.Time  = time; A.volt = volt;
+A.seconds= (time-time(1))*86400;
+A.sspeed= sspeed;
+A.VRange = vrange;
+A.heading  = heading;A.pitch = pitch;A.roll = roll;
+A.Pressure  = pressure;A.Temperature = temperature;
+A.fname = fileName;
+%
+%% load beam amplitudes and velocities (may be in beam coords or ENU, see A.Config)
+a1 = load(strcat(fileName,'.a1'));
+[Na,Ma] = size(a1);
+if Ma>nbins% sometimes there are extra columns (beam#, ensemble#)
+    bin1 = Ma-nbins+1;
+else
+    bin1 = 1;
+end
+a2 = load(strcat(fileName,'.a2'));
+a3 = load(strcat(fileName,'.a3'));
+A.Amplitude_Beam1 = a1(:,bin1:end);
+A.Amplitude_Beam2 = a2(:,bin1:end);
+A.Amplitude_Beam3 = a3(:,bin1:end);
+%
+v1 = load(strcat(fileName,'.v1'));
+v2 = load(strcat(fileName,'.v2'));
+v3 = load(strcat(fileName,'.v3'));
+switch coords
+  case {'XYZ','ENU'}
+    A.Velocity_X = v1(:,bin1:end);
+    A.Velocity_Y = v2(:,bin1:end);
+    A.Velocity_Z = v3(:,bin1:end);
+    if strcmp(coords,'XYZ')
+        shape = size(A.Velocity_X);
+        BEAM  = inv(T)*[A.Velocity_X(:)'; A.Velocity_Y(:)'; A.Velocity_Z(:)'];
+        A.Velocity_Beam1  = reshape(BEAM(1,:)',shape);
+        A.Velocity_Beam2  = reshape(BEAM(2,:)',shape);
+        A.Velocity_Beam3  = reshape(BEAM(3,:)',shape);
+    end        
+    A.Velocity_East = A.Velocity_X;
+    A.Velocity_North= A.Velocity_Y;
+    A.Velocity_Up   = A.Velocity_Z;
+  case {'BEA'}
+    b1 = v1(:,bin1:end);
+    b2 = v2(:,bin1:end);
+    b3 = v3(:,bin1:end);
+    shape = size(b1);
+    XYZ= T*[b1(:)'; b2(:)'; b3(:)'];
+    A.Velocity_X = reshape(XYZ(1,:)',shape);
+    A.Velocity_Y = reshape(XYZ(2,:)',shape);
+    A.Velocity_Z = reshape(XYZ(3,:)',shape);
+    A.Velocity_Beam1 = b1;
+    A.Velocity_Beam2 = b2;
+    A.Velocity_Beam3 = b3;
+end
+%
+if ~strcmp(coords,'ENU')
+    % rotate to EW, need to work out the pitch/roll matrices
+    hh = reshape(pi*(heading-90)/180,1,1,nsamples);
+    pp = reshape(pi*pitch/180,1,1,nsamples);
+    rr = reshape(pi*roll/180,1,1,nsamples);
+    H = [ cos(hh) sin(hh) 0*hh;...
+         -sin(hh) cos(hh) 0*hh;...
+          0*hh      0*hh  0*hh+1];
+    P = [cos(pp) -sin(pp).*sin(rr) -cos(rr).*sin(pp);...
+          0*pp       cos(rr)         -sin(rr)   ;...
+         sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
+    shape = size(A.Velocity_X);
+    for j = 1:nsamples
+     R   = H(:,:,j)*P(:,:,j);
+     ENU = R*[A.Velocity_X(j,:);A.Velocity_Y(j,:);A.Velocity_Z(j,:)];
+     A.Velocity_East (j,:) = ENU(1,:);
+     A.Velocity_North(j,:) = ENU(2,:);
+     A.Velocity_Up   (j,:) = ENU(3,:);    
+    end
+end
+%
+c1 = load(strcat(fileName,'.c1'));
+c2 = load(strcat(fileName,'.c2'));
+c3 = load(strcat(fileName,'.c3'));
+A.Correlation_Beam1 = c1(:,bin1:end);
+A.Correlation_Beam2 = c2(:,bin1:end);
+A.Correlation_Beam3 = c3(:,bin1:end);
+%
+A.dbins = blank + binsize*[1:nbins];
+% 
+end
+
+%EOF 
+
+
 function [v_unwrap, suspect_pts] = unwrap_AQD(v_wrapped, Vr)
+%   unwrap_AQD
+%       Corrects ADCP velocity-wrapped data by idententifying suprious
+%       points using a median filter, estimating the error using a least-sqraures-regression, 
+%       and correcting by shifting the
+%       appropriate integer multiples of the maximum velocity range
+%
+%        -- Originally intended for AquaDopp but may be suitable for other
+%        pulse-coherent ADCPs -- 
+%
+%   Written by:
+%       Jason Rooker, Summer 2025
+%       Derek Grimes
+%       Based on the method originally devoloped by
+%                   Andrey Shcherbina, Eric D'Asaro, and Sven Nylund (2018)
+%       
+%
+%       USAGE: [v_unwrap, suspect_pts] = unwrap_AQD(v_wrapped, Vr) 
+%
+%       Inputs:
+%               v_wrapped:  vector of wrapped velocity measurements
+%               Vr:         Float, Maximum Velocity Range
+%
+%       Outputs:
+%               v_unwrap:     vector of unwrapped velocities
+%               suspect_pts:  indicies of points that were determined to be
+%                             wrapped
 
 disp('using Shcherbina et al 2018 unwrapper')
 
