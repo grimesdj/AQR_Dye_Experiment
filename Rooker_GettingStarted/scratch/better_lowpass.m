@@ -8,7 +8,7 @@ close all
 releasenum = 1; % Enter Release number here
 releasenum = string(releasenum);
 
-fc = 3600; % Enter window length ( ~min period pass ) [ seconds ]
+fc = 600; % Enter window length ( ~min period pass ) [ seconds ]
 
 
 %% Load Data

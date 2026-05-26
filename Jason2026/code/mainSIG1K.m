@@ -1,5 +1,13 @@
 clear all
 close all
+
+%% User Input Data
+
+addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\code'
+
+releasenum = 1; % Enter Release number here
+releasenum = string(releasenum);
+
 % stages of processing
 % 1) define deployment number:
 adcp_ID  = 1;
@@ -9,10 +17,11 @@ echo_mode = 0;
 % used to shift timezone,e.g. to convert EST to UTC
 time_shift = 0/24;
 % 2) raw data input directory & filename convention:
-rootDIR = sprintf('/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/%s',adcp_file_roots{adcp_ID});
+rootDIR = sprintf('../../../../Kelp_data/data/FullExperiment/raw/%s',adcp_file_roots{adcp_ID});
 fRoot   = [adcp_file_roots{adcp_ID},'_'];
 % 3) output directory:
-outRoot = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/2024_PROCESSED_DATA/';
+release_outRoot = '../../../../Kelp_data/Summer2025/Rooker/';
+outRoot = '../../../../Kelp_data/data/2024_PROCESSED_DATA/';
 % 4) output data file prefix:
 filePrefix= sprintf('ADCP_%s_',adcp_mooring_ID{adcp_ID});
 %
@@ -40,14 +49,14 @@ HeadingOffset = 0;
 % 6) deploy/recovery times
 switch adcp_ID
   case 1
-    offset_file = sprintf([rootDIR,filesep,fRoot,'%d.mat'],2);
+    offset_file = fullfile(rootDIR, sprintf('%s%d.mat', fRoot, 2));
     load(offset_file,'Config','Data','Descriptions');
     atmosphTime = [datenum('02-Jul-2024 18:45:00'), datenum('02-Jul-2024 19:15:00')];
     it          = find(Data.Burst_Time>=atmosphTime(1) & Data.Burst_Time<=atmosphTime(2));
     ATM_Time    = nanmean(atmosphTime);
     ATM_Pressure = nanmean(Data.Burst_Pressure(it));
   case 2
-    offset_file = sprintf([rootDIR,filesep,fRoot,'%d.mat'],1);
+    offset_file = fullfile(rootDIR, sprintf('%s%d.mat', fRoot, 1));
     load(offset_file,'Config','Data','Descriptions');
     atmosphTime = [datenum('02-Jul-2024 19:15:00'), datenum('02-Jul-2024 19:45:00')];
     it          = find(Data.Burst_Time>=atmosphTime(1) & Data.Burst_Time<=atmosphTime(2));
@@ -64,13 +73,19 @@ deployTime  = deployTime  + time_shift;
 recoverTime = recoverTime + time_shift;
 %
 % load and pre-process data.
-loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime)
+fprintf('loading %s data\n', adcp_mooring_ID{adcp_ID})
+loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime, echo_mode, Descriptions, HeadingOffset)
 %
 % make time-averages
+fprintf('time averaging %s\n', adcp_mooring_ID{adcp_ID})
 time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix)
 %
 % estimate hourly wave stats
+fprintf('estimating wave stats for %s\n', adcp_mooring_ID{adcp_ID})
 estimate_wave_bulk_stats_SIG1000_RDI_matrix_format
+
+% fetch for releasenum
+
 %
 %
 fig = figure;
@@ -83,9 +98,41 @@ set(ax,'ydir','normal','ticklabelinterpreter','latex','tickdir','out','plotboxas
 figname = sprintf('%s/figures/%s_spectra.pdf',L1dir,L1FRoot);
 exportgraphics(fig,figname)
 
+
+
+%% Release specific times
+
+R1atmTime = [datenum('03-Jul-2024 17:30:00'), datenum('03-Jul-2024 18:10:00')];
+R1depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
+R23atmTime = [datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
+R23depTime  = [datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
+
+% Fetch Release times
+disp('fetching data to fit release 1 times')
+R1 = fetch_sig1k(L0dir, R1depTime(1), R1depTime(2));
+
+disp('Saving Release 1')
+save([release_outRoot,'/Release1/', adcp_mooring_ID{adcp_ID}, '.mat'],'-struct','R1')
+
+disp('fetching data to fit release 2 times')
+R23 = fetch_sig1k(L0dir, R23depTime(1), R23depTime(2));
+
+disp('Saving Release 2')
+save([release_outRoot,'/Release2/', adcp_mooring_ID{adcp_ID}, '.mat'],'-struct','R23')
+
+
+
+
+
+
+
+
+
+
+
 %% Functions
 
-function loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime)
+function loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime, echo_mode, Descriptions, HeadingOffset)
 
 files = dir([rootDIR,filesep,fRoot,'*.mat']);
 Nf    = length(files);
@@ -118,7 +165,7 @@ end
 save(outFile,'Config','Descriptions')
 outFile = [L0dir, filePrefix, 'config.nc'];
 if exist(outFile,'file')
-    eval(['!rm ', outFile])
+    delete(outFile)
 end
 struct2nc(Config,outFile,'NETCDF4')
 %
@@ -252,9 +299,9 @@ while ii<=Nf
         outFileName = sprintf([filePrefix,'%03d.nc'],outNf);
         fout = [L0dir,outFileName];
         if exist(fout,'file')
-            eval(['!rm ', outFileName])
+            delete(fout)
         end
-        struct2nc(out,outFileName,'NETCDF4')
+        struct2nc(out,fout,'NETCDF4')
         %
         N = 0;
         %

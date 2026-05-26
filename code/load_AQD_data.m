@@ -1,3 +1,5 @@
+function A = loadAQD(inputDir, inputFile)
+
 %% load header data
 %% data for each field starts at column 39 or 40
 hdrFile = sprintf(['%s',filesep,'%s.hdr'], inputDir,inputFile);
@@ -88,40 +90,40 @@ else
 end
 a2 = load(strcat(fileName,'.a2'));
 a3 = load(strcat(fileName,'.a3'));
-A.a1 = a1(:,bin1:end);
-A.a2 = a2(:,bin1:end);
-A.a3 = a3(:,bin1:end);
+A.Amplitude_Beam1 = a1(:,bin1:end);
+A.Amplitude_Beam2 = a2(:,bin1:end);
+A.Amplitude_Beam3 = a3(:,bin1:end);
 %
 v1 = load(strcat(fileName,'.v1'));
 v2 = load(strcat(fileName,'.v2'));
 v3 = load(strcat(fileName,'.v3'));
 switch coords
   case {'XYZ','ENU'}
-    A.v1 = v1(:,bin1:end);
-    A.v2 = v2(:,bin1:end);
-    A.v3 = v3(:,bin1:end);
+    A.Velocity_X = v1(:,bin1:end);
+    A.Velocity_Y = v2(:,bin1:end);
+    A.Velocity_Z = v3(:,bin1:end);
     if strcmp(coords,'XYZ')
-        shape = size(A.v1);
-        BEAM  = inv(T)*[A.v1(:)'; A.v2(:)'; A.v3(:)'];
-        A.b1  = reshape(BEAM(1,:)',shape);
-        A.b2  = reshape(BEAM(2,:)',shape);
-        A.b3  = reshape(BEAM(3,:)',shape);
+        shape = size(A.Velocity_X);
+        BEAM  = inv(T)*[A.Velocity_X(:)'; A.Velocity_Y(:)'; A.Velocity_Z(:)'];
+        A.Velocity_Beam1  = reshape(BEAM(1,:)',shape);
+        A.Velocity_Beam2  = reshape(BEAM(2,:)',shape);
+        A.Velocity_Beam3  = reshape(BEAM(3,:)',shape);
     end        
-    A.east = A.v1;
-    A.north= A.v2;
-    A.up   = A.v3;
+    A.Velocity_East = A.Velocity_X;
+    A.Velocity_North= A.Velocity_Y;
+    A.Velocity_Up   = A.Velocity_Z;
   case {'BEA'}
     b1 = v1(:,bin1:end);
     b2 = v2(:,bin1:end);
     b3 = v3(:,bin1:end);
     shape = size(b1);
     XYZ= T*[b1(:)'; b2(:)'; b3(:)'];
-    A.v1 = reshape(XYZ(1,:)',shape);
-    A.v2 = reshape(XYZ(2,:)',shape);
-    A.v3 = reshape(XYZ(3,:)',shape);
-    A.b1 = b1;
-    A.b2 = b2;
-    A.b3 = b3;
+    A.Velocity_X = reshape(XYZ(1,:)',shape);
+    A.Velocity_Y = reshape(XYZ(2,:)',shape);
+    A.Velocity_Z = reshape(XYZ(3,:)',shape);
+    A.Velocity_Beam1 = b1;
+    A.Velocity_Beam2 = b2;
+    A.Velocity_Beam3 = b3;
 end
 %
 if ~strcmp(coords,'ENU')
@@ -135,22 +137,23 @@ if ~strcmp(coords,'ENU')
     P = [cos(pp) -sin(pp).*sin(rr) -cos(rr).*sin(pp);...
           0*pp       cos(rr)         -sin(rr)   ;...
          sin(pp)  sin(rr).*cos(pp)  cos(pp).*cos(rr)];
-    shape = size(A.v1);
+    shape = size(A.Velocity_X);
     for j = 1:nsamples
      R   = H(:,:,j)*P(:,:,j);
-     ENU = R*[A.v1(j,:);A.v2(j,:);A.v3(j,:)];
-     A.east (j,:) = ENU(1,:);
-     A.north(j,:) = ENU(2,:);
-     A.up   (j,:) = ENU(3,:);    
+     ENU = R*[A.Velocity_X(j,:);A.Velocity_Y(j,:);A.Velocity_Z(j,:)];
+     A.Velocity_East (j,:) = ENU(1,:);
+     A.Velocity_North(j,:) = ENU(2,:);
+     A.Velocity_Up   (j,:) = ENU(3,:);    
     end
 end
 %
 c1 = load(strcat(fileName,'.c1'));
 c2 = load(strcat(fileName,'.c2'));
 c3 = load(strcat(fileName,'.c3'));
-A.c1 = c1(:,bin1:end);
-A.c2 = c2(:,bin1:end);
-A.c3 = c3(:,bin1:end);
+A.Correlation_Beam1 = c1(:,bin1:end);
+A.Correlation_Beam2 = c2(:,bin1:end);
+A.Correlation_Beam3 = c3(:,bin1:end);
 %
 A.dbins = blank + binsize*[1:nbins];
 % 
+end

@@ -1,7 +1,20 @@
 clear all
 close all
+
+%% User Input Data
+
+releasenum = 1; % Enter Release number here
+releasenum = string(releasenum);
+
+atmTimes = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00'); ...
+            datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
+
+depTimes = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00'); ...
+            datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
+
+
 % Enter input /directory/ and fileName root without file extension
-inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/raw';
+inputDir  = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release' + releasnum + '/raw';
 inputFile = 'KELP1_AquadoppHR';
 fileName  = [inputDir,'/',inputFile];
 % Enter raw output /directory/ and fileName without .mat
@@ -11,17 +24,17 @@ outputName= [inputFile,'_raw'];
 L0Dir   = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/Release1/L0';
 L0Name  = [inputFile,'_L0'];
 % Enter time when instrument was in air for pressure offset
-atmTime = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00')];
-depTime = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
+atmTime = atmTimes(releasenum, :);
+depTime = depTimes(releasenum, :);
 % Enter path to save figures
 figDir = [inputDir,'/../figures/'];
-if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
+if ~exist(figDir,'dir'), mkdir(figDir), end
 %
 % Enter time-offset (UTC->EDT) tos = -4 hours
 tos = 0;
 %
 % returns structure A with all aquadopp data
-load_AQD_data
+A = load_AQD_data()
 save([outputDir,'/',outputName,'.mat'],'-struct','A')
 %
 %
