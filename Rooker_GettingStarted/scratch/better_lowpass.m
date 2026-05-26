@@ -3,10 +3,15 @@
 clear all
 close all
 
+%% User Input Data
+
+releasenum = 1; % Enter Release number here
+releasenum = string(releasenum);
+
+fc = 3600; % Enter window length ( ~min period pass ) [ seconds ]
+
+
 %% Load Data
-
-releasenum = string(2);
-
 
 % grab files
 filepath = ['../../../../Kelp_data/Summer2025/Rooker/Release' + releasenum + '/L0/*.mat'];
@@ -39,8 +44,6 @@ for i = 1:length(files)
     [data.(tag).Time, data.(tag).Velocity_North] = correct_burst(data.(tag).Time, data.(tag).Velocity_North, 1/data.(tag).Config.dt);
 
     % make smoothie
-    fc = 600; % wpass threshold [seconds]
-
     fprintf('Smoothing %s\n', tag)
     [LPF(i).Velocity_East, LPF(i).fsd, LPF(i).idx] = hamming_filter(data.(tag).Velocity_East, 1/fc, 1/data.(tag).Config.dt, 1, 1, thresh);
     LPF(i).Velocity_North = hamming_filter(data.(tag).Velocity_North, 1/fc, 1/data.(tag).Config.dt, 1, 1, thresh);
@@ -113,11 +116,11 @@ for i = 1:length(files)
     linkaxes([ax1 ax2], 'x')
     sgtitle([tag, ' North'], 'fontsize', 22)
 
-
-    fprintf('saving %s', tag)
-    savepath = ['../../../../Kelp_data/data/Release' + releasenum + '/LPF/'];
     savename = string(sprintf('%s_LPF_%dsec.mat', tag, fc));
-    save([savepath + savename], LPF(i), '-struct')
+    savepath = fullfile(files(i).folder, 'LPF', savename);
+    fprintf('saving %s\n', savename)
+    S = LPF(i);
+    save(savepath, '-struct', "S")
 
 
 end

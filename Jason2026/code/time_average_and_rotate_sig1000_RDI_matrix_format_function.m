@@ -1,4 +1,4 @@
-time_average_and_rotate_sig1000_RDI_matrix_format_function()
+function time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix)
 
 %
 load([L0dir,filesep,filePrefix,'config.mat'])
@@ -156,3 +156,4 @@ if exist(outFileName,'file')
     eval(['!rm ', outFileName])
 end
 struct2nc(out,outFileName,'NETCDF4')
+end
