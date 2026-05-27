@@ -40,8 +40,8 @@ tos = 0;
 % returns structure A with all aquadopp data
 fprintf('loading AQD release %s...\n', release)
 A = loadAQD(inputDir, inputFile, tos, fileName);
-disp('saving disabled')
-%save([outputDir,'/',outputName,'.mat'],'-struct','A')
+%disp('saving disabled')
+save([outputDir,'/',outputName,'.mat'],'-struct','A')
 %
 %
 % plot some stuff
@@ -319,7 +319,7 @@ A.Velocity_North(~A.qcFlag') = nan;
 A.Velocity_Up(~A.qcFlag') = nan;
 
 
-save([L0Dir + filesep + L0Name + '.mat'],'-struct','A')
+save(fullfile(L0Dir, L0Name, '.mat'),'-struct','A')
 %
 % add the config info to the structure A to quick save as netcdf4
 fieldNames = fields(A.Config);

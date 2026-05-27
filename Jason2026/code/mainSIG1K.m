@@ -16,11 +16,10 @@ echo_mode = 0;
 % used to shift timezone,e.g. to convert EST to UTC
 time_shift = 0/24;
 % 2) raw data input directory & filename convention:
-rootDIR = sprintf('../../../../Kelp_data/data/FullExperiment/raw/%s',adcp_file_roots{adcp_ID});
+rootDIR = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', 'FullExperiment', 'raw', sprintf('%s',adcp_file_roots{adcp_ID}));
 fRoot   = [adcp_file_roots{adcp_ID},'_'];
 % 3) output directory:
-release_outRoot = '../../../../Kelp_data/Summer2025/Rooker/';
-outRoot = '../../../../Kelp_data/data/2024_PROCESSED_DATA/';
+outRoot = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DATA');
 % 4) output data file prefix:
 filePrefix= sprintf('ADCP_%s_',adcp_mooring_ID{adcp_ID});
 %
@@ -77,49 +76,68 @@ fprintf('loading %s data\n', adcp_mooring_ID{adcp_ID})
 %
 % make time-averages
 fprintf('time averaging %s\n', adcp_mooring_ID{adcp_ID})
-time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix, dtAvg, echo_mode, L0FRoot)
+%time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix, dtAvg, echo_mode, L0FRoot)
 %
 % estimate hourly wave stats
 fprintf('estimating wave stats for %s\n', adcp_mooring_ID{adcp_ID})
-estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(Config, L0dir, filePrefix)
+%waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(Config, L0dir, filePrefix, L0FRoot, hab, L1dir, L1FRoot);
 
-% fetch for releasenum
 
 %
 %
-fig = figure;
-imagesc(datetime(waves.Time','convertFrom','datenum'),waves.frequency,log10(waves.Spp)),colormap(cmocean('thermal')),caxis([-2 1])
-ylabel('$f$ [Hz]','interpreter','latex')
-cb = colorbar;
-ylabel(cb,'[m$^2$/Hz]','interpreter','latex')
-ax = gca;
-set(ax,'ydir','normal','ticklabelinterpreter','latex','tickdir','out','plotboxaspectratio',[1.5 1 1])
-figname = sprintf('%s/figures/%s_spectra.pdf',L1dir,L1FRoot);
-exportgraphics(fig,figname)
+% fig = figure;
+% imagesc(datetime(waves.Time','convertFrom','datenum'),waves.frequency,log10(waves.Spp)),colormap(cmocean('thermal')),caxis([-2 1])
+% ylabel('$f$ [Hz]','interpreter','latex')
+% cb = colorbar;
+% ylabel(cb,'[m$^2$/Hz]','interpreter','latex')
+% ax = gca;
+% set(ax,'ydir','normal','ticklabelinterpreter','latex','tickdir','out','plotboxaspectratio',[1.5 1 1])
+% figname = sprintf('%s/figures/%s_spectra.pdf',L1dir,L1FRoot);
+% exportgraphics(fig,figname)
+% 
 
 
+% %% Release specific times
 
-%% Release specific times
+fprintf('trimming release times\n')
+depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00') ;
+            datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
 
-R1atmTime = [datenum('03-Jul-2024 17:30:00'), datenum('03-Jul-2024 18:10:00')];
-R1depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
-R23atmTime = [datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
-R23depTime  = [datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
+Moor = load(fullfile(L1dir, L1FRoot));
+data = Moor.currents;
+fields = fieldnames(data);
+for r = 1:2
+    dep(r, :) = find(data.Time >= depTime(r,1) & data.Time <= depTime(r,2));
+    for i = 1:length(fields)
+        field = fields{i};
+        len = size(data.(field), 2);
+        if len == length(data.Time)
+            dum = data.(field);
+            dum = dum(:, dep(r,:));
+            trim.(field) = dum;
+        else
+            trim.(field) = data.(field);
+        end
+    end
+    trimDir = fullfile(outRoot, '..', sprintf('Release%d', r), 'L0', 'ADCP', [adcp_mooring_ID{adcp_ID} '_trimmed.mat']);
+    fprintf('saving %s...\n', trimDir)
+    save(trimDir, '-struct', "trim")
+end
 
-% Fetch Release times
-disp('fetching data to fit release 1 times')
-R1 = fetch_sig1k(L0dir, R1depTime(1), R1depTime(2));
-
-disp('Saving Release 1')
-save([release_outRoot,'/Release1/', adcp_mooring_ID{adcp_ID}, '.mat'],'-struct','R1')
-
-disp('fetching data to fit release 2 times')
-R23 = fetch_sig1k(L0dir, R23depTime(1), R23depTime(2));
-
-disp('Saving Release 2')
-save([release_outRoot,'/Release2/', adcp_mooring_ID{adcp_ID}, '.mat'],'-struct','R23')
-
-
+% % Fetch Release times
+% disp('fetching data to fit release 1 times')
+% R1 = fetch_sig1k(L0dir, R1depTime(1), R1depTime(2));
+% 
+% disp('Saving Release 1')
+% save([release_outRoot,'/Release1/', adcp_mooring_ID{adcp_ID}, '.mat'],'-struct','R1')
+% 
+% disp('fetching data to fit release 2 times')
+% R23 = fetch_sig1k(L0dir, R23depTime(1), R23depTime(2));
+% 
+% disp('Saving Release 2')
+% save([release_outRoot,'/Release2/', adcp_mooring_ID{adcp_ID}, '.mat'],'-struct','R23')
+% 
+% 
 
 
 
@@ -159,7 +177,7 @@ end
 % save the config info
 outFile = [L0dir, filePrefix, 'config.mat'];
 if ~exist(L0dir,'dir')
-    eval(['!mkdir ',L0dir])
+    mkdir(L0dir)
 end
 save(outFile,'Config','Descriptions')
 outFile = [L0dir, filePrefix, 'config.nc'];
@@ -466,13 +484,13 @@ for ii= 1:Nf
 end
 fprintf(['saving: %s \n'],[L0dir,L0FRoot])
 if ~exist(L0dir,'dir')
-    eval(['!mkdir -p ',L0dir])
+    mkdir(L0dir)
 end
 save([L0dir,L0FRoot],'-struct','out')
 fprintf('done! \n')
 outFileName = [L0dir,L0FRoot,'.nc'];
 if exist(outFileName,'file')
-    eval(['!rm ', outFileName])
+    delete(outFileName)
 end
 struct2nc(out,outFileName,'NETCDF4')
 end
@@ -480,7 +498,7 @@ end
 % EOF
 
 
-function estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(Config, L0dir, filePrefix)
+function waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(Config, L0dir, filePrefix, L0FRoot, hab, L1dir, L1FRoot)
 %
 dtBurst = 1800;% seconds
 dtEns   = 512 ;% seconds
@@ -627,8 +645,12 @@ for ii= 1:Nf
         % depth correction
         om = 2*pi*fq;
         lom=length(om);
-        %
-        k=wavenumber(om.',dpth); % these are the radian wave numbers (rad/m)
+        %       
+        L = disper(om.', dpth);
+        k = 2.*pi ./ L;% don't have the wavenumber() funciton but i included my disper in the end
+        k = k';
+
+        %k=wavenumber(om.',dpth); % these are the radian wave numbers (rad/m)
         %
         % convert pressure to surface elevation
         cP     =  cosh(k.*dpth)./ cosh(k.*(dpth-dpthP)); % SePP=Spp.*cP.^2
@@ -800,20 +822,142 @@ for ii= 1:Nf
 end
 fprintf(['saving: %s \n'],[L1dir,L1FRoot])
 if ~exist(L1dir,'dir')
-    eval(['!mkdir -p ',L1dir])
+    mkdir(L1dir)
 end
-save([L1dir,L1FRoot,'.mat'],'currents','waves')
+save([L1dir,L1FRoot,'_currents.mat'],'currents')
+save([L1dir,L1FRoot,'_waves.mat'],'waves')
 fprintf('done! \n')
 
 currentsFileName = [L1dir,L1FRoot,'_currents.nc'];
 if exist(currentsFileName,'file')
-    eval(['!rm ',currentsFileName])
+    delete(currentsFileName)
 end
 struct2nc(currents,currentsFileName,'NETCDF4')
 wavesFileName = [L1dir,L1FRoot,'_waves.nc'];
 if exist(wavesFileName,'file')
-    eval(['!rm ',wavesFileName])
+    delete(wavesFileName)
 end
 struct2nc(waves,wavesFileName,'NETCDF4')
 end
 
+% EOF
+
+function L = disper(T, h)
+%
+%   USAGE: L = disper(T, h)
+%   
+%   Calculates Wavelength for intermdiate depth surface gravity waves
+%   
+%   Inputs:
+%            Wave period, T [s] (float or vector)
+%            Water depth, h [m] (float or vector)
+%               
+%   Outputs:
+%           Wavelength, L [m] (scalar)
+%               IF T and h are different sizes ( [N x 1] and [M x 1] )
+%               THEN L:
+%                           Rows --> T
+%                           Cols --> h
+
+disp('Estimating L using linear dispersion relation')
+
+
+if ~(isvector(T) && isvector(h))
+    error('T and h must be vectors or scalars')
+end
+
+
+if isscalar(T) || isscalar(h)
+    % scalar (boring)
+
+elseif isequal(size(T), size(h))
+    % dont need to do anything
+
+else
+    T = T(:);
+    h = h(:)';
+    disp('performing implicit expansion')
+end
+
+
+
+w2 = (2*pi./T).^2; % linear dispersion relation
+g = 9.81;
+
+k = w2 ./ g; % deep water initial guess
+
+for i = 1:20
+    f = g.*k.*tanh(k.*h) - w2;
+    dfdk = g.*tanh(k.*h) + g.*k.*h.*sech(k.*h).^2;
+    k = k - f./dfdk;
+end
+
+L = 2*pi./k;
+end
+% EOF
+
+function Data = fetch_sig1k(inputDir, startTime, endTime)
+%%
+% 
+% USAGE: Opens signature1000 ADCP files based on deployment times
+%
+%   inputDir: Directory where the .mat's can be found
+%   statTime: Start of deployment (I think it can be in any date format)
+%   endTIme: End of deployment
+%
+%   % Returns: Structure 'Data' with sig1K data
+%
+%%
+
+files = dir([inputDir, '*.mat']);
+
+for i = 1:length(files)
+    
+    if (~contains(files(i).name, 'config') && ~contains(files(i).name, 'min'))
+        Times = load([files(i).folder, filesep, files(i).name], 'Time');
+        if any((Times.Time >= datenum(startTime)) & Times.Time<= datenum(endTime))
+            Sig =  load([files(i).folder, filesep, files(i).name]);
+        end
+    end
+end
+Data.Time = Sig.Time;
+Data.Velocity_East = Sig.Velocity_East';
+Data.Velocity_North = Sig.Velocity_North';
+Data.Velocity_Up = Sig.Velocity_Up';
+Data.Velocity_Beam1 = Sig.Velocity_Beam(:,:,1)';
+Data.Velocity_Beam2 = Sig.Velocity_Beam(:,:,2)';
+Data.Velocity_Beam3 = Sig.Velocity_Beam(:,:,3)';
+
+Data.Correlation_Minimum = min(Sig.Correlation_Beam(:,:,1)', min(Sig.Correlation_Beam(:,:,2)', Sig.Correlation_Beam(:,:,3)'));
+Data.Amplitude_Minimum = min(Sig.Amplitude_Beam(:,:,1)', min(Sig.Amplitude_Beam(:,:,2)', Sig.Amplitude_Beam(:,:,3)'));
+Data.Pressure = Sig.Pressure(2,:)';
+Data.Heading = Sig.Heading(:, :)';
+Data.Pitch = Sig.Pitch(:,:)';
+Data.Roll = Sig.Roll(:,:)';
+
+% Summary figure
+figure
+ax1 = subplot(3, 1, 1);
+plot(ax1, Data.Time, Data.Velocity_East, '.')
+ylabel({'East', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+
+ax2 = subplot(3, 1, 2);
+plot(ax2, Data.Time, Data.Velocity_North, '.')
+ylabel({'North', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+
+ax3 = subplot(3, 1, 3);
+plot(ax3, Data.Time, Data.Velocity_Up, '.')
+ylabel({'Up', 'Velocity, [m/s]'})
+datetick(gca,'x','mmm-dd HH:MM','keeplimits')
+set(gca, 'fontsize', 18)
+linkaxes([ax1 ax2 ax3], 'x')
+grid minor
+
+sgtitle('Sig1K L0 Velocities', 'Fontsize', 25)
+end
