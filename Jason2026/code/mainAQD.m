@@ -22,16 +22,16 @@ inputDir  = '../../../../Kelp_data/data/Release' + release + '/raw/';
 inputFile = 'KELP1_AquadoppHR';
 fileName  = [inputDir + inputFile];
 % Enter raw output /directory/ and fileName without .mat
-outputDir = '../../../../Kelp_data/Summer2025/Rooker/Release' + release + '/raw/';
+outputDir = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'raw');
 outputName= [inputFile,'_raw'];
 % Enter processed output fileName without .mat
-L0Dir   = '../../../../Kelp_data/Summer2025/Rooker/Release' + release + '/L0/';
-L0Name  = [inputFile,'_L0'];
+L0Dir = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'L0', 'ADCP');
+L0Name  = 'AQD_ADCP';
 % Enter time when instrument was in air for pressure offset
 atmTime = atmTimes(releasenum, :);
 depTime = depTimes(releasenum, :);
 % Enter path to save figures
-figDir = [inputDir + '/../figures/'];
+figDir = fullfile(inputDir ,'..', 'figures');
 if ~exist(figDir,'dir'), mkdir(figDir), end
 %
 % Enter time-offset (UTC->EDT) tos = -4 hours
@@ -41,11 +41,11 @@ tos = 0;
 fprintf('loading AQD release %s...\n', release)
 A = loadAQD(inputDir, inputFile, tos, fileName);
 %disp('saving disabled')
-save([outputDir,'/',outputName,'.mat'],'-struct','A')
+save(fullfile(outputDir,outputName + ".mat"),'-struct','A')
 %
 %
 % plot some stuff
-fprintf('Barometric Compensation...')
+fprintf('Barometric Compensation...\n')
 if ~exist('atmTime','var')
     disp('pick 2 points bounding when out of water for ATM pressure offset')
     plot(A.Pressure)
@@ -80,6 +80,7 @@ for jj = 1:length(vars)
     %eval(['A.',vars{jj},' = A.',vars{jj},'(valid,:);'])
 end
 nsamples = length(valid);
+A.Config.Nsamples = nsamples;
 %
 A.maxRange = (A.Pressure-A.PressureOffset).*cosd(20)-1*A.Config.binSize;
 ylims      = [0 min(max(A.maxRange),max(A.dbins))];
@@ -117,9 +118,9 @@ if unwrap == 1
 
     % ENU
     disp('rotating unwrapped data to ENU')
-    hh = reshape(pi*(A.Heading-90)/180,1,1,A.Config.Nsamples);
-    pp = reshape(pi*A.Pitch/180,1,1,A.Config.Nsamples);
-    rr = reshape(pi*A.Roll/180,1,1,A.Config.Nsamples);
+    hh = reshape(pi*(A.heading-90)/180,1,1,A.Config.Nsamples);
+    pp = reshape(pi*A.pitch/180,1,1,A.Config.Nsamples);
+    rr = reshape(pi*A.roll/180,1,1,A.Config.Nsamples);
     H = [ cos(hh), sin(hh), 0*hh;...
          -sin(hh), cos(hh), 0*hh;...
           0*hh,      0*hh,  0*hh+1];
@@ -319,7 +320,7 @@ A.Velocity_North(~A.qcFlag') = nan;
 A.Velocity_Up(~A.qcFlag') = nan;
 
 
-save(fullfile(L0Dir, L0Name, '.mat'),'-struct','A')
+save(fullfile(L0Dir, L0Name + ".mat"),'-struct','A')
 %
 % add the config info to the structure A to quick save as netcdf4
 fieldNames = fields(A.Config);
@@ -329,7 +330,7 @@ for j = 1:length(fieldNames)
  A.(fieldNames{j}) = A.Config.(fieldNames{j});
 end
 A = orderfields(A,cat(1,fieldNames,originalFields));
-ncfile = [L0Dir + L0Name + '.nc'];
+ncfile = fullfile(L0Dir, L0Name + ".nc");
 if exist(ncfile,'file')
     delete(ncfile)
 end
@@ -392,7 +393,7 @@ function A = loadAQD(inputDir, inputFile, tos, fileName)
 
 %% load header data
 %% data for each field starts at column 39 or 40
-hdrFile = sprintf(['%s',filesep,'%s.hdr'], inputDir,inputFile);
+hdrFile = fullfile(inputDir, inputFile + ".hdr");
 fid = fopen(hdrFile);% open file
 while ~feof(fid);
     %grab line
@@ -458,7 +459,7 @@ meta_data = struct('SN',sn,'Nsamples',nsamples,'Nerrors',nerrors,'dt',dt, ...
 fclose(fid);
 %
 %% Extracts date, temp, pressure, heading, pitch, roll
-senFile = sprintf(['%s',filesep,'%s.sen'], inputDir,inputFile);
+senFile = fullfile(inputDir, inputFile + ".sen");
 fid = fopen(senFile,'r');
 A = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %*[^\n]');
 fclose(fid);

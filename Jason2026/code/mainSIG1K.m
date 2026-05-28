@@ -9,7 +9,7 @@ releasenum = string(releasenum);
 
 % stages of processing
 % 1) define deployment number:
-adcp_ID  = 1;
+adcp_ID  = 2;
 adcp_file_roots = {'S103071A014_KELP1','S104339A001_KELP1'};
 adcp_mooring_ID = {'M2', 'M1'};
 echo_mode = 0;
@@ -94,35 +94,60 @@ fprintf('estimating wave stats for %s\n', adcp_mooring_ID{adcp_ID})
 % set(ax,'ydir','normal','ticklabelinterpreter','latex','tickdir','out','plotboxaspectratio',[1.5 1 1])
 % figname = sprintf('%s/figures/%s_spectra.pdf',L1dir,L1FRoot);
 % exportgraphics(fig,figname)
-% 
+% % 
+
+
+
 
 
 % %% Release specific times
 
-fprintf('trimming release times\n')
+
+fprintf('compiling release times\n')
 depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00') ;
             datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
 
-Moor = load(fullfile(L1dir, L1FRoot));
-data = Moor.currents;
-fields = fieldnames(data);
-for r = 1:2
-    dep(r, :) = find(data.Time >= depTime(r,1) & data.Time <= depTime(r,2));
-    for i = 1:length(fields)
-        field = fields{i};
-        len = size(data.(field), 2);
-        if len == length(data.Time)
-            dum = data.(field);
-            dum = dum(:, dep(r,:));
-            trim.(field) = dum;
-        else
-            trim.(field) = data.(field);
-        end
+for r = 1:size(depTime, 1)
+    fprintf('fetching release %d\n', r)
+    R = fetch_sig1k(L0dir, depTime(r, 1), depTime(r, 2));
+
+    cfgFile = dir(fullfile(L0dir, '*config.mat'));
+
+    if isempty(cfgFile)
+        error('No config file found in %s', L0dir);
     end
-    trimDir = fullfile(outRoot, '..', sprintf('Release%d', r), 'L0', 'ADCP', [adcp_mooring_ID{adcp_ID} '_trimmed.mat']);
-    fprintf('saving %s...\n', trimDir)
-    save(trimDir, '-struct', "trim")
+    
+    cFig = load(fullfile(cfgFile(1).folder, cfgFile(1).name));
+    R.Config = cFig;
+    fprintf('saving %s...\n',  "/Release" + r + '/L0/ADCP/', adcp_mooring_ID(adcp_ID) + "_ADCP.mat")
+    save(fullfile(outRoot, '..', "Release" + r, 'L0', 'ADCP', adcp_mooring_ID(adcp_ID) + "_ADCP.mat"), '-struct', 'R')
 end
+
+
+
+% L1 DATA IS SMOOTHED 
+% 
+% 
+% Moor = load(fullfile(L1dir, L1FRoot));
+% data = Moor.currents;
+% fields = fieldnames(data);
+% for r = 1:2
+%     dep(r, :) = find(data.Time >= depTime(r,1) & data.Time <= depTime(r,2));
+%     for i = 1:length(fields)
+%         field = fields{i};
+%         len = size(data.(field), 2);
+%         if len == length(data.Time)
+%             dum = data.(field);
+%             dum = dum(:, dep(r,:));
+%             trim.(field) = dum;
+%         else
+%             trim.(field) = data.(field);
+%         end
+%     end
+%     trimDir = fullfile(outRoot, '..', sprintf('Release%d', r), 'L0', 'ADCP', [adcp_mooring_ID{adcp_ID} '_trimmed.mat']);
+%     fprintf('saving %s...\n', trimDir)
+%     save(trimDir, '-struct', "trim")
+% end
 
 % % Fetch Release times
 % disp('fetching data to fit release 1 times')
@@ -439,7 +464,7 @@ for ii= 1:Nf
     avg = struct('Time',t1(Ns:Ns:Ns*(N-1)),'Velocity_East',vb1(:,Ns:Ns:Ns*(N-1)),'Velocity_North',vb2(:,Ns:Ns:Ns*(N-1)),'Velocity_Up',vb3(:,Ns:Ns:Ns*(N-1)),'Velocity_Error',vb4(:,Ns:Ns:Ns*(N-1)),'Amplitude_Minimum',a(:,Ns:Ns:Ns*(N-1)),'Correlation_Minimum',c(:,Ns:Ns:Ns*(N-1)),'Heading',head(:,Ns:Ns:Ns*(N-1)),'Pitch',pitch(:,Ns:Ns:Ns*(N-1)),'Roll',pitch(:,Ns:Ns:Ns*(N-1)),'Pressure',P(Ns:Ns:Ns*(N-1)),'Temperature',T(Ns:Ns:Ns*(N-1)),'qcFlag',avgFlag(:,Ns:Ns:Ns*(N-1)),'HeadingOffset',in.HeadingOffset,'bin_mab',in.bin_mab);    
     %
     if echo_mode
-        avg(1).bin_mab_Echo=in.bin_mab_Echo
+        avg(1).bin_mab_Echo=in.bin_mab_Echo;
         avg(1).Echo1       =echo1(:,Ns:Ns:Ns*(N-1));
         avg(1).Echo2       =echo2(:,Ns:Ns:Ns*(N-1));
     end
@@ -911,53 +936,104 @@ function Data = fetch_sig1k(inputDir, startTime, endTime)
 
 files = dir([inputDir, '*.mat']);
 
+% fetch files
 for i = 1:length(files)
-    
+    % skip config and 5min avg
     if (~contains(files(i).name, 'config') && ~contains(files(i).name, 'min'))
         Times = load([files(i).folder, filesep, files(i).name], 'Time');
+        % find files with appropriate times
         if any((Times.Time >= datenum(startTime)) & Times.Time<= datenum(endTime))
+            fprintf('loading file %s...\n', files(i).name)
             Sig =  load([files(i).folder, filesep, files(i).name]);
+            % look for QC flag
+            fields = fieldnames(Sig);
+            for j = 1:length(fields)
+                    field = fields{j};
+             
+                if any(strcmp(fields, 'qcFlag'))
+                    % apply QC flag
+                    if contains(field, 'Velocity') && isequal(size(Sig.(field)), size(Sig.qcFlag))
+                        dum = Sig.(field);
+                        dum(~Sig.qcFlag) = NaN;
+                        Sig.(field) = dum;
+                    end
+                end
+                if ~exist('Data','var')
+                Data = struct();
+                end
+                
+                if ~isfield(Data, field)
+                    Data.(field) = Sig.(field);
+                elseif size(Sig.(field), 2) == size(Sig.Time, 2)
+                    Data.(field) = [Data.(field) Sig.(field)];
+                end
+            end
         end
     end
 end
-Data.Time = Sig.Time;
-Data.Velocity_East = Sig.Velocity_East';
-Data.Velocity_North = Sig.Velocity_North';
-Data.Velocity_Up = Sig.Velocity_Up';
-Data.Velocity_Beam1 = Sig.Velocity_Beam(:,:,1)';
-Data.Velocity_Beam2 = Sig.Velocity_Beam(:,:,2)';
-Data.Velocity_Beam3 = Sig.Velocity_Beam(:,:,3)';
 
-Data.Correlation_Minimum = min(Sig.Correlation_Beam(:,:,1)', min(Sig.Correlation_Beam(:,:,2)', Sig.Correlation_Beam(:,:,3)'));
-Data.Amplitude_Minimum = min(Sig.Amplitude_Beam(:,:,1)', min(Sig.Amplitude_Beam(:,:,2)', Sig.Amplitude_Beam(:,:,3)'));
-Data.Pressure = Sig.Pressure(2,:)';
-Data.Heading = Sig.Heading(:, :)';
-Data.Pitch = Sig.Pitch(:,:)';
-Data.Roll = Sig.Roll(:,:)';
+% Data.Time = Sig.Time;
+% Data.Velocity_East = Sig.Velocity_East';
+% Data.Velocity_North = Sig.Velocity_North';
+% Data.Velocity_Up = Sig.Velocity_Up';
+% Data.Velocity_Beam1 = Sig.Velocity_Beam(:,:,1)';
+% Data.Velocity_Beam2 = Sig.Velocity_Beam(:,:,2)';
+% Data.Velocity_Beam3 = Sig.Velocity_Beam(:,:,3)';
+% 
+% Data.Correlation_Minimum = min(Sig.Correlation_Beam(:,:,1)', min(Sig.Correlation_Beam(:,:,2)', Sig.Correlation_Beam(:,:,3)'));
+% Data.Amplitude_Minimum = min(Sig.Amplitude_Beam(:,:,1)', min(Sig.Amplitude_Beam(:,:,2)', Sig.Amplitude_Beam(:,:,3)'));
+% Data.Pressure = Sig.Pressure(2,:)';
+% Data.Heading = Sig.Heading(:, :)';
+% Data.Pitch = Sig.Pitch(:,:)';
+% Data.Roll = Sig.Roll(:,:)';
+% Data.bin_mab = Sig.Config;
+
+
 
 % Summary figure
 figure
-ax1 = subplot(3, 1, 1);
-plot(ax1, Data.Time, Data.Velocity_East, '.')
-ylabel({'East', 'Velocity, [m/s]'})
-set(gca, "Xtick", [])
+img = imagesc(datetime(Data.Time, 'convertfrom', 'datenum'), Data.bin_mab, Data.Velocity_East);
+mask = isnan(Data.Velocity_East);
+set(img, 'Alphadata', ~mask)
+set(gca, 'YDir', 'normal')
+cb = colorbar;
+ylabel('Meters above bottom')
+ylabel(cb, 'East Velocity, [m/s]', 'FontSize', 18)
 set(gca, 'fontsize', 18)
+clim([-0.1 0.1])
+colormap(cmocean('balance'))
 grid minor
 
-ax2 = subplot(3, 1, 2);
-plot(ax2, Data.Time, Data.Velocity_North, '.')
-ylabel({'North', 'Velocity, [m/s]'})
-set(gca, "Xtick", [])
+
+figure
+img = imagesc(datetime(Data.Time, 'convertfrom', 'datenum'), Data.bin_mab, Data.Velocity_North);
+mask = isnan(Data.Velocity_North);
+set(img, 'Alphadata', ~mask)
+set(gca, 'YDir', 'normal')
+cb = colorbar;
+ylabel('Meters above bottom')
+ylabel(cb, 'North Velocity, [m/s]', 'FontSize', 18)
 set(gca, 'fontsize', 18)
+clim([-0.1 0.1])
+colormap(cmocean('balance'))
 grid minor
 
-ax3 = subplot(3, 1, 3);
-plot(ax3, Data.Time, Data.Velocity_Up, '.')
-ylabel({'Up', 'Velocity, [m/s]'})
-datetick(gca,'x','mmm-dd HH:MM','keeplimits')
+
+figure
+img = imagesc(datetime(Data.Time, 'convertfrom', 'datenum'), Data.bin_mab, Data.Velocity_Up);
+mask = isnan(Data.Velocity_Up);
+set(img, 'Alphadata', ~mask)
+set(gca, 'YDir', 'normal')
+cb = colorbar;
+ylabel('Meters above bottom')
+ylabel(cb, 'Up Velocity, [m/s]', 'FontSize', 18)
 set(gca, 'fontsize', 18)
-linkaxes([ax1 ax2 ax3], 'x')
+clim([-0.1 0.1])
+colormap(cmocean('balance'))
 grid minor
 
-sgtitle('Sig1K L0 Velocities', 'Fontsize', 25)
+Data.Velocity_East = Data.Velocity_East';
+Data.Velocity_North = Data.Velocity_North';
+Data.Time = Data.Time';
+
 end

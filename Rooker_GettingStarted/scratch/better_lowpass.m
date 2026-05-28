@@ -5,7 +5,7 @@ close all
 
 %% User Input Data
 
-releasenum = 1; % Enter Release number here
+releasenum = 2; % Enter Release number here
 releasenum = string(releasenum);
 
 fc = 600; % Enter window length ( ~min period pass ) [ seconds ]
@@ -14,7 +14,7 @@ fc = 600; % Enter window length ( ~min period pass ) [ seconds ]
 %% Load Data
 
 % grab files
-filepath = ['../../../../Kelp_data/Summer2025/Rooker/Release' + releasenum + '/L0/*.mat'];
+filepath = ['../../../../Kelp_data/data/Release' + releasenum + '/L0/ADCP/*.mat'];
 files = dir(filepath);
 
 % take a look inside (0_o)
@@ -22,9 +22,11 @@ for i = 1:length(files)
     fname = [files(i).folder,filesep,files(i).name];
     obj = matfile(fname);
     CF = obj.Config;
-    SN = CF.SN;
+    SN = files(i).name(1:end-4);
     SN = matlab.lang.makeValidName(SN);
     tag = SN(1:3);
+    SN = strip(SN, '_');
+    tag = strip(tag, '_');
     fprintf('loading %s...\n', tag)
 
     % cant use data(i) because structs not exactly the same \fp
@@ -34,10 +36,15 @@ for i = 1:length(files)
     data.(tag).Config.binnum = 1:bins;
     
     % correct time
-    if i == 1
-        thresh = 100; % keeping the AQD nans just because theres so many data gaps and the correlations are good
-    else
+    %if strcmp(tag, 'AQD')
+     %   thresh = 100; % keeping the AQD nans just because theres so many data gaps and the correlations are good
+    %else
         thresh = 80;
+    %end
+
+    % not sure how the old configs for the M1/M2 came to be
+    if ~isfield(data.(tag).Config, "dt")
+    data.(tag).Config.dt = median(diff(data.(tag).Time)) * 86400;
     end
 
     [~, data.(tag).Velocity_East]  = correct_burst(data.(tag).Time, data.(tag).Velocity_East, 1/data.(tag).Config.dt);
@@ -112,12 +119,15 @@ for i = 1:length(files)
     ylabel('Smoothed')
     set(gca, 'FontSize', 18)
     
+
     % ehh
     linkaxes([ax1 ax2], 'x')
     sgtitle([tag, ' North'], 'fontsize', 22)
+    drawnow
 
+    % save or something
     savename = string(sprintf('%s_LPF_%dsec.mat', tag, fc));
-    savepath = fullfile(files(i).folder, 'LPF', savename);
+    savepath = fullfile(files(i).folder, '..', '..', 'L1', 'ADCP', savename);
     fprintf('saving %s\n', savename)
     S = LPF(i);
     save(savepath, '-struct', "S")
