@@ -35,12 +35,12 @@ for i = 1:length(files)
     bins = size(data.(tag).Velocity_East, 2);
     data.(tag).Config.binnum = 1:bins;
     
-    % correct time
-    %if strcmp(tag, 'AQD')
-     %   thresh = 100; % keeping the AQD nans just because theres so many data gaps and the correlations are good
-    %else
+    %correct time
+    if strcmp(tag, 'AQD')
+        thresh = 100; % keeping the AQD nans just because theres so many data gaps and the correlations are good
+    else
         thresh = 80;
-    %end
+    end
 
     % not sure how the old configs for the M1/M2 came to be
     if ~isfield(data.(tag).Config, "dt")

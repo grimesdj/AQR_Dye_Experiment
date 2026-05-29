@@ -6,9 +6,9 @@ addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment
 addpath /Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/code
 
 
-releasenum = 1; % Enter Release number here
+releasenum = 2; % Enter Release number here ( remember to change line 22 to HR for R1 and not HR for R23
 release = string(releasenum);
-unwrap = 1; % 1 for unwrap, 0 for not unwrap
+unwrap = 0; % 1 for unwrap, 0 for not unwrap
 
 atmTimes = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00'); ...
             datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
@@ -18,12 +18,12 @@ depTimes = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00'); ..
 
 
 % Enter input /directory/ and fileName root without file extension
-inputDir  = '../../../../Kelp_data/data/Release' + release + '/raw/';
-inputFile = 'KELP1_AquadoppHR';
-fileName  = [inputDir + inputFile];
+inputDir  = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'raw');
+inputFile = "KELP" + release + "_Aquadopp"; % maybe add something where it looks for the .hr2 file to see if its HR?
+fileName  = fullfile(inputDir, inputFile);
 % Enter raw output /directory/ and fileName without .mat
 outputDir = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'raw');
-outputName= [inputFile,'_raw'];
+outputName= inputFile + "_raw";
 % Enter processed output fileName without .mat
 L0Dir = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'L0', 'ADCP');
 L0Name  = 'AQD_ADCP';
