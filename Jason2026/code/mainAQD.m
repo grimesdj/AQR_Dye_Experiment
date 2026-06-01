@@ -1,4 +1,4 @@
-clear all
+cd clear all
 close all
 
 %% User Input Data

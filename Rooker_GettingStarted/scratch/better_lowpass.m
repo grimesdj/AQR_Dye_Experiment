@@ -144,8 +144,8 @@ function [y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt)
 % hamming_filter
 %     applies a low-pass filter to data using a hamming filter
 % 
-% USAGE: [y, fsd] = hamming_filter(t, x, wpass, fs, fig, ds)
-%        [y, fsd] = hamming_filter(x, wpass, fs);
+% USAGE: [y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt)
+%        [y, fsd, idx] = hamming_filter(x, wpass, fs);
 % 
 %     INPUTS:
 %             x         = vector data to be low-passed
@@ -153,13 +153,13 @@ function [y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt)
 %             fs        = original sampling rate (Hz) (defaults to 1 Hz)
 %             fig       = (optional) figure flag: 1 for figures, 0 for none (defaults to 0)
 %             ds        = (optional) downsample flag: 1 for downsampling, 0 for none (defaults to 1)
-%             nan_filts = (optional) NaN windows that are over a certain
+%             nan_filts = (optional) NaN any windows that are over a certain
 %                          percent of nans
 % 
 %     OUTPUTS:
 %             y     = filtered data vector
 %             fsd   = new sample rate (Hz)
-%             D     = Downsample factor
+%             idx     = Downsample indicies
 %             
 % 
 %             written by Jason Rooker, May 2026

@@ -11,31 +11,43 @@
 %       depTime = start and end times of deployment
 %       
 
+addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\code'
+
 
 clear all
 close all
+
+% Release number
+releasenum = 2; 
+release = string(releasenum);
+
+% Does the signal need to be unwrapped?
+unwrap = 0; % 1 for unwrap, 0 for not unwrap
+
+
+
+
 % Enter input /directory/ and fileName root without file extension
-inputDir  = '../../../../Kelp_data/data/Release2/raw';
-inputFile = 'KELP2_Vector';
+inputDir  = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'raw');
+inputFile = "KELP" + release + "_Vector";
 headingOffset = 331.4;% based on heading from AquodoppHR_KELP1
-fileName  = [inputDir,'/',inputFile];
+fileName  = fullfile(inputDir,inputFile);
 % Enter raw output /directory/ and fileName without .mat
-outputDir = '../../../../Kelp_data/Summer2025/Rooker/Release2/raw';
-outputName= [inputFile,'_raw'];
-outputFile= [outputDir, '/', outputName];
+outputDir = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'raw');
+outputName= inputFile + "_raw";
+outputFile= fullfile(outputDir, outputName);
 % Enter processed output fileName without .mat
-L0Dir   = '../../../../Kelp_data/Summer2025/Rooker/Release2/L0';
-L0Name  = [inputFile,'_L0'];
+L0Dir   = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'L0', 'ADCP');
+L0Name  = 'VEC_ADCP';
 % Enter path to save figures
-figDir = [inputDir,'/../figures'];
-if ~exist(figDir,'dir'), eval(['!mkdir -p ',figDir]), end
+figDir = fullfile(inputDir, '..', 'figures');
+if ~exist(figDir,'dir'), mkdir(figDir), end
 %
 % Enter time-period for estimating the atmospheric pressure offset and deployment
-Rnum = input('Release Number?');
-if Rnum == 1
+if releasenum == 1
     atmTime = [datenum('03-Jul-2024 17:30:00'), datenum('03-Jul-2024 18:10:00')];
     depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00')];
-elseif Rnum == 2
+elseif releasenum == 2
     atmTime = [datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
     depTime  = [datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
 end
@@ -50,20 +62,20 @@ disp('Loading raw data...')
 loadVEC(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime);
     
 disp('Generating L0 data...')
-L0_Vector(outputFile, L0Dir, L0Name);
+L0_Vector(outputFile, L0Dir, L0Name, unwrap, releasenum);
 
 %% Functions
 
 function loadVEC(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
 % 
 %   USAGE: loadVEC(inputDir, inputFile, fileName, outputFile, tos, depTime, atmTime)
-%       inputDir  = Directory where textfiles are
-%       inputFile = file root for AQD files
-%       fileName  = Directory and file root
-%       outputDir = Directory to save raw .mat
-%       atmTime   = [Datenum Datenum] in air
-%       depTime   = [Start_time , End_time] in water
-%       tos       = time offset for time zone correction
+%       inputDir   = Directory where textfiles are
+%       inputFile  = file root for AQD files
+%       fileName   = Directory and file root
+%       outputFile = File to save raw .mat
+%       atmTime    = [Datenum Datenum] in air
+%       depTime    = [Start_time , End_time] in water
+%       tos        = time offset for time zone correction
 
 %% load header data
 %% data for each field starts at column 39 or 40
@@ -101,8 +113,8 @@ while ~feof(fid);
     elseif strcmp(string, 'Nominal velocity range')
         i = strfind(value,'m/s');
         VRange = str2num(value(1:i-1));
-        disp('Nominal Velocity Range Seems to be in dm/s rather than m/s? -> dividing by 10')
-        VRange = VRange / 10;
+        % disp('Nominal Velocity Range Seems to be in dm/s rather than m/s? -> dividing by 10')
+        % VRange = VRange / 10;
     elseif strcmp(string,'Head frequency')
         i = strfind(value,'kHz');
         head_freq = str2num(value(1:i-1));
@@ -351,7 +363,7 @@ A.fname = fileName;
 
 
 disp('Saving raw data')
-save([outputFile,'.mat'],'-struct','A')
+save([outputFile + ".mat"],'-struct','A')
 %
 
 
@@ -393,7 +405,7 @@ end
 
 % EOF
 
-function L0_Vector(outputFile, L0Dir, L0Name)
+function L0_Vector(outputFile, L0Dir, L0Name, unwrap, releasenum)
 % 
 %   USAGE: L0_Vector(outputFile, L0Dir, L0Name)
 %       outputFile = folder path and filename (no extension) to raw data
@@ -403,14 +415,15 @@ function L0_Vector(outputFile, L0Dir, L0Name)
 %       takes raw Vector data and performs L0 QA/QC
 % 
 
-A = load([outputFile, '.mat']);
+A = load([outputFile + ".mat"]);
 % temporary addpath for testing :(
 addpath '/Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/Rooker_GettingStarted/code'
 %addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\Rooker_GettingStarted\code'
 
-fprintf('\n============================\n\nDo you want to unwrap beam Velocities?')
-unwrap = input('\n(1 = yes; 0 = no)');
+%fprintf('\n============================\n\nDo you want to unwrap beam Velocities?')
+%unwrap = input('\n(1 = yes; 0 = no)');
 if unwrap == 1
+    fprintf('unwrapping!')
     for beam = 1:3
         Vel = (sprintf('Velocity_Beam%d',beam));
         vwrap = reshape(A.(Vel), [], 24);
@@ -470,7 +483,12 @@ headcorrect = input('\n(1 = yes; 0 = no)');
 if headcorrect == 1
     %head = load(input('\nEnter path for correct heading:'));
     disp('Using AquaDopp HPR for now')
-    HPRfiles = dir([L0Dir, '/../raw/*AquadoppHR_raw.mat']);
+    if releasenum == 1
+        HPRDir = fullfile(L0Dir, '..', '..', 'raw', '*AquadoppHR_raw.mat');
+    elseif releasenum == 2
+        HPRDir = fullfile(L0Dir, '..', '..', 'raw', '*Aquadopp_raw.mat');
+    end
+    HPRfiles = dir(HPRDir);
     HPR = load(fullfile(HPRfiles(1).folder, HPRfiles(1).name));
     A = Vector_rotation(A, HPR);
 end
@@ -553,32 +571,33 @@ A.Velocity_Z = A.Velocity_Z.*A.qcFlag;
 
 %
 % add the config info to the structure A to quick save as netcdf4
-%fieldNames = fields(A.Config);
-%originalFields = fields(A);
-%
-%for j = 1:length(fieldNames)
-% A.(fieldNames{j}) = A.Config.(fieldNames{j});
-%end
-%A = orderfields(A,cat(1,fieldNames,originalFields));
-%ncfile = [L0Dir,'/',L0Name,'.nc'];
-%if exist(ncfile,'file')
-    %eval(['!rm ',ncfile])
-%end
-disp('skipping nc file for now')
-%struct2nc(A,ncfile,'NETCDF4');
+fieldNames = fields(A.Config);
+originalFields = fields(A);
+
+for j = 1:length(fieldNames)
+A.(fieldNames{j}) = A.Config.(fieldNames{j});
+end
+A = orderfields(A,cat(1,fieldNames,originalFields));
+ncfile = fullfile(L0Dir,L0Name + ".nc");
+if exist(ncfile,'file')
+    delete(ncfile)
+end
+
+struct2nc(A,ncfile,'NETCDF4');
 %
 %
 
 % Make the names match convention
-%A.Time = A.time;
-%A.Config = A.config;
-%A.Pressure = A.pressure;
+% A.Time = A.time;
+% A.Config = A.config;
+% A.Pressure = A.pressure;
 %A.Bins = A.dbins;
 % fieldsToKeep = {'Time', 'Velocity_East', 'Velocity_North', 'Velocity_Up', 'Velocity_X', 'Velocity_Y', 'Velocity_Z', 'Velocity_Beam1', 'Velocity_Beam2', 'Velocity_Beam3', 'Amplitude_Minimum', 'Correlation_Minimum', 'Config', 'Pressure','Heading', 'Pitch', 'Roll', 'Bins', 'Temperature', 'u1', 'u2', 'u3'};
 % L0 = rmfield(A, setdiff(fieldnames(A), fieldsToKeep));
 
 disp('Saving L0 data')
-save([L0Dir,'/',L0Name,'.mat'],'-struct','A')
+out = fullfile(L0Dir, L0Name + ".mat");
+save(out,'-struct','A')
 
 % Summary figure
 figure
@@ -616,13 +635,13 @@ function CorrectVec = Vector_rotation(Data, AQD)
 
 % what does rotation return? -> Vector data with updated Parameters
 
-Data.Heading = interp1(AQD.Time, AQD.Heading, Data.Time);
+Data.Heading = interp1(AQD.Time, AQD.heading, Data.Time);
 Data.Heading = Data.Heading(~isnan(Data.Heading));
 
-Data.Pitch = interp1(AQD.Time, AQD.Pitch, Data.Time);
+Data.Pitch = interp1(AQD.Time, AQD.pitch, Data.Time);
 Data.Pitch = Data.Pitch(~isnan(Data.Pitch));
 
-Data.Roll = interp1(AQD.Time, AQD.Roll, Data.Time);
+Data.Roll = interp1(AQD.Time, AQD.roll, Data.Time);
 Data.Roll = Data.Roll(~isnan(Data.Roll));
 
 Data.Velocity_East = Data.Velocity_X;
