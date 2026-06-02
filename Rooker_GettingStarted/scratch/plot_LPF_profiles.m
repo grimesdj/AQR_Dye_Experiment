@@ -1,7 +1,7 @@
 %% Plot Profiles
 
 clear all
-close all
+%close all
 
 % Load M1
 M1.ADCP = load('../../../../Kelp_data/data/Release2/L0/ADCP/M1_ADCP.mat');
@@ -17,7 +17,7 @@ depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00') ;
 
 
 %trim times
-M1.LPF.Time   = M1.ADCP.Time(M1.LPF.idx); % pls fix this in the LPF script omg
+%M1.LPF.Time   = M1.ADCP.Time(M1.LPF.idx); % pls fix this in the LPF script omg
 M1.LPF.valid  = M1.LPF.Time >= depTime(releasenum, 1) & M1.LPF.Time <= depTime(releasenum, 2);
 M1.ADCP.valid = M1.ADCP.Time >= depTime(releasenum, 1) & M1.ADCP.Time <= depTime(releasenum, 2);
 M1.Moor.valid = M1.Moor.Time >= depTime(releasenum, 1) & M1.Moor.Time <= depTime(releasenum, 2);
@@ -29,9 +29,11 @@ Vtime = M1.LPF.Time(M1.LPF.valid)';
 
 % some errors with the loading so lets fix that for now
 Temp_cont = M1.Moor.Temperature([2 3 4 5 7 8 9 10], M1.Moor.valid);
+%Temp_cont = M1.Moor.Temperature(2:end, M1.Moor.valid);
 %M1.Moor.Temperature_mab(1) = rms(M1.ADCP.maxRNG, 'all')-M1.Moor.Temperature_mab(1);
 %Temp_cont(6, :) = nan;
 Temp_mab = M1.Moor.Temperature_mab([2 3 4 5 7 8 9 10]);
+%Temp_mab = M1.Moor.Temperature_mab(2:end);
 
 
 % smooth temp??
@@ -140,15 +142,36 @@ M = round(L/8);
 window = hann(M);
 noverlap = M/2;
 
-K = (L-noverlap)/(M-noverlap);
-C95 = 1 - 0.05^(1/(K-1)); 
 
+% coherence
 [Cxy, f] = mscohere(T_ds(10,:), N_ds(10,:), window, noverlap, [], 1/dt);
+
+% 95% confidence
+alpha = 0.05;
+T = 1./(f * 60 * 60);
+K = floor((L - noverlap) / (M - noverlap));
+nu = 1.5 * 2 * K; 
+Ccrit = 1 - alpha^(1/(nu - 1));
+
+
 % add period?
 figure
-coh = semilogx(f, Cxy, 'k', 'LineWidth',2);
-hold on
-yline(C95, 'r--', 'LineWidth', 1.5, 'Label', '$C_{95}$', 'Interpreter','latex', 'FontSize', 18)
+coh = plot(f, Cxy, 'k', 'LineWidth',2);
+%set(gca, 'XDir', 'reverse')
+set(gca, 'XScale', 'log')
+%set(gca, 'XTick', [0.25 0.5 1 3 6 12 24])
+%xlabel('Period [hours]')
+ylabel('Coherence')
+yline(Ccrit, 'r--', 'Label', '95% Confidence', 'LineWidth', 2, 'LabelHorizontalAlignment', 'left', 'FontSize', 18)
+set(gca, "FontSize", 20)
+%ylim([0 1])
+%xlim([0.15 25])
 grid on
-%coh.XAxis.
 
+
+
+% for i = 2:length(bin_mab);
+%     [Cxy, f] = mscohere(T_ds(i,:), N_ds(i,:), window, noverlap, [], 1/dt);
+%     hold on
+%     plot(f, Cxy, 'DisplayName', sprintf('Bin #%d', i))
+% end

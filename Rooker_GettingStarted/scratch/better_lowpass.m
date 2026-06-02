@@ -52,10 +52,12 @@ for i = 1:length(files)
 
     % make smoothie
     fprintf('Smoothing %s\n', tag)
-    [LPF(i).Velocity_East, LPF(i).fsd, LPF(i).idx] = hamming_filter(data.(tag).Velocity_East, 1/fc, 1/data.(tag).Config.dt, 1, 1, thresh);
-    LPF(i).Velocity_North = hamming_filter(data.(tag).Velocity_North, 1/fc, 1/data.(tag).Config.dt, 1, 1, thresh);
+    [LPF(i).Velocity_East, LPF(i).fsd, LPF(i).idx] = hamming_filter(data.(tag).Velocity_East, 1/fc, 1/data.(tag).Config.dt, 0, 1, thresh);
+    LPF(i).Velocity_North = hamming_filter(data.(tag).Velocity_North, 1/fc, 1/data.(tag).Config.dt, 0, 1, thresh);
     fprintf('done!\n')
 
+    % add corrected and downsampled time to structure
+    LPF(i).Time = data.(tag).Time(LPF(i).idx);
     %% East
     
     % O. G.
