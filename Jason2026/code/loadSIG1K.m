@@ -1,27 +1,13 @@
-function A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
-
-% 
-% 
-%   USAGE: A = load_and_process_sig1000_to_RDI_matrix_format_function(Config, rootDIR, fRoot, L0dir, filePrefix, hab, echo_mode, deployTime, recoverTime, HeadingOffset)
-%       Config          = Structure with instrument configuration data
-%       rootDIR         = directory for raw sig1K .mat file
-%       fRoot           = root of file name for raw sig1K .mat file
-%       L0dir           = Directory to save L0 data
-%       filePrefix      = L0 file root
-%       hab             = Instrument Height Above Bottom (m)
-%       echo_mode       = (logical) Echo Mode status (0 == off)
-%       deployTime      = time the instrument was deployed
-%       recoverTime     = time the instrument was recovered
-%       HeadingOffset   = Heading declination in nautical degrees
-%       
-% 
+function loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime)
 
 files = dir([rootDIR,filesep,fRoot,'*.mat']);
 Nf    = length(files);
 %
+Config.ATM_Time = ATM_Time;
+Config.ATM_Pressure=ATM_Pressure;
 %
 % average the start/end pressures
-ATM_Pressure = mean(Config.ATM_Pressure);
+ATM_Pressure = mean(ATM_Pressure);
 %
 % get bin sizing etc for currents
 blnk = Config.Burst_BlankingDistance;
@@ -37,19 +23,17 @@ NcE  = double(Config.EchoSounder_NCells);
 mabE = hab+blnkE+binwE.*[1:NcE]';
 end
 %
-%save the config info
+% save the config info
 outFile = [L0dir, filePrefix, 'config.mat'];
 if ~exist(L0dir,'dir')
     eval(['!mkdir ',L0dir])
 end
-save(outFile,'Config')
-% outFile = [L0dir, filePrefix, 'config.nc'];
-% if exist(outFile,'file')
-%     eval(['!rm ', outFile])
-% end
-%struct2nc(Config,outFile,'NETCDF4')
-
-
+save(outFile,'Config','Descriptions')
+outFile = [L0dir, filePrefix, 'config.nc'];
+if exist(outFile,'file')
+    eval(['!rm ', outFile])
+end
+struct2nc(Config,outFile,'NETCDF4')
 %
 % limit archive file to 24hr length
 maxDuration = 24*3600;
@@ -67,9 +51,6 @@ loadFlag = 1;
 ii = 0;
 outNf = 0;
 fprintf('\n \n')
-
-
-
 while ii<=Nf
     %
     if loadFlag
@@ -149,16 +130,13 @@ while ii<=Nf
     out.Velocity_North   (1:Nc,N+1:N+(ie-(is-1)))  = permute(Data.Burst_Velocity_ENU(is:ie,2,1:Nc),[3,1,2]);
     out.Velocity_Up      (1:Nc,N+1:N+(ie-(is-1)))  = permute(Data.Burst_Velocity_ENU(is:ie,3,1:Nc),[3,1,2]);
     out.Velocity_Error   (1:Nc,N+1:N+(ie-(is-1)))  = permute(Data.Burst_Velocity_ENU(is:ie,4,1:Nc),[3,1,2]);
-    out.AST              (1,N+1:N+(ie-(is-1)))     = Data.Burst_AltimeterDistanceAST(is:ie,1);
-    out.AST_Offset       (1,N+1:N+(ie-(is-1)))     = Data.Burst_AltimeterTimeOffsetAST(is:ie,1);
-
     if echo_mode
     out.Echo1            (1:NcE,N+1:N+(ie-(is-1))) = Data.Echo1Bin1_1000kHz_Echo(is:ie,1:NcE)';
     out.Echo2            (1:NcE,N+1:N+(ie-(is-1))) = Data.Echo2Bin1_1000kHz_Echo(is:ie,1:NcE)';
     end
     %
     N = N+ie-(is-1);
-    is = ie+1;
+    is= ie+1;
     %
     if N==Nmax || (ii==Nf & loadFlag)
         % process data
@@ -177,48 +155,28 @@ while ii<=Nf
 % $$$         [out,Config2,beam2xyz] = beam2earth_sig1000_DG_FRFcoords(out,Config,'');        
         out.HeadingOffset = HeadingOffset;
 % $$$         out.beam2xyz = beam2xyz;
-        A = out;
+        %
         % save output
-         outNf = outNf+1;
-         outFileName = sprintf([filePrefix,'%03d.mat'],outNf);
-         fout  = [L0dir,outFileName];
-         fprintf(['saving output file:   %s \n'],outFileName)
-         save(fout,'-struct','out')
-%         outFileName = sprintf([filePrefix,'%03d.nc'],outNf);
- %        fout = [L0dir,outFileName];
-  %       if exist(fout,'file')
-   %         eval(['!rm ', outFileName])
-    %     end
-%         struct2nc(out,outFileName,'NETCDF4')
-%         %
-         N = 0;
-%         %
-         if (ii==Nf & loadFlag )
-         fprintf('done! \n')
-         break
-         end
+        outNf = outNf+1;
+        outFileName = sprintf([filePrefix,'%03d.mat'],outNf);
+        fout  = [L0dir,outFileName];
+        fprintf(['saving output file:   %s \n'],outFileName)
+        save(fout,'-struct','out')
+        outFileName = sprintf([filePrefix,'%03d.nc'],outNf);
+        fout = [L0dir,outFileName];
+        if exist(fout,'file')
+            eval(['!rm ', outFileName])
+        end
+        struct2nc(out,outFileName,'NETCDF4')
+        %
+        N = 0;
+        %
+        if (ii==Nf & loadFlag )
+        fprintf('done! \n')
+        break
+        end
     end
     %
     %
 end
-
-
-% Summary figure
-figure
-ax1 = subplot(2, 1, 1);
-plot(ax1, A.Time, A.Velocity_East, 'b.')
-ylabel({'East', 'Velocity, [m/s]'})
-set(gca, "Xtick", [])
-set(gca, 'fontsize', 18)
-
-ax2 = subplot(2, 1, 2);
-plot(ax2, A.Time, A.Velocity_North, 'r.')
-ylabel({'North', 'Velocity, [m/s]'})
-datetick(gca,'x','mmm-dd HH:MM','keeplimits')
-set(gca, 'fontsize', 18)
-linkaxes([ax1 ax2], 'x')
-
-sgtitle('SIG1K Raw East and North Velocities', 'Fontsize', 25)
-
-
 end

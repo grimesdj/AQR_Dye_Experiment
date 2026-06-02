@@ -12,10 +12,10 @@ function struct2nc(x,ncfile,ncfiletype,deflate_lev)
 % also only handles scalar, 1D, 2D, and 3D arrays currently, although
 % this could easily be extended.
 
-if nargin==2,
+if nargin==2
     ncfiletype='classic';
     deflate_lev=0;
-elseif nargin==3;
+elseif nargin==3
     switch ncfiletype
         case {'netcdf4','netcdf4_classic'}
             deflate_lev=6;

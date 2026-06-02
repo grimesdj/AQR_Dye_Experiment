@@ -18,7 +18,7 @@ ii=1:Ns;
 win=hanning(Ns);
 win=repmat(win,[1 sd(2)]);
 %
-if iseven(Ns)
+if ~mod(Ns, 2)
     inyq = 1;% don't double the nyquist frequency
     stop = Ns/2+1;
 else

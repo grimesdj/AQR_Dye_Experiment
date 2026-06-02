@@ -1,6 +1,3 @@
-
-
-
 function Data = fetch_sig1k(inputDir, startTime, endTime)
 %%
 % 
@@ -39,4 +36,30 @@ Data.Pressure = Sig.Pressure(2,:)';
 Data.Heading = Sig.Heading(:, :)';
 Data.Pitch = Sig.Pitch(:,:)';
 Data.Roll = Sig.Roll(:,:)';
+
+% Summary figure
+figure
+ax1 = subplot(3, 1, 1);
+plot(ax1, Data.Time, Data.Velocity_East, '.')
+ylabel({'East', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+
+ax2 = subplot(3, 1, 2);
+plot(ax2, Data.Time, Data.Velocity_North, '.')
+ylabel({'North', 'Velocity, [m/s]'})
+set(gca, "Xtick", [])
+set(gca, 'fontsize', 18)
+grid minor
+
+ax3 = subplot(3, 1, 3);
+plot(ax3, Data.Time, Data.Velocity_Up, '.')
+ylabel({'Up', 'Velocity, [m/s]'})
+datetick(gca,'x','mmm-dd HH:MM','keeplimits')
+set(gca, 'fontsize', 18)
+linkaxes([ax1 ax2 ax3], 'x')
+grid minor
+
+sgtitle('Sig1K L0 Velocities', 'Fontsize', 25)
 end

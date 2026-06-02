@@ -1,4 +1,4 @@
-cd clear all
+clear all
 close all
 
 %% User Input Data
@@ -6,9 +6,9 @@ addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment
 addpath /Users/jasonrooker/Library/CloudStorage/OneDrive-UNC-Wilmington/Kelp_repo/AQR_Dye_Experiment/code
 
 
-releasenum = 2; % Enter Release number here ( remember to change line 22 to HR for R1 and not HR for R23
+releasenum = 1; % Enter Release number here ( remember to change line 22 to HR for R1 and not HR for R23
 release = string(releasenum);
-unwrap = 0; % 1 for unwrap, 0 for not unwrap
+unwrap = 1; % 1 for unwrap, 0 for not unwrap
 
 atmTimes = [datenum('03-Jul-2024 14:00:00'), datenum('03-Jul-2024 18:00:00'); ...
             datenum('08-Jul-2024 16:00:00'), datenum('08-Jul-2024 16:30:00')];
@@ -19,7 +19,7 @@ depTimes = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00'); ..
 
 % Enter input /directory/ and fileName root without file extension
 inputDir  = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'raw');
-inputFile = "KELP" + release + "_Aquadopp"; % maybe add something where it looks for the .hr2 file to see if its HR?
+inputFile = "KELP" + release + "_AquadoppHR"; % maybe add something where it looks for the .hr2 file to see if its HR?
 fileName  = fullfile(inputDir, inputFile);
 % Enter raw output /directory/ and fileName without .mat
 outputDir = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', "Release" + release, 'raw');
@@ -87,7 +87,7 @@ ylims      = [0 min(max(A.maxRange),max(A.dbins))];
 dum1       = A.maxRange.*ones(1,A.Config.Nbins);
 dum2       = ones(nsamples,1)*A.dbins;
 qcFlag0    =  (dum2<=dum1);
-A.qcFlag   =  double( (dum2<=dum1) & min(A.Amplitude_Beam1,min(A.Amplitude_Beam2,A.Amplitude_Beam3))>75 & min(A.Correlation_Beam1,min(A.Correlation_Beam2,A.Correlation_Beam3))>30 );
+A.qcFlag   =  double( (dum2<=dum1) & min(A.Amplitude_Beam1,min(A.Amplitude_Beam2,A.Amplitude_Beam3))>20 & min(A.Correlation_Beam1,min(A.Correlation_Beam2,A.Correlation_Beam3))>40 );
 %
 time = datetime(A.Time,'convertFrom','datenum');
 
@@ -146,34 +146,34 @@ end
 %% QA/QC
 %
 % use acceleration and jolt to filter bad data
-u1   = A.Velocity_Beam1;
-d1   = gradient(u1)/A.Config.dt;
-dd1  = gradient(d1)/A.Config.dt;
-u2   = A.Velocity_Beam2;
-d2   = gradient(u2)/A.Config.dt;
-dd2  = gradient(d2)/A.Config.dt;
-u3   = A.Velocity_Beam3;
-d3   = gradient(u3)/A.Config.dt;
-dd3  = gradient(d3)/A.Config.dt;
-%
-r01  =  nanstd(u1(:));
-r02  =  nanstd(u2(:));
-r03  =  nanstd(u3(:));
-R0   = (u1./r01).^2 + (u2./r02).^2 + (u3./r03).^2;
-%
-r11  = nanstd(d1(:));
-r12  = nanstd(d2(:));
-r13  = nanstd(d3(:));
-R1   = (d1./r11).^2 + (d2./r12).^2 + (d3./r13).^2;
-%
-r21  = nanstd(dd1(:));
-r22  = nanstd(dd2(:));
-r23  = nanstd(dd3(:));
-R2   = (dd1./r21).^2 + (dd2./r22).^2 + (dd3./r23).^2;
-%
-valid = (R0<0.5);% & (R1<5) & (R2<10);
-A.qcFlag = A.qcFlag & valid;
-%
+% u1   = A.Velocity_Beam1;
+% d1   = gradient(u1)/A.Config.dt;
+% dd1  = gradient(d1)/A.Config.dt;
+% u2   = A.Velocity_Beam2;
+% d2   = gradient(u2)/A.Config.dt;
+% dd2  = gradient(d2)/A.Config.dt;
+% u3   = A.Velocity_Beam3;
+% d3   = gradient(u3)/A.Config.dt;
+% dd3  = gradient(d3)/A.Config.dt;
+% %
+% r01  =  nanstd(u1(:));
+% r02  =  nanstd(u2(:));
+% r03  =  nanstd(u3(:));
+% R0   = (u1./r01).^2 + (u2./r02).^2 + (u3./r03).^2;
+% %
+% r11  = nanstd(d1(:));
+% r12  = nanstd(d2(:));
+% r13  = nanstd(d3(:));
+% R1   = (d1./r11).^2 + (d2./r12).^2 + (d3./r13).^2;
+% %
+% r21  = nanstd(dd1(:));
+% r22  = nanstd(dd2(:));
+% r23  = nanstd(dd3(:));
+% R2   = (dd1./r21).^2 + (dd2./r22).^2 + (dd3./r23).^2;
+% %
+% valid = (R0<0.5);% & (R1<5) & (R2<10);
+% A.qcFlag = A.qcFlag & valid;
+% %
 % make a few quick plots
 fig0 = figure;
 ax1 = subplot(2,1,1);
