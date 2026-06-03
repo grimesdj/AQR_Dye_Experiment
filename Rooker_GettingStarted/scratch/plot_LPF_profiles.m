@@ -1,7 +1,7 @@
 %% Plot Profiles
 
 clear all
-%close all
+close all
 
 % Load M1
 M1.ADCP = load('../../../../Kelp_data/data/Release2/L0/ADCP/M1_ADCP.mat');
@@ -44,7 +44,7 @@ Temp = Temp';
 
 
 % plot
-figure
+Temp_Vel = figure;
 img = imagesc(Vtime, M1.ADCP.bin_mab, North);
 set(img, 'AlphaData', ~isnan(North))
 set(gca, 'YDir', 'normal')
@@ -120,16 +120,33 @@ xlabel('Tempurature $^{\circ}$C', 'Interpreter','latex')
 ylabel('North Velocity [m/s]')
 set(gca, 'FontSize', 18)
 
-T_norm = T ./ std(T, [], 'all');
-N_norm = N ./ std(N, [], 'all');
+T_bin = T(10, :);
+N_bin = N(10, :);
 
-figure
+T_norm = T_bin ./ std(T_bin, [], 'all');
+N_norm = N_bin ./ std(N_bin, [], 'all');
+
+corrs = figure;
 scatter(T_norm, N_norm, 'black', 'filled')
 xlabel('Normalized Temperature')
 ylabel('Normalized North Velocity')
 set(gca, "FontSize", 18)
 grid on
 axis equal
+
+
+% Pearson
+coef = corrcoef(T_bin,N_bin);
+Pear = coef(2);
+
+% cross-cor
+[r, lags] = xcorr(T_bin, N_bin, 'coeff');
+[rmax, idx] = max(abs(r));
+
+hold on
+text(6, 4, sprintf('r = %.3f', Pear), 'FontSize', 18, 'BackgroundColor', 'white', 'EdgeColor', 'red')
+text(6, 3, sprintf('r_x = %.3f', rmax), 'FontSize', 18, 'BackgroundColor', 'white', 'EdgeColor', 'red')
+
 
 
 dt = median(diff(Vtime)) * 86400;
@@ -148,26 +165,33 @@ noverlap = M/2;
 
 % 95% confidence
 alpha = 0.05;
-T = 1./(f * 60 * 60);
+T_s = 1./(f * 60 * 60);
+T_s(isinf(T_s)) = 999;
 K = floor((L - noverlap) / (M - noverlap));
 nu = 1.5 * 2 * K; 
 Ccrit = 1 - alpha^(1/(nu - 1));
 
 
 % add period?
-figure
-coh = plot(f, Cxy, 'k', 'LineWidth',2);
-%set(gca, 'XDir', 'reverse')
+coh_fig = figure;
+coh = plot(T_s, Cxy, 'k', 'LineWidth',2);
+set(gca, 'XDir', 'reverse')
 set(gca, 'XScale', 'log')
-%set(gca, 'XTick', [0.25 0.5 1 3 6 12 24])
-%xlabel('Period [hours]')
-ylabel('Coherence')
+set(gca, 'XTick', [0.25 0.5 1 3 6 12 24])
+xlabel('Period [hours]')
+ylabel('Coherence, $T$ vs $U$', 'Interpreter', 'latex')
 yline(Ccrit, 'r--', 'Label', '95% Confidence', 'LineWidth', 2, 'LabelHorizontalAlignment', 'left', 'FontSize', 18)
 set(gca, "FontSize", 20)
 %ylim([0 1])
-%xlim([0.15 25])
+xlim([0.25 25])
 grid on
 
+% find and mark peaks
+[pks, locs, w, p] = findpeaks(flipud(Cxy), flipud(T_s));
+pidx = find(p > 1.5 * Ccrit);
+hold on
+plot(locs(pidx), pks(pidx), 'rs', 'LineWidth', 2)
+text(locs(pidx) - locs(pidx)/15, pks(pidx) + 0.01, compose('%.2f hrs', locs(pidx)), 'FontSize', 18)
 
 
 % for i = 2:length(bin_mab);
@@ -175,3 +199,10 @@ grid on
 %     hold on
 %     plot(f, Cxy, 'DisplayName', sprintf('Bin #%d', i))
 % end
+
+
+
+%% Figures
+print(Temp_Vel, '../Presentations/06052026/figures/Temp_Vel', '-dpng')
+print(corrs, '../Presentations/06052026/figures/corrs', '-dpng')
+print(coh_fig, '../Presentations/06052026/figures/coh_fig', '-dpng')
