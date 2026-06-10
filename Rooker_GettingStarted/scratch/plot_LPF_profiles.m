@@ -27,12 +27,13 @@ North = M1.LPF.Velocity_North';
 North = North(:,M1.LPF.valid);
 Vtime = M1.LPF.Time(M1.LPF.valid)';
 
+
 % some errors with the loading so lets fix that for now
 Temp_cont = M1.Moor.Temperature([2 3 4 5 7 8 9 10], M1.Moor.valid);
 %Temp_cont = M1.Moor.Temperature(2:end, M1.Moor.valid);
 %M1.Moor.Temperature_mab(1) = rms(M1.ADCP.maxRNG, 'all')-M1.Moor.Temperature_mab(1);
 %Temp_cont(6, :) = nan;
-Temp_mab = M1.Moor.Temperature_mab([2 3 4 5 7 8 9 10]);
+Temp_mab = M1.Moor.Temperature_mab([2 3 4 5 6 7 8 10]);
 %Temp_mab = M1.Moor.Temperature_mab(2:end);
 
 

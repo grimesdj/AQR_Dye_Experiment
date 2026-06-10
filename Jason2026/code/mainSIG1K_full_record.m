@@ -3,12 +3,6 @@ close all
 
 %% User Input Data
 
-% addpath for struct2nc because it fails as an internal function?
-addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\code'
-
-
-releasenum = 1; % Enter Release number here
-releasenum = string(releasenum);
 
 % stages of processing
 % 1) define deployment number:
@@ -27,7 +21,7 @@ outRoot = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_
 filePrefix= sprintf('ADCP_%s_',adcp_mooring_ID{adcp_ID});
 %
 % 4a) current/echo average interval (seconds)
-dtAvg     = 600;
+dtAvg     = 300;
 L0dir     = [outRoot, filesep, adcp_mooring_ID{adcp_ID},filesep,'L0',filesep,'ADCP',filesep];
 L0FRoot   = sprintf('%sL0_%dmin',filePrefix,dtAvg/60);
 L1dir     = [outRoot, filesep, adcp_mooring_ID{adcp_ID},filesep,'L1',filesep,'ADCP',filesep];
@@ -79,24 +73,25 @@ fprintf('loading %s data\n', adcp_mooring_ID{adcp_ID})
 %
 % make time-averages
 fprintf('time averaging %s\n', adcp_mooring_ID{adcp_ID})
-time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix, dtAvg, echo_mode, L0FRoot)
+%time_average_and_rotate_sig1000_RDI_matrix_format_function(Config, L0dir, filePrefix, dtAvg, echo_mode, L0FRoot)
 %
 % estimate hourly wave stats
 fprintf('estimating wave stats for %s\n', adcp_mooring_ID{adcp_ID})
-waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(Config, L0dir, filePrefix, L0FRoot, hab, L1dir, L1FRoot);
+%waves = estimate_wave_bulk_stats_SIG1000_RDI_matrix_format_function(Config, L0dir, filePrefix, L0FRoot, hab, L1dir, L1FRoot);
+
 
 %
 %
-fig = figure;
-imagesc(datetime(waves.Time','convertFrom','datenum'),waves.frequency,log10(waves.Spp)),colormap(cmocean('thermal')),caxis([-2 1])
-ylabel('$f$ [Hz]','interpreter','latex')
-cb = colorbar;
-ylabel(cb,'[m$^2$/Hz]','interpreter','latex')
-ax = gca;
-set(ax,'ydir','normal','ticklabelinterpreter','latex','tickdir','out','plotboxaspectratio',[1.5 1 1])
-figname = sprintf('%s/figures/%s_spectra.pdf',L1dir,L1FRoot);
-exportgraphics(fig,figname)
-% 
+% fig = figure;
+% imagesc(datetime(waves.Time','convertFrom','datenum'),waves.frequency,log10(waves.Spp)),colormap(cmocean('thermal')),caxis([-2 1])
+% ylabel('$f$ [Hz]','interpreter','latex')
+% cb = colorbar;
+% ylabel(cb,'[m$^2$/Hz]','interpreter','latex')
+% ax = gca;
+% set(ax,'ydir','normal','ticklabelinterpreter','latex','tickdir','out','plotboxaspectratio',[1.5 1 1])
+% figname = sprintf('%s/figures/%s_spectra.pdf',L1dir,L1FRoot);
+% exportgraphics(fig,figname)
+% % 
 
 
 
@@ -105,25 +100,20 @@ exportgraphics(fig,figname)
 % %% Release specific times
 
 
-fprintf('compiling release times\n')
-depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00') ;
-            datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
+fprintf('compiling entire record\n')
 
-for r = 1:size(depTime, 1)
-    fprintf('fetching release %d\n', r)
-    R = fetch_sig1k(L0dir, depTime(r, 1), depTime(r, 2));
+R = fetch_sig1k(L0dir, deployTime, recoverTime);
 
-    cfgFile = dir(fullfile(L0dir, '*config.mat'));
+cfgFile = dir(fullfile(L0dir, '*config.mat'));
 
-    if isempty(cfgFile)
-        error('No config file found in %s', L0dir);
-    end
-    
-    cFig = load(fullfile(cfgFile(1).folder, cfgFile(1).name));
-    R.Config = cFig;
-    fprintf('saving %s...\n',  "/Release" + r + '/L0/ADCP/', adcp_mooring_ID(adcp_ID) + "_ADCP.mat")
-    save(fullfile(outRoot, '..', "Release" + r, 'L0', 'ADCP', adcp_mooring_ID(adcp_ID) + "_ADCP.mat"), '-struct', 'R')
+if isempty(cfgFile)
+    error('No config file found in %s', L0dir);
 end
+
+cFig = load(fullfile(cfgFile(1).folder, cfgFile(1).name));
+R.Config = cFig;
+fprintf('saving %s...\n',  fullfile(L0dir, filePrefix + "FullRecord"))
+save(fullfile(L0dir, filePrefix + "FullRecord"), '-struct', 'R')
 
 
 
@@ -321,7 +311,7 @@ while ii<=Nf
         minC  = min( out.Correlation_Beam, [], 3);%min( cat(3,out.CorBeam1, out.CorBeam2, out.CorBeam3, out.CorBeam4),[], 3);
         minA  = min( out.Amplitude_Beam  , [], 3);  %cat(3,out.CorBeam1, out.CorBeam2, out.CorBeam3, out.CorBeam4),[], 3);
         maxRNG= out.Pressure(2,:)*cosd(25)-2*binw;
-        qcFlag= (minC>50 & minA>30 & maxRNG-0.2>mab);
+        qcFlag= (minC>50 & minA>30 & maxRNG-0.5>mab);
         %
         out.Correlation_Minimum = minC;
         out.Amplitude_Minimum = minA;
@@ -399,23 +389,6 @@ for ii= 1:Nf
             in.(fieldNames{jj}) = echo.(fieldNames{jj});
         end
     end
-
-    % correct any time gaps
-    struct_fieldnames = fields(in);
-    for fieldnum = 1:length(struct_fieldnames)
-        sff = struct_fieldnames{fieldnum};
-        if strcmp(sff, 'Time')
-            continue
-        else
-            dum = in.(sff);
-            if length(dum) == length(in.Time)
-                [t_fix, x_fix] = correct_burst(in.Time, dum);
-                in.(sff) = x_fix;
-            end
-        end
-        in.Time = t_fix;
-    end
-        
     %
     if ii==1
         % no padding
@@ -480,7 +453,7 @@ for ii= 1:Nf
     end
     %
     %
-    avg = struct('Time',t1(Ns:Ns:Ns*(N-1)),'Velocity_East',vb1(:,Ns:Ns:Ns*(N-1)),'Velocity_North',vb2(:,Ns:Ns:Ns*(N-1)),'Velocity_Up',vb3(:,Ns:Ns:Ns*(N-1)),'Velocity_Error',vb4(:,Ns:Ns:Ns*(N-1)),'Amplitude_Minimum',a(:,Ns:Ns:Ns*(N-1)),'Correlation_Minimum',c(:,Ns:Ns:Ns*(N-1)),'Heading',head(:,Ns:Ns:Ns*(N-1)),'Pitch',pitch(:,Ns:Ns:Ns*(N-1)),'Roll',roll(:,Ns:Ns:Ns*(N-1)),'Pressure',P(Ns:Ns:Ns*(N-1)),'Temperature',T(Ns:Ns:Ns*(N-1)),'qcFlag',avgFlag(:,Ns:Ns:Ns*(N-1)),'HeadingOffset',in.HeadingOffset,'bin_mab',in.bin_mab);    
+    avg = struct('Time',t1(Ns:Ns:Ns*(N-1)),'Velocity_East',vb1(:,Ns:Ns:Ns*(N-1)),'Velocity_North',vb2(:,Ns:Ns:Ns*(N-1)),'Velocity_Up',vb3(:,Ns:Ns:Ns*(N-1)),'Velocity_Error',vb4(:,Ns:Ns:Ns*(N-1)),'Amplitude_Minimum',a(:,Ns:Ns:Ns*(N-1)),'Correlation_Minimum',c(:,Ns:Ns:Ns*(N-1)),'Heading',head(:,Ns:Ns:Ns*(N-1)),'Pitch',pitch(:,Ns:Ns:Ns*(N-1)),'Roll',pitch(:,Ns:Ns:Ns*(N-1)),'Pressure',P(Ns:Ns:Ns*(N-1)),'Temperature',T(Ns:Ns:Ns*(N-1)),'qcFlag',avgFlag(:,Ns:Ns:Ns*(N-1)),'HeadingOffset',in.HeadingOffset,'bin_mab',in.bin_mab);    
     %
     if echo_mode
         avg(1).bin_mab_Echo=in.bin_mab_Echo;
@@ -1056,132 +1029,3 @@ Data.Velocity_North = Data.Velocity_North';
 Data.Time = Data.Time';
 
 end
-
-
-
-% function struct2nc(x,ncfile,ncfiletype,deflate_lev)
-% % STRUCT2NC writes all float,double and character vars to netcdf
-% % Usage: struct2nc(x,ncfile,[ncfiletype],[deflate_lev])
-% % x = structure
-% % ncfile = name of netcdf output file (e.g. 'test.nc')
-% % ncfiletype = netcdf file type (e.g. 'classic','netcdf4_classic')
-% % deflate_lev = deflate level (0-9, 0 is none)
-% %
-% % This function writes all 'double','single' and 'char' variables
-% % to NetCDF using the native Matlab NetCDF interface.  It skips all
-% % other classes in the struct (e.g. structs, cell arrays, etc).  It
-% % also only handles scalar, 1D, 2D, and 3D arrays currently, although
-% % this could easily be extended.
-% 
-% if nargin==2
-%     ncfiletype='classic';
-%     deflate_lev=0;
-% elseif nargin==3
-%     switch ncfiletype
-%         case {'netcdf4','netcdf4_classic'}
-%             deflate_lev=6;
-%         otherwise
-%             deflate_lev=0;
-%     end
-% end
-% 
-% % Remove old output file
-% if exist(ncfile,'file')
-%     delete(ncfile)
-% end
-% 
-% s      = fieldnames(x);
-% layers = length(x);
-% k=0;
-% % create variables first, but don't write data
-% for l=1:layers
-%     for i=1:length(s)
-%         vname=char(s(i));
-%         if l>1
-%            uname=[vname,num2str(l-1)];
-%         else
-%            uname=vname;
-%         end
-%             var   =x(l).(vname);
-%             vtype = class(var);
-%             vshape= size(var);
-%             ndims = length(vshape);
-%             vlen  = length(var(:));
-%             if sum(vshape)==0
-%                 continue
-%             end
-%     switch vtype;
-%       case {'double','single','int32','uint8','uint64','logical'},
-%         if strcmp(vtype,'logical')
-%             x(l).(vname) = double(x(l).(vname));
-%             vtype = 'double';
-%         end
-%             if vlen==1,
-%                 nccreate(ncfile,uname,...
-%                     'Datatype',vtype,'format',ncfiletype);
-%                 k=k+1;
-%                 vnames{k}=vname;
-%                 unames{k}=uname;
-%             else
-%                 if min(vshape)==1,
-%                     nccreate(ncfile,uname,...
-%                         'Datatype',vtype,...
-%                         'DeflateLevel',deflate_lev,...
-%                         'Dimensions',{[uname '1'] vlen},...
-%                         'format',ncfiletype);
-%                     k=k+1;
-%                     vnames{k}=vname;
-%                     unames{k}=uname;                    
-%                 elseif ndims==2,
-%                     nccreate(ncfile,uname,...
-%                         'Datatype',vtype,...
-%                         'DeflateLevel',deflate_lev,...
-%                         'Dimensions',{[uname '1'] vshape(1) [uname '2'] vshape(2)},...
-%                         'format',ncfiletype);
-%                     k=k+1;
-%                     vnames{k}=vname;
-%                     unames{k}=uname;                    
-%                 elseif ndims==3,
-%                     nccreate(ncfile,uname,...
-%                         'Datatype',vtype,...
-%                         'DeflateLevel',deflate_lev,...
-%                         'Dimensions',...
-%                         {[uname '1'] vshape(1) [uname '2'] vshape(2) [uname '3'] vshape(3)},...
-%                         'format',ncfiletype);
-%                     k=k+1;
-%                     vnames{k}=vname;
-%                     unames{k}=uname;                    
-%                 else,
-%                     disp('Skipping variable with more than 3 dimensions');
-%                 end
-%             end
-%        case {'char'},
-%          if min(vshape)==1,
-%             nccreate(ncfile,uname,...
-%                 'Datatype',vtype,...
-%                 'Dimensions',{[uname '1'] vlen},.....
-%                 'format',ncfiletype);
-%             k=k+1;
-%             vnames{k}=vname;
-%             unames{k}=uname;
-%          elseif ndims==2,
-%              nccreate(ncfile,uname,...
-%                       'Datatype',vtype,...
-%                       'Dimensions',{[uname '1'] vshape(1) [uname '2'] vshape(2)},...
-%                       'format',ncfiletype);
-%              k=k+1;
-%              vnames{k}=vname;
-%              unames{k}=uname;                    
-%          end
-%         otherwise,
-%             disp(['skipping ' vname])
-%     end
-% end
-% end
-% %write all the data at the end
-% for l=1:layers
-%     for i=1:length(vnames)
-%         ncwrite(ncfile,unames{i},x(l).(vnames{i}));
-%     end
-% end
-% end
