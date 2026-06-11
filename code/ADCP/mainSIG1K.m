@@ -320,8 +320,8 @@ while ii<=Nf
         % process data
         minC  = min( out.Correlation_Beam, [], 3);%min( cat(3,out.CorBeam1, out.CorBeam2, out.CorBeam3, out.CorBeam4),[], 3);
         minA  = min( out.Amplitude_Beam  , [], 3);  %cat(3,out.CorBeam1, out.CorBeam2, out.CorBeam3, out.CorBeam4),[], 3);
-        maxRNG= out.Pressure(2,:)*cosd(25)-2*binw;
-        qcFlag= (minC>50 & minA>30 & maxRNG+0.2>mab);
+        maxRNG= out.Pressure(2,:)*cosd(25)-3*binw;
+        qcFlag= (minC>50 & minA>30 & maxRNG>mab);
         %
         out.Correlation_Minimum = minC;
         out.Amplitude_Minimum = minA;
