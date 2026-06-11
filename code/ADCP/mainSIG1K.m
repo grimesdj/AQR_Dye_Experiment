@@ -12,7 +12,7 @@ releasenum = string(releasenum);
 
 % stages of processing
 % 1) define deployment number:
-adcp_ID  = 2;
+adcp_ID  = 1;
 adcp_file_roots = {'S103071A014_KELP1','S104339A001_KELP1'};
 adcp_mooring_ID = {'M2', 'M1'};
 echo_mode = 0;
@@ -75,7 +75,7 @@ recoverTime = recoverTime + time_shift;
 %
 % load and pre-process data.
 fprintf('loading %s data\n', adcp_mooring_ID{adcp_ID})
-%loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime, echo_mode, Descriptions, HeadingOffset)
+loadSIG1K(rootDIR, fRoot, ATM_Time, ATM_Pressure, Config, hab, L0dir, filePrefix, deployTime, recoverTime, echo_mode, Descriptions, HeadingOffset)
 %
 % make time-averages
 fprintf('time averaging %s\n', adcp_mooring_ID{adcp_ID})
@@ -321,7 +321,7 @@ while ii<=Nf
         minC  = min( out.Correlation_Beam, [], 3);%min( cat(3,out.CorBeam1, out.CorBeam2, out.CorBeam3, out.CorBeam4),[], 3);
         minA  = min( out.Amplitude_Beam  , [], 3);  %cat(3,out.CorBeam1, out.CorBeam2, out.CorBeam3, out.CorBeam4),[], 3);
         maxRNG= out.Pressure(2,:)*cosd(25)-2*binw;
-        qcFlag= (minC>50 & minA>30 & maxRNG-0.2>mab);
+        qcFlag= (minC>50 & minA>30 & maxRNG+0.2>mab);
         %
         out.Correlation_Minimum = minC;
         out.Amplitude_Minimum = minA;
@@ -402,20 +402,21 @@ for ii= 1:Nf
 
     % correct any time gaps
     struct_fieldnames = fields(in);
+  
     for fieldnum = 1:length(struct_fieldnames)
         sff = struct_fieldnames{fieldnum};
         if strcmp(sff, 'Time')
             continue
         else
             dum = in.(sff);
-            if length(dum) == length(in.Time)
-                [t_fix, x_fix] = correct_burst(in.Time, dum);
-                in.(sff) = x_fix;
+            if max(size(dum)) == length(in.Time)
+                [t_fix, x_fix] = correct_burst(in.Time', dum');
+                in.(sff) = x_fix';
             end
         end
-        in.Time = t_fix;
     end
         
+    in.Time = t_fix';
     %
     if ii==1
         % no padding
@@ -505,6 +506,7 @@ for ii= 1:Nf
             eval(['out.',var,'= cat(2,out.',var,',avg.',var,');'])
         end
     end
+  
     %
     % get pad data for next file
     tP   = in.Time       (:,nt-Ns*(1+ns)+1:nt);
