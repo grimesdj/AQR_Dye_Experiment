@@ -12,7 +12,7 @@ releasenum = string(releasenum);
 
 % stages of processing
 % 1) define deployment number:
-adcp_ID  = 1;
+adcp_ID  = 2;
 adcp_file_roots = {'S103071A014_KELP1','S104339A001_KELP1'};
 adcp_mooring_ID = {'M2', 'M1'};
 echo_mode = 0;

@@ -3,25 +3,40 @@ close all
 
 %% Load
 
+% enter Mooring ID
+%mooring_ID = 2;
+
+prof_fig = figure;
+ax1 = subplot(1, 2, 1);
+ax2 = subplot(1, 2, 2);
+
+for mooring_ID = 1:2
+moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
+mooring = moorings{mooring_ID};
+
 % ADCP
 fprintf('loading data...\n')
-M1 = load('../../../../Kelp_data/data/2024_PROCESSED_DATA/M1/L0/ADCP/ADCP_M1_L0_10min.mat');
-M1.Config = load('../../../../Kelp_data/data/2024_PROCESSED_DATA/M1/L0/ADCP/ADCP_M1_config.mat');
+fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DATA', mooring, 'L0', 'ADCP');
+fname = "ADCP_" + mooring + "_L0_10min.mat";
+M = load(fullfile(fpath,fname));
+M.Config = load(fullfile(fpath, filesep, "ADCP_" + mooring + "_config.mat"));
+
 
 % Mooring
-Moor = load('../../../../Kelp_data/data/2024_PROCESSED_DATA/M1/L1/mooring_M1.mat');
+mpath = fullfile(fpath, '..', '..', 'L1', "mooring_" + mooring + ".mat");
+Moor = load(mpath);
 
 % apply qcFlag
 fprintf('applying qcFlag...\n')
-M1.qcFlag(isnan(M1.qcFlag)) = 0;
-qcFlag = round(M1.qcFlag); % omg the qcFlag got smoothed
-fields = fieldnames(M1);
+M.qcFlag(isnan(M.qcFlag)) = 0;
+qcFlag = round(M.qcFlag); % omg the qcFlag got smoothed
+fields = fieldnames(M);
 for i = 1:length(fields)
     field = fields{i};
-    dum = M1.(field);
+    dum = M.(field);
     if size(dum) == size(qcFlag)
         dum(~qcFlag) = NaN;
-        M1.(field) = dum;
+        M.(field) = dum;
     end
 end
 
@@ -37,9 +52,11 @@ nan_filt = 90;
 [y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt);
 Moor.Temperature = y';
 
+ADCP_temp = fillmissing(M.Temperature, 'linear');
+
 % common time
 fprintf('interpolating to common grid...\n')
-Time = M1.Time;
+Time = M.Time;
 moor_fields = fieldnames(Moor);
 for i = 1:length(moor_fields)
     field = moor_fields{i};
@@ -54,38 +71,55 @@ for i = 1:length(moor_fields)
         else
             tmp = dum;
         end
-        M1.(field) = tmp;
+        M.(field) = tmp;
     end
 end
 
+
 %% Plot Velocity
 fprintf('plot Velocity...\n')
-figure
-img = imagesc(Time, M1.bin_mab, M1.Velocity_North);
-mask = ~isnan(M1.Velocity_North);
+vel_fig(mooring_ID) = figure;
+img = imagesc(Time, M.bin_mab, M.Velocity_North);
+mask = ~isnan(M.Velocity_North);
 set(img, "AlphaData", mask)
 set(gca, 'YDir', 'normal')
 colormap(cmocean('balance'))
-cmax = max(std(M1.Velocity_North, 'omitmissing'));
-clim([-cmax cmax])
+cmax = max(std(M.Velocity_North, 'omitmissing'));
+clim([-0.1 0.1])
 cb = colorbar;
 ylabel('Meters above bottom')
 ylabel(cb, 'North Velocity, [m/s]')
 set(gca, 'FontSize', 18)
+xlim([739449.8349759484   739451.6397798342])
+ylim([0 12.5])
 
-% have to manually fix Temp for now
-top_T = M1.Temperature(1, :);
-M1.Temperature = M1.Temperature([1 2 3 4 5 7 8 9 10], :);
-top_mab = M1.Temperature_mab(1);
-M1.Temperature_mab = M1.Temperature_mab([1 2 3 4 5 6 7 8 10]);
+
+if mooring_ID == 1
+    % have to manually fix Temp for now
+    
+    M.Temperature = M.Temperature([1 2 3 4 5 7 8 9 10], :);
+    
+    M.Temperature_mab = M.Temperature_mab([1 2 3 4 5 6 7 8 10]);
+end
+
+
+% add ADCP temp to bottom
+dum = M.Temperature;
+M.Temperature = [dum ; ADCP_temp];
+dum = M.Temperature_mab;
+M.Temperature_mab = [dum ; 0];
+
+% grab float
+top_T = M.Temperature(1, :);
+top_mab = M.Temperature_mab(1);
 
 % top sensor is floating
-P = M1.Pressure;
+P = M.Pressure;
 b = top_mab;
 d = P + b;
 
 % grid Temp
-[t_grid, z_grid] = meshgrid(Time, M1.Temperature_mab);
+[t_grid, z_grid] = meshgrid(Time, M.Temperature_mab);
 z_grid(1, :) = d;
 
 
@@ -93,8 +127,8 @@ z_grid(1, :) = d;
 % add Temp contours
 fprintf('add Temp contours...\n')
 hold on
-minT = ceil(min(M1.Temperature, [], 'all'));
-maxT = floor(max(M1.Temperature, [], 'all'));
+minT = ceil(min(M.Temperature, [], 'all'));
+maxT = floor(max(M.Temperature, [], 'all'));
 Tvec = minT:maxT;
 
 cm = cmocean('thermal');
@@ -103,11 +137,11 @@ step = floor(clen/length(Tvec));
 cstep = 1:step:clen;
 cm = cm(cstep, :);
 for ib = 1:length(Tvec)
-    contour(t_grid, z_grid, M1.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 2.5, 'DisplayName', [sprintf('%d ', Tvec(ib)) '$^\circ$C'])
+    contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 2.5, 'DisplayName', [sprintf('%d ', Tvec(ib)) '$^\circ$C'])
 end
 
 % add free surf
-plot(Time, M1.Pressure, 'b', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
+plot(Time, M.Pressure, 'b', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
 lgd = legend;
 lgd.Interpreter = 'latex';
 lgd.NumColumns = 4;
@@ -124,13 +158,48 @@ xtickangle(315)
 %xlim
 
 %% z/h grid
-% pvar = P - mean(P, "omitmissing");
-% zh = z_grid + pvar;
-% zh(1,:) = zh(1,:) - 2*pvar;
+sig = z_grid./M.Pressure;
+dz = min(sig(end-1, :)):0.1:min(sig(1, :));
+sig = fillmissing(sig, "spline", 2);
 
-z = z_grid./M1.Pressure;
+% interpolate to regular grid
+F = scatteredInterpolant(t_grid(:), sig(:), M.Temperature(:));
+[Tq, Zq] = meshgrid(Time, dz);
+Vq = F(Tq, Zq);
 
-figure, plot(Time, z)
-% interp
-dz = 0:0.1:1;
+% make avg profile
+mean_profile = mean(Vq, 2);
+std_profile = std(Vq,[], 2);
 
+figure(prof_fig)
+
+plot(ax1, mean_profile, dz, '-s', 'LineWidth', 2, 'DisplayName', mooring)
+hold(ax1, "on")
+
+
+plot(ax2, std_profile, dz, '-s', 'LineWidth', 2, 'DisplayName', mooring)
+hold(ax2, "on")
+end
+
+title(ax1, '$\mu$ Profile', 'Interpreter','latex', 'FontSize', 20)
+xlabel(ax1, '$^\circ$C', 'Interpreter','latex')
+ylabel(ax1, 'Relative Depth z/h')
+set(ax1, 'FontSize', 18)
+grid(ax1, 'minor')
+lgd1 = legend(ax1);
+lgd1.Location = 'northwest';
+ylim([0 1])
+
+title(ax2, '$\sigma$ Profile', 'Interpreter','latex', 'FontSize', 20)
+xlabel(ax2, '$^\circ$C', 'Interpreter','latex')
+ylabel(ax2, 'Relative Depth z/h')
+set(ax2, 'FontSize', 18)
+grid(ax2, "minor")
+lgd2 = legend(ax2);
+lgd2.Location = 'northeast';
+linkaxes([ax1 ax2], 'y')
+
+%% Export Figs
+print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
+print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
+print(vel_fig(2), '../../../../Kelp_data/Summer2025/Rooker/figures/M2_velocity_and_temp.png', '-dpng', '-r600')
