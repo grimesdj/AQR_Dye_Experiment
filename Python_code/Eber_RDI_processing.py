@@ -32,7 +32,9 @@ import io
 #load ADCPDolfynDataset
 print("Setting up imports...")
 #sys.path.append(r"/Users/eberreyes/Documents/adcpy5")
-sys.path.append(r"/Users/derekgrimes/git/kelp/Python_code/adcpy5")
+#sys.path.append(r"/Users/derekgrimes/git/kelp/Python_code/adcpy5")
+sys.path.append(r"./adcpy5")
+
 
 from ADCPDolfynDataset import ADCPDolfynDataset
 # -
@@ -40,9 +42,10 @@ from ADCPDolfynDataset import ADCPDolfynDataset
 #load M3
 print("Changing directory...")
 #os.chdir(r"/Users/eberreyes/Downloads/")
-os.chdir(r"/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/RDI")
+#os.chdir(r"/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/RDI")
+os.chdir(r"../../../Kelp_data/data/FullExperiment/raw/RDI")
 f = 'RDI_SN_1071_8m_data.000'
-nens = None  #load all ensembles
+nens = 1000  #load all ensembles
 a = ADCPDolfynDataset()
 
 print("Reading M3 binary file...")

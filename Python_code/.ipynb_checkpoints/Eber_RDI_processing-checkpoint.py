@@ -24,13 +24,17 @@ import matplotlib.pyplot as plt
 from scipy.signal import welch
 from datetime import datetime, timedelta
 import contextlib
+
+
 import io
 
 # +
 #load ADCPDolfynDataset
 print("Setting up imports...")
 #sys.path.append(r"/Users/eberreyes/Documents/adcpy5")
-sys.path.append(r"/Users/derekgrimes/git/kelp/Python_code/adcpy5")
+#sys.path.append(r"/Users/derekgrimes/git/kelp/Python_code/adcpy5")
+sys.path.append(r"./adcpy5")
+
 
 from ADCPDolfynDataset import ADCPDolfynDataset
 # -
