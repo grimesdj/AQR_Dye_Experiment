@@ -1,0 +1,17 @@
+.//ADCPDolfynDataset.py:"""ADCPTransectData subclass for the Dolfyn datasets with transect support
+.//ADCPDolfynDataset.py:from dolfyn.io.rdi import read_rdi #(filename, userdata=None, nens=None, debug_level=-1, vmdas_search=False, winriver=False, **kwargs)
+.//ADCPDolfynDataset.py:from dolfyn.io.nortek2 import read_signature #(filename, userdata=True, nens=None, rebuild_index=False, debug=False, dual_profile=False, **kwargs)
+.//ADCPDolfynDataset.py:class ADCPDolfynDataset(object):
+.//ADCPDolfynDataset.py:    Subclass of :py:class:AdcpTransectData for importing data from a Dolfyn-read xarray dataset
+.//ADCPDolfynDataset.py:        read_raw_history = "Constructor DolfynDataset: Raw RDI file: %s ens=%s"%(self.raw_file,self.n_ensembles)
+.//ADCPDolfynDataset.py:        return super(ADCPDolfynDataset,self).split_by_ensemble(split_nums,
+.//ADCPDolfynDataset.py:        super(ADCPDolfynDataset,self).write_nc_extra(grp,zlib)
+.//ADCPDolfynDataset.py:        super(ADCPDolfynDataset,self).read_nc_extra(grp)
+.//ADCPDolfynDataset.py:        print('Doing read_nc in ADCPDolfynDataset...')
+.//ADCPDolfynDataset.py:        super(ADCPDolfynDataset,self).append_ensembles_extra(a)
+.//ADCPDolfynDataset.py:        a = super(ADCPDolfynDataset,self).average_ensembles(ens_to_avg)
+.//ADCPDolfynDataset.py:        super(ADCPDolfynDataset,self).xy_regrid(dxy, dz, xy_srs = xy_srs, pline = pline, sort = sort,
+.//ADCPDolfynDataset.py:        (t, t_new, z, z_new, dummy, pre_calcs) = super(ADCPDolfynDataset,self).t_regrid(dt,dz,sd_drop,sd_drop_alt)
+.//ADCPDolfynDataset.py:        sub_adcps = super(ADCPDolfynDataset, self).split_by_ensemble(split_nums, extra_fields=extra_fields + ['error_vel', 'heading'])
+.//ADCPDolfynDataset.py:        a = super(ADCPDolfynDataset, self).crop(l_bound, u_bound,
+Binary file .//__pycache__/ADCPDolfynDataset.cpython-311.pyc matches
