@@ -1,154 +1,205 @@
-%% Plot Profiles
-
 clear all
 close all
 
-% Load M1
-M1.ADCP = load('../../../../Kelp_data/data/Release2/L0/ADCP/M1_ADCP.mat');
-M1.LPF = load('../../../../Kelp_data/data/Release2/L1/ADCP/M1_LPF_600sec.mat');
-M1.Moor = load('../../../../Kelp_data/data/2024_PROCESSED_DATA/M1/L1/mooring_M1.mat');
+%% Load
 
-releasenum = 2;
-release = string(releasenum);
+% enter Mooring ID
+%mooring_ID = 2;
 
+prof_fig = figure;
+ax1 = subplot(1, 2, 1);
+ax2 = subplot(1, 2, 2);
 
-depTime  = [datenum('03-Jul-2024 18:30:00'), datenum('03-Jul-2024 22:30:00') ;
-            datenum('08-Jul-2024 17:30:00'), datenum('11-Jul-2024 19:30:00')];
+for mooring_ID = 1:2
+moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
+mooring = moorings{mooring_ID};
 
-
-%trim times
-M1.LPF.Time   = M1.ADCP.Time(M1.LPF.idx); % pls fix this in the LPF script omg
-M1.LPF.valid  = M1.LPF.Time >= depTime(releasenum, 1) & M1.LPF.Time <= depTime(releasenum, 2);
-M1.ADCP.valid = M1.ADCP.Time >= depTime(releasenum, 1) & M1.ADCP.Time <= depTime(releasenum, 2);
-M1.Moor.valid = M1.Moor.Time >= depTime(releasenum, 1) & M1.Moor.Time <= depTime(releasenum, 2);
-
-% turn so it fits imagesc
-North = M1.LPF.Velocity_North';
-North = North(:,M1.LPF.valid);
-Vtime = M1.LPF.Time(M1.LPF.valid)';
-
-% some errors with the loading so lets fix that for now
-Temp_cont = M1.Moor.Temperature([2 3 4 5 7 8 9 10], M1.Moor.valid);
-%M1.Moor.Temperature_mab(1) = rms(M1.ADCP.maxRNG, 'all')-M1.Moor.Temperature_mab(1);
-%Temp_cont(6, :) = nan;
-Temp_mab = M1.Moor.Temperature_mab([2 3 4 5 7 8 9 10]);
+% ADCP
+fprintf('loading data...\n')
+fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DATA', mooring, 'L0', 'ADCP');
+fname = "ADCP_" + mooring + "_L0_10min.mat";
+M = load(fullfile(fpath,fname));
+M.Config = load(fullfile(fpath, filesep, "ADCP_" + mooring + "_config.mat"));
 
 
-% smooth temp??
-dt = median(diff(M1.Moor.Time)) * 86400;
-[Temp, fsd, idx] = hamming_filter(Temp_cont', 1/600, 1/dt, 1, 1);
-Temp = Temp';
+% Mooring
+mpath = fullfile(fpath, '..', '..', 'L1', "mooring_" + mooring + ".mat");
+Moor = load(mpath);
+
+% apply qcFlag
+fprintf('applying qcFlag...\n')
+M.qcFlag(isnan(M.qcFlag)) = 0;
+qcFlag = round(M.qcFlag); % omg the qcFlag got smoothed
+fields = fieldnames(M);
+for i = 1:length(fields)
+    field = fields{i};
+    dum = M.(field);
+    if size(dum) == size(qcFlag)
+        dum(~qcFlag) = NaN;
+        M.(field) = dum;
+    end
+end
+
+%% Smooth Temp Data
+fprintf('smoothing Temp data...\n')
+x = Moor.Temperature';
+wpass = 1/600;
+dt = round(median(diff(Moor.Time)*86400));
+fs = 1/dt;
+fig = 0;
+ds = 0;
+nan_filt = 90;
+[y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt);
+Moor.Temperature = y';
+
+ADCP_temp = fillmissing(M.Temperature, 'linear');
+
+% common time
+fprintf('interpolating to common grid...\n')
+Time = M.Time;
+moor_fields = fieldnames(Moor);
+for i = 1:length(moor_fields)
+    field = moor_fields{i};
+    dum = Moor.(field);
+    if ~strcmp(field, 'Time') && ~isempty(dum)
+        if size(dum, 2) == size(Moor.Time, 2)
+            if isvector(dum)
+                tmp = interp1(Moor.Time, dum, Time);
+            else
+                tmp = interp1(Moor.Time, dum', Time)';
+            end
+        else
+            tmp = dum;
+        end
+        M.(field) = tmp;
+    end
+end
 
 
-
-% plot
-figure
-img = imagesc(Vtime, M1.ADCP.bin_mab, North);
-set(img, 'AlphaData', ~isnan(North))
+%% Plot Velocity
+fprintf('plot Velocity...\n')
+vel_fig(mooring_ID) = figure;
+img = imagesc(Time, M.bin_mab, M.Velocity_North);
+mask = ~isnan(M.Velocity_North);
+set(img, "AlphaData", mask)
 set(gca, 'YDir', 'normal')
-cb = colorbar;
 colormap(cmocean('balance'))
+cmax = max(std(M.Velocity_North, 'omitmissing'));
 clim([-0.1 0.1])
-ylabel('$z$ [m]', 'Interpreter','latex')
-ylabel(cb, 'Cross-shore Velocity, $u$ [m/s]', 'Interpreter','latex', 'FontSize', 18)
-set([gca cb], 'fontsize', 18)
-ylim([0 max(M1.ADCP.maxRNG)+std(M1.ADCP.maxRNG)])
-xt = min(Vtime):6/24:max(Vtime);
-xticks(xt)
-datetick('x', 'mm/dd HH:MM', 'keepticks')
-xlabel('Time (UTC)')
-
-
-% add temp contours
-hold on
-Ttime = M1.Moor.Time(M1.Moor.valid);
-Ttime = Ttime(idx);
-contour(Ttime,Temp_mab,  Temp, [16 17 17.5 18], 'k', 'LineWidth', 1.5)
-yline(1, 'k--', 'LineWidth', 1.5, 'label', 'Dye Release Depth', 'FontSize', 18, 'LabelHorizontalAlignment','left', 'LabelVerticalAlignment','bottom', 'FontWeight','bold')
-
-% hold on
-% [C,h] = contour( ...
-%     M1.Moor.Time(M1.Moor.valid), ...
-%     M1.Moor.Temperature_mab(:), ...
-%     M1.Moor.Temperature(:,M1.Moor.valid), ...
-%     1, ...
-%     'k', ...
-%     'LineWidth',1);
-%figure, imagesc(M1.Moor.Time(M1.Moor.valid), M1.Moor.Temperature_mab, M1.Moor.Temperature(:,M1.Moor.valid))
-
-% interpolate to common grid
-bin_mab = M1.ADCP.bin_mab;
-[T_grid, Z_grid]        = meshgrid(Ttime, Temp_mab);
-[Vtime_grid, bin_grid]  = meshgrid(Vtime, bin_mab);
-terp = interp2(T_grid, Z_grid, Temp, Vtime_grid, bin_grid);
-T = terp;
-N = North;
-% remove nans
-% 
-% mask = ~isnan(terp) & ~isnan(North);
-% T = terp(mask);
-% N = North(mask);
-
-badRows = all(isnan(terp),2);
-
-T  = terp(~badRows,:);
-N = North(~badRows,:);
-bin_mab = bin_mab(~badRows);
-
-T = fillmissing(T, 'linear', 2);
-N = fillmissing(N, 'linear', 2);
-
-% remove mean
-T = T - mean(T);
-N = N - mean(N);
-
-% detrend
-T = detrend(T);
-N = detrend(N);
-
-% remove diurnal thermal exchange
-%dt = median(diff(Vtime)) * 86400;
-%DTE = hamming_filter(T, 1/(6*60*60), 1/dt, 1, 0);
-%ST = T-DTE;
-
-
-figure
-scatter(terp(:), North(:), 'cyan', 'filled')
-xlabel('Tempurature $^{\circ}$C', 'Interpreter','latex')
-ylabel('North Velocity [m/s]')
+cb = colorbar;
+ylabel('Meters above bottom')
+ylabel(cb, 'North Velocity, [m/s]')
 set(gca, 'FontSize', 18)
-
-T_norm = T ./ std(T, [], 'all');
-N_norm = N ./ std(N, [], 'all');
-
-figure
-scatter(T_norm, N_norm, 'black', 'filled')
-xlabel('Normalized Temperature')
-ylabel('Normalized North Velocity')
-set(gca, "FontSize", 18)
-grid on
-axis equal
+xlim([739449.8349759484   739451.6397798342])
+ylim([0 12.5])
 
 
-dt = median(diff(Vtime)) * 86400;
-dt = dt * 4;
-T_ds = T(:,1:4:end);
-N_ds = N(:,1:4:end);
+if mooring_ID == 1
+    % have to manually fix Temp for now
+    
+    M.Temperature = M.Temperature([1 2 3 4 5 7 8 9 10], :);
+    
+    M.Temperature_mab = M.Temperature_mab([1 2 3 4 5 6 7 8 10]);
+end
 
-L = length(Vtime)/4;
-M = round(L/8);
-window = hann(M);
-noverlap = M/2;
 
-K = (L-noverlap)/(M-noverlap);
-C95 = 1 - 0.05^(1/(K-1)); 
+% add ADCP temp to bottom
+dum = M.Temperature;
+M.Temperature = [dum ; ADCP_temp];
+dum = M.Temperature_mab;
+M.Temperature_mab = [dum ; 0];
 
-[Cxy, f] = mscohere(T_ds(10,:), N_ds(10,:), window, noverlap, [], 1/dt);
-% add period?
-figure
-coh = semilogx(f, Cxy, 'k', 'LineWidth',2);
+% grab float
+top_T = M.Temperature(1, :);
+top_mab = M.Temperature_mab(1);
+
+% top sensor is floating
+P = M.Pressure;
+b = top_mab;
+d = P + b;
+
+% grid Temp
+[t_grid, z_grid] = meshgrid(Time, M.Temperature_mab);
+z_grid(1, :) = d;
+
+
+
+% add Temp contours
+fprintf('add Temp contours...\n')
 hold on
-yline(C95, 'r--', 'LineWidth', 1.5, 'Label', '$C_{95}$', 'Interpreter','latex', 'FontSize', 18)
-grid on
-%coh.XAxis.
+minT = ceil(min(M.Temperature, [], 'all'));
+maxT = floor(max(M.Temperature, [], 'all'));
+Tvec = minT:maxT;
 
+cm = cmocean('thermal');
+clen = size(cm, 1);
+step = floor(clen/length(Tvec));
+cstep = 1:step:clen;
+cm = cm(cstep, :);
+for ib = 1:length(Tvec)
+    contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 2.5, 'DisplayName', [sprintf('%d ', Tvec(ib)) '$^\circ$C'])
+end
+
+% add free surf
+plot(Time, M.Pressure, 'b', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
+lgd = legend;
+lgd.Interpreter = 'latex';
+lgd.NumColumns = 4;
+
+% uGhhh date ticks
+ax = gca;
+ax.XTick = min(Time):1/12:max(Time);
+datetick('x','HH:MM mm/dd','keeplimits', 'keepticks')
+xtickangle(315)
+
+
+%% Figure
+%print(gcf, '../Presentations/tea_06_12_2026/figures/Velocity_contoured', '-dpng', '-r600')
+%xlim
+
+%% z/h grid
+sig = z_grid./M.Pressure;
+dz = min(sig(end-1, :)):0.1:min(sig(1, :));
+sig = fillmissing(sig, "spline", 2);
+
+% interpolate to regular grid
+F = scatteredInterpolant(t_grid(:), sig(:), M.Temperature(:));
+[Tq, Zq] = meshgrid(Time, dz);
+Vq = F(Tq, Zq);
+
+% make avg profile
+mean_profile = mean(Vq, 2);
+std_profile = std(Vq,[], 2);
+
+figure(prof_fig)
+
+plot(ax1, mean_profile, dz, '-s', 'LineWidth', 2, 'DisplayName', mooring)
+hold(ax1, "on")
+
+
+plot(ax2, std_profile, dz, '-s', 'LineWidth', 2, 'DisplayName', mooring)
+hold(ax2, "on")
+end
+
+title(ax1, '$\mu$ Profile', 'Interpreter','latex', 'FontSize', 20)
+xlabel(ax1, '$^\circ$C', 'Interpreter','latex')
+ylabel(ax1, 'Relative Depth z/h')
+set(ax1, 'FontSize', 18)
+grid(ax1, 'minor')
+lgd1 = legend(ax1);
+lgd1.Location = 'northwest';
+ylim([0 1])
+
+title(ax2, '$\sigma$ Profile', 'Interpreter','latex', 'FontSize', 20)
+xlabel(ax2, '$^\circ$C', 'Interpreter','latex')
+ylabel(ax2, 'Relative Depth z/h')
+set(ax2, 'FontSize', 18)
+grid(ax2, "minor")
+lgd2 = legend(ax2);
+lgd2.Location = 'northeast';
+linkaxes([ax1 ax2], 'y')
+
+%% Export Figs
+print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
+print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
+print(vel_fig(2), '../../../../Kelp_data/Summer2025/Rooker/figures/M2_velocity_and_temp.png', '-dpng', '-r600')

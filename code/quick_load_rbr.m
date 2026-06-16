@@ -1,6 +1,19 @@
-% Need to download "RSKtools for Matlab" from: https://rbr-global.com/products/software/
+function data = quick_load_rbr(fin)
+    % 
+    % quick_load_rbr: loads RBR pressure and temp data
+    % 
+    % USAGE: data = quick_load_rbr(fin)
+    % 
+    % INPUTS: 
+    %             fin = string, file path to .rsk file
+    % 
+    % OUTPUTS:
+    %             data = struct, contains Time, Temp, and Pres (disabled)
+    % 
+    % written by Derek Grimes and Jason Rooker June 2026
 
-fin = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/RBR_7_26_24/SN_0953/SN_0953.rsk';
+
+%fin = '../../../Kelp_data/data/FullExperiment/raw/RBR_7_26_24/SN_0953/SN_0953.rsk';
 rsk = RSKopen(fin);
 rsk = RSKreaddata(rsk);
 rbr_time = rsk.data.tstamp;
@@ -17,4 +30,10 @@ switch rsk.instruments.model
     disp('duet')
     rbr_temp = rbr_data(:,1);
     rbr_pres = rbr_data(:,2);                
+end
+
+data.Temp = rbr_temp;
+%data.Pres = rbr_pres;
+data.Time = rbr_time;
+
 end

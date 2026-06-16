@@ -1,6 +1,6 @@
 function [CoSP,fr,QuSP,COH,PHI]=welch_cospec(data0,data1,dt,M,lap);
 %
-% USAGE: [CoSP,fr,QuSP,fr,Coh,Phi]=welch_cospec(data0,data1,dt,M,lap);
+% USAGE: [CoSP,fr,QuSP,Coh,Phi]=welch_cospec(data0,data1,dt,M,lap);
 %
 % function estimates CoSPectral density of "data0" and "data1" using "M" subwindows,
 % with "lap" fractional overlap. The dof = 2*M for lap=0,
