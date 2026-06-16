@@ -3,12 +3,10 @@ close all
 
 %% Load
 
-% enter Mooring ID
-%mooring_ID = 2;
-
 prof_fig = figure;
 ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
+strat_fig = figure;
 
 for mooring_ID = 1:2
 moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
@@ -96,10 +94,15 @@ ylim([0 12.5])
 
 if mooring_ID == 1
     % have to manually fix Temp for now
-    
+    print('Removing Duplicate Sensors...')
     M.Temperature = M.Temperature([1 2 3 4 5 7 8 9 10], :);
     
     M.Temperature_mab = M.Temperature_mab([1 2 3 4 5 6 7 8 10]);
+elseif mooring_ID ==2
+    print('Switcing mixed signals...')
+    dum = M.Temperature(5, :);
+    M.Temperature(5, :) = M.Temperature(6, :);
+    M.Temperature(6, :) = dum;
 end
 
 
@@ -131,7 +134,7 @@ minT = ceil(min(M.Temperature, [], 'all'));
 maxT = floor(max(M.Temperature, [], 'all'));
 Tvec = minT:maxT;
 
-cm = cmocean('thermal');
+cm = cmocean('haline');
 clen = size(cm, 1);
 step = floor(clen/length(Tvec));
 cstep = 1:step:clen;
@@ -179,6 +182,10 @@ hold(ax1, "on")
 
 plot(ax2, std_profile, dz, '-s', 'LineWidth', 2, 'DisplayName', mooring)
 hold(ax2, "on")
+
+figure(strat_fig)
+plot(diff(mean_profile), dz(1:end-1), '-s')
+hold on
 end
 
 title(ax1, '$\mu$ Profile', 'Interpreter','latex', 'FontSize', 20)
@@ -203,3 +210,4 @@ linkaxes([ax1 ax2], 'y')
 print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
 print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
 print(vel_fig(2), '../../../../Kelp_data/Summer2025/Rooker/figures/M2_velocity_and_temp.png', '-dpng', '-r600')
+
