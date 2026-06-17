@@ -92,18 +92,17 @@ xlim([739449.8349759484   739451.6397798342])
 ylim([0 12.5])
 
 
-if mooring_ID == 1
-    % have to manually fix Temp for now
-    print('Removing Duplicate Sensors...')
-    M.Temperature = M.Temperature([1 2 3 4 5 7 8 9 10], :);
-    
-    M.Temperature_mab = M.Temperature_mab([1 2 3 4 5 6 7 8 10]);
-elseif mooring_ID ==2
-    print('Switcing mixed signals...')
-    dum = M.Temperature(5, :);
-    M.Temperature(5, :) = M.Temperature(6, :);
-    M.Temperature(6, :) = dum;
-end
+% if mooring_ID == 1
+%     % have to manually fix Temp for now
+%     print('Removing Duplicate Sensors...')
+% 
+%     M.Temperature_mab = M.Temperature_mab([1 2 3 4 5 6 7 8 10]);
+% elseif mooring_ID ==2
+%     print('Switcing mixed signals...')
+%     dum = M.Temperature(5, :);
+%     M.Temperature(5, :) = M.Temperature(6, :);
+%     M.Temperature(6, :) = dum;
+% end
 
 
 % add ADCP temp to bottom
@@ -210,4 +209,6 @@ linkaxes([ax1 ax2], 'y')
 print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
 print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
 print(vel_fig(2), '../../../../Kelp_data/Summer2025/Rooker/figures/M2_velocity_and_temp.png', '-dpng', '-r600')
+
+
 
