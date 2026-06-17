@@ -42,15 +42,34 @@ from ADCPDolfynDataset import ADCPDolfynDataset
 #load M3
 print("Changing directory...")
 #os.chdir(r"/Users/eberreyes/Downloads/")
-os.chdir(r"/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/RDI")
+#os.chdir(r"/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw/RDI")
+os.chdir(r"../../../Kelp_data/data/FullExperiment/raw/RDI")
 f = 'RDI_SN_1071_8m_data.000'
-nens = None  #load all ensembles
+nens = 999  #load all ensembles
 a = ADCPDolfynDataset()
 
 print("Reading M3 binary file...")
 with contextlib.redirect_stdout(io.StringIO()):
     a.read_raw(raw_file=f, nens=nens)
 print("Successfully read M3!")
+
+# save as matfile
+from scipy.io import savemat
+
+mdict = {
+    name: a.Dataset[name].values
+    for name in a.Dataset.data_vars
+}
+
+mdict.update({
+    name: a.Dataset.coords[name].values
+    for name in a.Dataset.coords
+})
+savestr = f"ADCP_M3_{nens}_ens.mat"
+savemat(savestr, mdict)
+
+
+return
 
 #extract velocity and range
 print("Extracting velocity and range...")
@@ -76,6 +95,7 @@ theta = 0.5 * np.arctan2(2 * np.nanmean(u_filtered * v_filtered),
 u_rot = u_filtered * np.cos(theta) + v_filtered * np.sin(theta)
 
 #build correct timestamps manually
+
 print("Building manual timestamps...")
 start_date = datetime(2024, 7, 1, 0, 0, 0)  #start of deployment
 dt_seconds = 1  #assuming 1 second per ping (can be adjusted later)
@@ -128,3 +148,4 @@ plt.tight_layout()
 plt.show()
 
 print("M3 principal velocity plotting complete!")
+

@@ -8,7 +8,7 @@ ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
-for mooring_ID = 1:2
+for mooring_ID = 3
 moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
 mooring = moorings{mooring_ID};
 
@@ -17,7 +17,7 @@ fprintf('loading data...\n')
 fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DATA', mooring, 'L0', 'ADCP');
 fname = "ADCP_" + mooring + "_L0_10min.mat";
 M = load(fullfile(fpath,fname));
-M.Config = load(fullfile(fpath, filesep, "ADCP_" + mooring + "_config.mat"));
+%M.Config = load(fullfile(fpath, filesep, "ADCP_" + mooring + "_config.mat"));
 
 
 % Mooring
@@ -32,7 +32,7 @@ fields = fieldnames(M);
 for i = 1:length(fields)
     field = fields{i};
     dum = M.(field);
-    if size(dum) == size(qcFlag)
+    if size(dum) == size(qcFlag) & ~strcmp(field, 'qcFlag')
         dum(~qcFlag) = NaN;
         M.(field) = dum;
     end
@@ -47,7 +47,8 @@ fs = 1/dt;
 fig = 0;
 ds = 0;
 nan_filt = 90;
-[y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt);
+hl = 1;
+[y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt, hl);
 Moor.Temperature = y';
 
 ADCP_temp = fillmissing(M.Temperature, 'linear');
@@ -73,7 +74,7 @@ for i = 1:length(moor_fields)
     end
 end
 
-
+keyboard
 %% Plot Velocity
 fprintf('plot Velocity...\n')
 vel_fig(mooring_ID) = figure;
@@ -205,6 +206,14 @@ lgd2 = legend(ax2);
 lgd2.Location = 'northeast';
 linkaxes([ax1 ax2], 'y')
 
+figure(strat_fig)
+axis equal
+grid minor
+ylabel('Relative Depth z/h')
+xlabel('$^\circ$C/m', 'Interpreter', 'latex')
+set(gca, 'FontSize', 18)
+
+return
 %% Export Figs
 print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
 print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
