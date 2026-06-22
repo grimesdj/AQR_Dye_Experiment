@@ -8,7 +8,7 @@ ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
-for mooring_ID = 1:3
+for mooring_ID = 3
 moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
 mooring = moorings{mooring_ID};
 
@@ -105,7 +105,7 @@ drawnow
 %     M.Temperature(5, :) = M.Temperature(6, :);
 %     M.Temperature(6, :) = dum;
 % end
-
+keyboard
 
 % add ADCP temp to bottom
 dum = M.Temperature;
@@ -190,6 +190,22 @@ hold(ax2, "on")
 figure(strat_fig)
 plot(diff(mean_profile), dz(1:end-1), '-s', 'LineWidth', 2)
 hold on
+
+
+%% PSD
+
+
+
+
+[pxx,f] = pwelch(x,window,noverlap,f,fs);
+
+
+
+
+
+
+
+
 end
 
 title(ax1, '$\mu$ Profile', 'Interpreter','latex', 'FontSize', 20)
@@ -218,6 +234,19 @@ xlabel('$^\circ$C/m', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+return
 %% Export Figs
 print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
 print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
