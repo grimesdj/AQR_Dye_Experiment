@@ -32,11 +32,11 @@ rename the function to avoid a potential name conflict.]
 In addpath>doPathAddition (line 116)
 In addpath (line 80)
 In startup (line 12)] 
->> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> 2025-07-24 10:35:00.570 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Regular", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
-2025-07-24 10:35:00.570 MATLAB[63851:9363261] CoreText note: Set a breakpoint on CTFontLogSystemFontNameRequest to debug.
-2025-07-24 10:35:00.574 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Bold", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
-2025-07-24 10:35:00.577 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Regular", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
-2025-07-24 10:35:00.578 MATLAB[63851:9363261] CoreText note: Client requested name ".SFNS-Bold", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+>> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> 2026-06-16 15:22:15.322 MATLAB[6142:7981403] CoreText note: Client requested name ".SFNS-Regular", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+2026-06-16 15:22:15.322 MATLAB[6142:7981403] CoreText note: Set a breakpoint on CTFontLogSystemFontNameRequest to debug.
+2026-06-16 15:22:15.325 MATLAB[6142:7981403] CoreText note: Client requested name ".SFNS-Bold", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+2026-06-16 15:22:15.329 MATLAB[6142:7981403] CoreText note: Client requested name ".SFNS-Regular", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
+2026-06-16 15:22:15.329 MATLAB[6142:7981403] CoreText note: Client requested name ".SFNS-Bold", it will get TimesNewRomanPSMT rather than the intended font. All system UI font access should be through proper APIs such as CTFontCreateUIFontForLanguage() or +[NSFont systemFontOfSize:].
 >> >> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  working on mooring: E
 	 loading instrument: SBE-13618
@@ -68,10 +68,11 @@ missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExper
 	 loading instrument: SOLO-1930
 	 loading instrument: SOLO-1167
 	 loading instrument: SOLO-956
-	 loading instrument: SOLO-958
 	 loading instrument: SOLO-959
 	 loading instrument: SOLO-1172
 	 loading instrument: SOLO-1177
+	 loading instrument: SOLO-9999
+missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//RBR/SN_9999*.rsk
 	 loading instrument: SOLO-958
 	 loading instrument: RBR-C-F-214015
 	 loading instrument: PME-626920
@@ -89,9 +90,10 @@ missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExper
 missing data file: /Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/FullExperiment/raw//RBR/SN_1176*.rsk
 	 loading instrument: SOLO-1175
 	 loading instrument: SOLO-1173
+	 loading instrument: SOLO-953
 	 loading instrument: SOLO-940
-	 loading instrument: SOLO-957
 	 loading instrument: SOLO-955
+	 loading instrument: SOLO-957
 	 loading instrument: SOLO-938
 	 loading instrument: SOLO-954
 	 loading instrument: ECO-BIO-8682
