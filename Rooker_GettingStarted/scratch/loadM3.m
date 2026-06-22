@@ -53,6 +53,38 @@ nan_filt = 80;
 hl = 1;
 [y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt, hl);
 
+    
+% build qcFlag
+minCorr = min(data.corr, [], 3)';
+minAmp  = min(data.amp, [], 3)';
+qcFlag = ~isnan(M3.Velocity_North);
+qcFlag(minCorr < 60) = 0;
+qcFlag(minAmp < 30) = 0;
+
+
+M3.Velocity_North = y';
+M3.qcFlag = ~isnan(M3.Velocity_North);
+% trim pre-dep
+M3.Pressure = data.depth';
+M3.bin_mab = data.range;
+M3.Temperature = data.temp';
+M3.Time = datenum(data.time);
+M3.Time = M3.Time';
+
+% trim to deployment
+deployTime  =  datenum('03-Jul-2024 00:00:00');
+recoverTime  = datenum('25-Jul-2024 00:00:00');
+dep = find(datenum(data.time) > deployTime & datenum(data.time) < recoverTime);
+
+fields = fieldnames(M3);
+for i = 1:length(fields)
+    field = fields{i};
+    dum = M3.(field);
+    if size(dum, 2) == length(data.time)
+        M3.(field) = dum(:, dep);
+        M3.(field) = M3.(field)(:, 1:600:end);
+    end
+end
 
 figure
 img = imagesc(data.time, data.range, y');
@@ -63,16 +95,5 @@ ylabel('mab')
 colorbar
 clim([-0.1 0.1])
 colormap(cmocean('balance'))
-
-
-M3.Velocity_North = y';
-M3.qcFlag = ~isnan(M3.Velocity_North);
-% finish constucting qcFlag
-% trim pre-dep
-M3.Pressure = data.depth';
-M3.bin_mab = data.range;
-M3.Temperature = data.temp';
-M3.Time = datenum(data.time);
-M3.Time = M3.Time';
 
 save('../../../../Kelp_data/data/2024_PROCESSED_DATA/M3/L0/ADCP/ADCP_M3_L0_10min.mat', '-struct', "M3")

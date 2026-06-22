@@ -8,12 +8,12 @@ ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
-for mooring_ID = 3
+for mooring_ID = 1:3
 moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
 mooring = moorings{mooring_ID};
 
 % ADCP
-fprintf('loading data...\n')
+fprintf('loading %s data...\n', mooring)
 fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DATA', mooring, 'L0', 'ADCP');
 fname = "ADCP_" + mooring + "_L0_10min.mat";
 M = load(fullfile(fpath,fname));
@@ -74,7 +74,7 @@ for i = 1:length(moor_fields)
     end
 end
 
-keyboard
+
 %% Plot Velocity
 fprintf('plot Velocity...\n')
 vel_fig(mooring_ID) = figure;
@@ -91,6 +91,7 @@ ylabel(cb, 'North Velocity, [m/s]')
 set(gca, 'FontSize', 18)
 xlim([739449.8349759484   739451.6397798342])
 ylim([0 12.5])
+drawnow
 
 
 % if mooring_ID == 1
@@ -140,10 +141,13 @@ step = floor(clen/length(Tvec));
 cstep = 1:step:clen;
 cm = cm(cstep, :);
 for ib = 1:length(Tvec)
+    fprintf('adding %d C contour...\n', Tvec(ib))
     contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 2.5, 'DisplayName', [sprintf('%d ', Tvec(ib)) '$^\circ$C'])
+    drawnow
 end
 
 % add free surf
+fprintf('adding free surface...\n')
 plot(Time, M.Pressure, 'b', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
 lgd = legend;
 lgd.Interpreter = 'latex';
@@ -184,7 +188,7 @@ plot(ax2, std_profile, dz, '-s', 'LineWidth', 2, 'DisplayName', mooring)
 hold(ax2, "on")
 
 figure(strat_fig)
-plot(diff(mean_profile), dz(1:end-1), '-s')
+plot(diff(mean_profile), dz(1:end-1), '-s', 'LineWidth', 2)
 hold on
 end
 
@@ -213,11 +217,11 @@ ylabel('Relative Depth z/h')
 xlabel('$^\circ$C/m', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
 
-return
+
 %% Export Figs
 print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
 print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
 print(vel_fig(2), '../../../../Kelp_data/Summer2025/Rooker/figures/M2_velocity_and_temp.png', '-dpng', '-r600')
-
+print(vel_fig(3), '../../../../Kelp_data/Summer2025/Rooker/figures/M3_velocity_and_temp.png', '-dpng', '-r600')
 
 
