@@ -62,10 +62,15 @@ sig(1, :) = 0.25;
 dz = ceil(sig(end,1)):-1:0;
 %dz = min(sig(end-1, :)):1:nanmean(sig(1, :));
 sig = fillmissing(sig, "spline", 2);
+M.Temperature = fillmissing(M.Temperature, 'linear', 2, 'EndValues','none');
+msk = ~isnan(M.Temperature);
+Temp = M.Temperature(msk);
+sig = sig(msk);
+t_grid = t_grid(msk);
 
 % interpolate to regular grid
 disp('interpolating to F...')
-F = scatteredInterpolant(t_grid(:), sig(:), M.Temperature(:), 'linear', 'nearest');
+F = scatteredInterpolant(t_grid(:), sig(:), Temp(:), 'linear', 'nearest');
 [Tq, Zq] = meshgrid(Time, dz);
 Temp_grid = F(Tq, Zq);
 
