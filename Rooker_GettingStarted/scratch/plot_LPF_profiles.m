@@ -8,7 +8,7 @@ ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
-for mooring_ID = 3
+for mooring_ID = 1
 moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
 mooring = moorings{mooring_ID};
 
@@ -105,7 +105,7 @@ drawnow
 %     M.Temperature(5, :) = M.Temperature(6, :);
 %     M.Temperature(6, :) = dum;
 % end
-keyboard
+
 
 % add ADCP temp to bottom
 dum = M.Temperature;
@@ -192,12 +192,9 @@ plot(diff(mean_profile), dz(1:end-1), '-s', 'LineWidth', 2)
 hold on
 
 
+
 %% PSD
 
-
-
-
-[pxx,f] = pwelch(x,window,noverlap,f,fs);
 
 
 
@@ -232,7 +229,7 @@ grid minor
 ylabel('Relative Depth z/h')
 xlabel('$^\circ$C/m', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
-
+axis square
 
 
 

@@ -84,7 +84,7 @@ nexttile
 plot(EOFs(:, 1), dz, 'k', 'LineWidth', 2)
 hold on
 plot(EOFs(:, 2), dz, 'r', 'LineWidth', 2)
-plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
+%plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
 axis ij
 axis square
 ylabel('Depth [m]')
@@ -94,8 +94,8 @@ title(sprintf('%s', mooring), 'FontSize', 18)
 
 % Spectra
 Spectra_fig(mooring_ID) = figure;
-x = EC(:, 1:3);
-w = 1024;
+x = EC(:, 1:2);
+w = 1440;
 window = hamming(w);
 noverlap = w/2;
 nfft = [];
@@ -130,12 +130,12 @@ lgd.Layout.Tile = 'south';
 lgd.NumColumns = 2;
 
 figure(EOF_fig)
-lgd = legend('1st Mode', '2nd Mode', '3rd Mode');
+lgd = legend('1st Mode', '2nd Mode');%, '3rd Mode');
 lgd.Layout.Tile = 'south';
 lgd.NumColumns = 3;
 
-for j = 1:3
-%% Compare mode 1 at all moorings
+for j = 1:2
+%% Compare modes at all moorings
 modes(j) = figure;
 for i = 1:length(Data)
     EOFs    = Data(i).EOFs;
