@@ -26,12 +26,22 @@ load(fullfile(fpath, savestr))
 
 %% EOF
 Y = Temp_grid';
-o = ones(1, size(Y, 2));
-Ybar = mean(Y, 2);
-BT = Ybar * o;
-Y = Y - BT;
+
 [L, EOFs, EC, Error, Skill,lam] = EOF(Y);
 
+Ybar_fig(mooring_ID) = figure;
+
+w = 1024;
+window = hamming(w);
+noverlap = w/2;
+nfft = [];
+fs = 1/600;
+
+[pxx, f, pxxc] = pwelch(Ybar, window, noverlap, nfft, fs, 'ConfidenceLevel', 0.95);
+loglog(f, movmean(pxx, 3), 'LineWidth', 1)
+hold on
+loglog(f, movmean(pxxc, 3), 'k--', 'LineWidth', 0.5)
+grid on
 % total variance
 %sig = var(Y(:));
 
@@ -94,14 +104,16 @@ title(sprintf('%s', mooring), 'FontSize', 18)
 
 % Spectra
 Spectra_fig(mooring_ID) = figure;
-x = EC(:, 1:2);
-w = 1440;
+x = EC(:, 2);
+w = 1024;
 window = hamming(w);
 noverlap = w/2;
 nfft = [];
 fs = 1/600;
-[pxx,f] = pwelch(x,window,noverlap,nfft,fs);
-loglog(f, pxx, 'LineWidth', 1)
+[pxx,f, pxxc] = pwelch(x,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
+loglog(f, movmean(pxx, 3), 'LineWidth', 1)
+hold on
+loglog(f, movmean(pxxc, 3), 'k--', 'LineWidth', 0.5)
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
 xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
 legend(compose('Mode %d', [1:size(x, 2)]))

@@ -21,10 +21,27 @@ fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DA
 savestr = mooring + "_10min_gridded.mat";
 load(fullfile(fpath, savestr))
 
+
+
+
 %% EOF
 Y = Temp_grid';
+
 [L, EOFs, EC, Error, Skill,lam] = EOF(Y);
 
+% Ybar_fig(mooring_ID) = figure;
+% 
+% w = 1024;
+% window = hamming(w);
+% noverlap = w/2;
+% nfft = [];
+% fs = 1/600;
+% 
+% [pxx, f, pxxc] = pwelch(Ybar, window, noverlap, nfft, fs, 'ConfidenceLevel', 0.95);
+% loglog(f, movmean(pxx, 3), 'LineWidth', 1)
+% hold on
+% loglog(f, movmean(pxxc, 3), 'k--', 'LineWidth', 0.5)
+% grid on
 % total variance
 %sig = var(Y(:));
 
@@ -77,7 +94,7 @@ nexttile
 plot(EOFs(:, 1), dz, 'k', 'LineWidth', 2)
 hold on
 plot(EOFs(:, 2), dz, 'r', 'LineWidth', 2)
-plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
+%plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
 axis ij
 axis square
 ylabel('Depth [m]')
@@ -87,19 +104,35 @@ title(sprintf('%s', mooring), 'FontSize', 18)
 
 % Spectra
 Spectra_fig(mooring_ID) = figure;
-x = EC(:, 1:3);
-window = hamming(1440);
-noverlap = 720;
+x = EC(:, 1);
+w = 1024;
+window = hamming(w);
+noverlap = w/2;
 nfft = [];
 fs = 1/600;
-[pxx,f] = pwelch(x,window,noverlap,nfft,fs);
-loglog(f, pxx, 'LineWidth', 1)
+[pxx,f, pxxc] = pwelch(x,window,noverlap,nfft,fs);
+
+M = round(length(x)/(w-noverlap));
+dof = 2 * M;
+bg = 10.^movmean(log10(pxx), 10);
+sig95 = bg * chi2inv(0.95, dof)/dof;
+
+loglog(f, pxx, 'k', 'LineWidth', 1)
+hold on
+loglog(f, sig95, 'm--')
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
 xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
 legend(compose('Mode %d', [1:size(x, 2)]))
 title(sprintf('%s EC Spectrum', mooring), 'FontSize', 18)
 set(gca, 'FontSize', 18)
 grid on
+
+figure
+R = pxx ./ bg;
+Ravg = movmean(R, 3);
+semilogx(f, Ravg);
+
+
 
 
 % store in struct
@@ -122,12 +155,12 @@ lgd.Layout.Tile = 'south';
 lgd.NumColumns = 2;
 
 figure(EOF_fig)
-lgd = legend('1st Mode', '2nd Mode', '3rd Mode');
+lgd = legend('1st Mode', '2nd Mode');%, '3rd Mode');
 lgd.Layout.Tile = 'south';
 lgd.NumColumns = 3;
 
-for j = 1:3
-%% Compare mode 1 at all moorings
+for j = 1:2
+%% Compare modes at all moorings
 modes(j) = figure;
 for i = 1:length(Data)
     EOFs    = Data(i).EOFs;
@@ -146,7 +179,7 @@ title(sprintf('Mode %d EOF', j))
 legend
 end
 
-
+return
 %% Figures
 fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'Summer2025','Rooker', 'figures');
 print(FOV_fig, fullfile(fpath, 'FOV_fig.png'), '-dpng' ,'-r600')

@@ -30,6 +30,13 @@ Y = Y - repmat(mean(Y,1),N,1);
 % detrend
 Y = detrend(Y);
 
+% remove barotropic mode
+disp('rm barotropic...')
+o = ones(1, size(Y, 2));
+Ybar = mean(Y, 2);
+Barotropic = Ybar * o;
+Y = Y - Barotropic;
+
 if nargin == 1
     [C, lam, EOFs] = svd(Y,0);% first M EOFs 
 else
