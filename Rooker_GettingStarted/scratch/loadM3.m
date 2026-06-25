@@ -43,8 +43,19 @@ colormap(cmocean('balance'))
 hold on
 plot(data.time, data.depth, 'k', 'LineWidth', 1, 'DisplayName', 'Free Surface')
 
+    
+% build qcFlag
+minCorr = min(data.corr, [], 3)';
+minAmp  = min(data.amp, [], 3)';
+qcFlag = ones(size(M3.Velocity_North));
+qcFlag(isnan(M3.Velocity_North)) = 0;
+qcFlag(minCorr < 60) = 0;
+qcFlag(minAmp < 30) = 0;
+VelN = M3.Velocity_North;
+VelN(~qcFlag) = NaN;
+
 %% Smooth data
-x = M3.Velocity_North;
+x = VelN;
 wpass = 1/600;
 fs = 1;
 fig = 0;
@@ -53,17 +64,9 @@ nan_filt = 80;
 hl = 1;
 [y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt, hl);
 
-    
-% build qcFlag
-minCorr = min(data.corr, [], 3)';
-minAmp  = min(data.amp, [], 3)';
-qcFlag = ~isnan(M3.Velocity_North);
-qcFlag(minCorr < 60) = 0;
-qcFlag(minAmp < 30) = 0;
-
 
 M3.Velocity_North = y';
-M3.qcFlag = ~isnan(M3.Velocity_North);
+M3.qcFlag = qcFlag';
 % trim pre-dep
 M3.Pressure = data.depth';
 M3.bin_mab = data.range;

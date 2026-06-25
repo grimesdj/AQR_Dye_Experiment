@@ -10,6 +10,10 @@ t1 = tiledlayout(2, 2);
 EOF_fig = figure("Position", [2250 150 1000 800]);
 t2 = tiledlayout(2, 2);
 
+Spectra_fig(1) = figure;
+t3 = tiledlayout(2, 2);
+Spectra_fig(2) = figure;
+t4 = tiledlayout(2, 2);
 
 
 %% Load Data
@@ -93,7 +97,7 @@ figure(EOF_fig)
 nexttile
 plot(EOFs(:, 1), dz, 'k', 'LineWidth', 2)
 hold on
-plot(EOFs(:, 2), dz, 'r', 'LineWidth', 2)
+plot(EOFs(:, 2), dz, 'r--', 'LineWidth', 2)
 %plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
 axis ij
 axis square
@@ -102,38 +106,28 @@ xlabel('$^\circ\mathrm{C}^2$', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
 title(sprintf('%s', mooring), 'FontSize', 18)
 
-% Spectra
-Spectra_fig(mooring_ID) = figure;
-x = EC(:, 1);
-w = 1024;
-window = hamming(w);
-noverlap = w/2;
-nfft = [];
-fs = 1/600;
-[pxx,f, pxxc] = pwelch(x,window,noverlap,nfft,fs);
-
-M = round(length(x)/(w-noverlap));
-dof = 2 * M;
-bg = 10.^movmean(log10(pxx), 10);
-sig95 = bg * chi2inv(0.95, dof)/dof;
-
-loglog(f, pxx, 'k', 'LineWidth', 1)
-hold on
-loglog(f, sig95, 'm--')
-xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
-xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
-legend(compose('Mode %d', [1:size(x, 2)]))
-title(sprintf('%s EC Spectrum', mooring), 'FontSize', 18)
-set(gca, 'FontSize', 18)
-grid on
-
-figure
-R = pxx ./ bg;
-Ravg = movmean(R, 3);
-semilogx(f, Ravg);
-
-
-
+% EC Spectra
+for modenum = 1:2
+    figure(Spectra_fig(modenum))
+    x = EC(:, modenum);
+    w = 720;
+    window = hamming(w);
+    noverlap = round(w*(2/3));
+    nfft = [];
+    fs = 1/600;
+    [pxx,f, pxxc] = pwelch(x,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
+    
+    nexttile
+    semilogx(f(3:end), pxx(3:end), 'k', 'LineWidth', 1, 'DisplayName', sprintf('Mode %d', modenum))
+    hold on
+    semilogx(f(3:end), pxxc(3:end, :), 'm--', 'LineWidth', 0.25, 'DisplayName','95% Confidence')
+    xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
+    xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
+    %legend(sprintf('Mode %d', modenum), '95% Confidence')
+    title(sprintf('%s EC Spectrum', mooring), 'FontSize', 18)
+    set(gca, 'FontSize', 18)
+    grid on
+end
 
 % store in struct
 Data(mooring_ID).L = L;
@@ -157,7 +151,19 @@ lgd.NumColumns = 2;
 figure(EOF_fig)
 lgd = legend('1st Mode', '2nd Mode');%, '3rd Mode');
 lgd.Layout.Tile = 'south';
-lgd.NumColumns = 3;
+lgd.NumColumns = 2;
+
+figure(Spectra_fig(1))
+lgd = legend('Mode 1 Spectra', '95% Confidence');
+lgd.Layout.Tile = 'south';
+lgd.NumColumns = 2;
+
+figure(Spectra_fig(2))
+lgd = legend('Mode 2 Spectra', '95% Confidence');
+lgd.Layout.Tile = 'south';
+lgd.NumColumns = 2;
+
+
 
 for j = 1:2
 %% Compare modes at all moorings
@@ -179,15 +185,12 @@ title(sprintf('Mode %d EOF', j))
 legend
 end
 
-return
 %% Figures
 fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'Summer2025','Rooker', 'figures');
 print(FOV_fig, fullfile(fpath, 'FOV_fig.png'), '-dpng' ,'-r600')
 print(EOF_fig, fullfile(fpath, 'EOF_fig.png'), '-dpng' ,'-r600')
-print(Spectra_fig(1), fullfile(fpath, 'Spectra_fig_1.png'), '-dpng' ,'-r600')
-print(Spectra_fig(2), fullfile(fpath, 'Spectra_fig_2.png'), '-dpng' ,'-r600')
-print(Spectra_fig(3), fullfile(fpath, 'Spectra_fig_3.png'), '-dpng' ,'-r600')
-print(Spectra_fig(4), fullfile(fpath, 'Spectra_fig_4.png'), '-dpng' ,'-r600')
+print(Spectra_fig(1), fullfile(fpath, 'Spectra_fig_mode_1.png'), '-dpng' ,'-r600')
+print(Spectra_fig(2), fullfile(fpath, 'Spectra_fig_mode_2.png'), '-dpng' ,'-r600')
+
 print(modes(1), fullfile(fpath, 'modes_fig_1.png'), '-dpng', '-r600')
 print(modes(2), fullfile(fpath, 'modes_fig_2.png'), '-dpng', '-r600')
-print(modes(3), fullfile(fpath, 'modes_fig_3.png'), '-dpng', '-r600')
