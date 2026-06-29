@@ -25,29 +25,28 @@ fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DA
 savestr = mooring + "_10min_gridded.mat";
 load(fullfile(fpath, savestr))
 
-
-
-
 %% EOF
 Y = Temp_grid';
+%Y = bandpass(Y, [1/(13 * 3600) 1/(9 * 3600)], 1/600);
 
-[L, EOFs, EC, Error, Skill,lam] = EOF(Y);
+[L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], 0);
 
-% Ybar_fig(mooring_ID) = figure;
-% 
-% w = 1024;
-% window = hamming(w);
-% noverlap = w/2;
-% nfft = [];
-% fs = 1/600;
-% 
-% [pxx, f, pxxc] = pwelch(Ybar, window, noverlap, nfft, fs, 'ConfidenceLevel', 0.95);
-% loglog(f, movmean(pxx, 3), 'LineWidth', 1)
-% hold on
-% loglog(f, movmean(pxxc, 3), 'k--', 'LineWidth', 0.5)
-% grid on
-% total variance
-%sig = var(Y(:));
+% Barostropic spectra
+Ybar_fig(mooring_ID) = figure;
+
+w = 720;
+window = hamming(w);
+noverlap = round(w*(2/3));
+nfft = [];
+fs = 1/600;
+[pxx,f, pxxc] = pwelch(Barotropic,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
+semilogx(f, pxx, 'LineWidth', 1)
+hold on
+semilogx(f, pxxc, 'k--', 'LineWidth', 0.5)
+grid on
+title(sprintf('%s Barotropic Spectra', mooring))
+xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
+xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
 
 % variance explained
 FOV = L/sum(L);
@@ -105,6 +104,7 @@ ylabel('Depth [m]')
 xlabel('$^\circ\mathrm{C}^2$', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
 title(sprintf('%s', mooring), 'FontSize', 18)
+grid minor
 
 % EC Spectra
 for modenum = 1:2
@@ -128,6 +128,26 @@ for modenum = 1:2
     set(gca, 'FontSize', 18)
     grid on
 end
+
+% Reconstruct std profile
+ECC  = EC(:, 1);
+EOFF = EOFs(:, 1);
+Prof = ECC * EOFF';
+sss = std(Prof, [], 1);
+
+std_fig(mooring_ID) = figure;
+plot(sss, dz, 'k-s', 'LineWidth', 2)
+axis ij
+axis square
+ylabel('Depth [m]')
+xlabel('$^\circ\mathrm{C}$', 'Interpreter', 'latex')
+set(gca, 'FontSize', 18)
+title(sprintf('%s Mode 1 Standard Deviation', mooring), 'FontSize', 18)
+grid minor
+
+%% save
+savestr = mooring + "_EOF.mat";
+save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam', 'Barotropic', 'dz')
 
 % store in struct
 Data(mooring_ID).L = L;
@@ -154,11 +174,19 @@ lgd.Layout.Tile = 'south';
 lgd.NumColumns = 2;
 
 figure(Spectra_fig(1))
+ax  = findall(gcf, 'Type', 'axes');
+ylims = vertcat(ax.YLim); 
+ymax = max(ylims(:,2));
+set(ax, 'YLim', [0 ymax])
 lgd = legend('Mode 1 Spectra', '95% Confidence');
 lgd.Layout.Tile = 'south';
 lgd.NumColumns = 2;
 
 figure(Spectra_fig(2))
+ax  = findall(gcf, 'Type', 'axes');
+ylims = vertcat(ax.YLim); 
+ymax = max(ylims(:,2));
+set(ax, 'YLim', [0 ymax])
 lgd = legend('Mode 2 Spectra', '95% Confidence');
 lgd.Layout.Tile = 'south';
 lgd.NumColumns = 2;
@@ -185,6 +213,12 @@ title(sprintf('Mode %d EOF', j))
 legend
 end
 
+
+
+return
+
+
+
 %% Figures
 fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'Summer2025','Rooker', 'figures');
 print(FOV_fig, fullfile(fpath, 'FOV_fig.png'), '-dpng' ,'-r600')
@@ -194,3 +228,13 @@ print(Spectra_fig(2), fullfile(fpath, 'Spectra_fig_mode_2.png'), '-dpng' ,'-r600
 
 print(modes(1), fullfile(fpath, 'modes_fig_1.png'), '-dpng', '-r600')
 print(modes(2), fullfile(fpath, 'modes_fig_2.png'), '-dpng', '-r600')
+
+print(Ybar_fig(1), fullfile(fpath, 'barotropic_spectra_M1.png'), '-dpng', '-r600')
+print(Ybar_fig(2), fullfile(fpath, 'barotropic_spectra_M2.png'), '-dpng', '-r600')
+print(Ybar_fig(3), fullfile(fpath, 'barotropic_spectra_M3.png'), '-dpng', '-r600')
+print(Ybar_fig(4), fullfile(fpath, 'barotropic_spectra_M4.png'), '-dpng', '-r600')
+
+print(std_fig(1), fullfile(fpath, 'std_Temp_profile_mode1_M1.png'), '-dpng', '-r600')
+print(std_fig(2), fullfile(fpath, 'std_Temp_profile_mode1_M2.png'), '-dpng', '-r600')
+print(std_fig(3), fullfile(fpath, 'std_Temp_profile_mode1_M3.png'), '-dpng', '-r600')
+print(std_fig(4), fullfile(fpath, 'std_Temp_profile_mode1_M4.png'), '-dpng', '-r600')

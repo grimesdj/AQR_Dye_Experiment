@@ -1,7 +1,7 @@
-function [L, EOFs, EC, Error, Skill,lam] = EOF( Y , num ); 
+function [L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF( Y , num, BT ); 
 % EOF computes EOFs via SVD. 
 %
-% Usage:  [L, EOFs, EC, Error] = EOF( Y, num ); 
+% Usage:  [L, EOFs, EC, Error, Skill, lam, Barotropic] = EOF( Y, num ); 
 %
 % Y is the data matrix to be evaluated, and whose columns contain
 % the different stations and rows contain timeseries from each
@@ -10,6 +10,10 @@ function [L, EOFs, EC, Error, Skill,lam] = EOF( Y , num );
 %
 % The mean of Y is removed prior to SVD. Only compute first EOFs
 % corresponding to the number of stations (columns) in Y.
+%
+% BT is a binary flag that determines whether Barotropic Velocity gets removed prior to EOF analysis (defaults to off)
+%
+%
 % 
 % L: Eigenvalues 
 %
@@ -22,6 +26,10 @@ function [L, EOFs, EC, Error, Skill,lam] = EOF( Y , num );
 % Skill: ratio of prediction variance to observed for each station
 % (column)
 
+if nargin < 3 || isempty(BT)
+    BT = 0;
+end
+
 [N, M] = size(Y);
 
 % remove mean
@@ -31,14 +39,18 @@ Y = Y - Tbar;
 % detrend
 Y = detrend(Y);
 
-% remove barotropic mode
-disp('rm barotropic...')
-o = ones(1, size(Y, 2));
-Ybar = mean(Y, 2);
-Barotropic = Ybar * o;
-Y = Y - Barotropic;
+if BT
+    % remove barotropic mode
+    disp('rm barotropic...')
+    o = ones(1, size(Y, 2));
+    Ybar = mean(Y, 2);
+    Barotropic = Ybar * o;
+    Y = Y - Barotropic;
+else
+    Barotropic = zeros(size(Y));
+end
 
-if nargin == 1
+if nargin <2 || isempty(num)
     [C, lam, EOFs] = svd(Y,0);% first M EOFs 
 else
     [C, lam, EOFs] = svds(Y,num);% first num EOFs

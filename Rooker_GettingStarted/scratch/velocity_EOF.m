@@ -4,7 +4,15 @@ clear all
 close all
 
 %% Load
-M = load('../../../../Kelp_data/data/2024_PROCESSED_DATA/M2/L0/ADCP/ADCP_M2_L0_10min.mat');
+mooring_ID = 1;
+moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
+mooring = moorings{mooring_ID};
+
+% ADCP
+fprintf('loading %s data...\n', mooring)
+fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DATA', mooring, 'L0', 'ADCP');
+fname = "ADCP_" + mooring + "_L0_10min.mat";
+M = load(fullfile(fpath,fname));
 %M.Config = load('../../../../Kelp_data/data/2024_PROCESSED_DATA/M1/L0/ADCP/ADCP_M1_config.mat');
 
 
@@ -48,6 +56,7 @@ xlabel('$u$ [m/s]', 'Interpreter','latex')
 ylabel('$z/h$', 'Interpreter','latex')
 set(gca, 'FontSize', 18)
 title('Mean Profile')
+grid minor
 
 subplot(1, 2, 2);
 plot(std_profile, dz, '-s', 'LineWidth', 2)
@@ -55,12 +64,12 @@ xlabel('$u$ [m/s]', 'Interpreter','latex')
 ylabel('$z/h$', 'Interpreter','latex')
 set(gca, 'FontSize', 18)
 title('Std Profile')
+grid minor
 %% EOF
-
 
 Vel_grid = fillmissing(Vel_grid, 'linear', 2, 'EndValues','nearest');
 Y = Vel_grid';
-[L, EOFs, EC, Error, Skill,lam] = EOF(Y);
+[L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], 1);
 
 % FOV
 FOV = L/sum(L);
@@ -115,6 +124,14 @@ ylabel('$z/h$', 'Interpreter','latex')
 xlabel('$\mathrm{m}^2/\mathrm{s}^2$', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
 legend('1st mode', '2nd mode', 'Location','eastoutside')
+grid minor
+
+%% save
+savestr = mooring + "_EOF.mat";
+fpath = fullfile(fpath, '..', '..', 'L1', 'ADCP');
+save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam','Barotropic')
+
+
 
 figure
 for modenum = 1:2
