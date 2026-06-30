@@ -16,58 +16,79 @@ for i = 1:length(vars)
     vname = matlab.lang.makeValidName(name);
     fprintf('loading %s...\n', name)
     data.(vname) = ncread(fin, name);
+    if length(size(data.(vname))) == 3
+        dum = data.(vname);
+        E = sprintf('%s_East', vname);
+        N = sprintf('%s_North', vname);
+        U = sprintf('%s_Up', vname);
+        data.(E) = squeeze(dum(:, :, 1));
+        data.(N) = squeeze(dum(:, :, 2));
+        data.(U) = squeeze(dum(:, :, 3));
+    end
 end
 
 
 % make readable time
 data.time = datetime(data.time, 'ConvertFrom', 'posixtime');
 
-% extract time
-N = data.vel(:, :, 2);
-M3.Velocity_North = squeeze(N);
+% % extract vel
+% N = data.vel(:, :, 2);
+% M3.Velocity_North = squeeze(N);
 
-% clear abover surface
-mask = data.range' < data.depth-4*mean(diff(data.range));   
-M3.Velocity_North(~mask) = NaN;
 
-figure
-img = imagesc(data.time, data.range, M3.Velocity_North');
-set(img, 'AlphaData', ~isnan(M3.Velocity_North'))
-set(gca, 'YDir', 'normal')
-set(gca, 'FontSize', 18)
-ylabel('mab')
-colorbar
-clim([-0.5 0.5])
-colormap(cmocean('balance'))
 
-hold on
-plot(data.time, data.depth, 'k', 'LineWidth', 1, 'DisplayName', 'Free Surface')
+% figure
+% img = imagesc(data.time, data.range, M3.Velocity_North');
+% set(img, 'AlphaData', ~isnan(M3.Velocity_North'))
+% set(gca, 'YDir', 'normal')
+% set(gca, 'FontSize', 18)
+% ylabel('mab')
+% colorbar
+% clim([-0.5 0.5])
+% colormap(cmocean('balance'))
+% 
+% hold on
+% plot(data.time, data.depth, 'k', 'LineWidth', 1, 'DisplayName', 'Free Surface')
 
-    
+% clear surface
+mask = data.range' < data.depth-4*mean(diff(data.range));  
+
 % build qcFlag
 minCorr = min(data.corr, [], 3)';
 minAmp  = min(data.amp, [], 3)';
-qcFlag = ones(size(M3.Velocity_North));
-qcFlag(isnan(M3.Velocity_North)) = 0;
+qcFlag = ones(size(data.vel_North));
+qcFlag(~mask) = 0;
 qcFlag(minCorr < 60) = 0;
 qcFlag(minAmp < 30) = 0;
-VelN = M3.Velocity_North;
-VelN(~qcFlag) = NaN;
 
-%% Smooth data
-x = VelN;
-wpass = 1/600;
-fs = 1;
-fig = 0;
-ds = 0;
-nan_filt = 80;
-hl = 1;
-[y, fsd, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt, hl);
+fields = fieldnames(data);
 
+for i = 1:length(fields)
+    field = fields{i};
+    x = data.(field);
+    if length(size(x)) < 3 && length(x) == length(data.time) & ~strcmp(field, 'time')
+        if all(size(x) == size(data.vel_North))
+            x(~qcFlag) = NaN;
+        end
 
-M3.Velocity_North = y';
+        wpass = 1/600;
+        fs = 1;
+        fig = 0;
+        ds = 1;
+        nan_filt = 80;
+        hl = 1;
+        [y, ~, idx] = hamming_filter(x, wpass, fs, fig, ds, nan_filt, hl);
+    else
+        y = x;
+    end
+    data.(field) = y;
+end
+data.time = data.time(idx);
+
+M3.Velocity_North = data.vel_North';
+M3.Velocity_East = data.vel_East';
+M3.Velocity_Up = data.vel_Up';
 M3.qcFlag = qcFlag';
-% trim pre-dep
 M3.Pressure = data.depth';
 M3.bin_mab = data.range;
 M3.Temperature = data.temp';
@@ -85,18 +106,19 @@ for i = 1:length(fields)
     dum = M3.(field);
     if size(dum, 2) == length(data.time)
         M3.(field) = dum(:, dep);
-        M3.(field) = M3.(field)(:, 1:600:end);
     end
 end
 
 figure
-img = imagesc(data.time, data.range, y');
-set(img, 'AlphaData', ~isnan(y'))
+img = imagesc(M3.Time, M3.bin_mab, M3.Velocity_North);
+set(img, 'AlphaData', ~isnan(M3.Velocity_North))
 set(gca, 'YDir', 'normal')
 set(gca, 'FontSize', 18)
 ylabel('mab')
 colorbar
 clim([-0.1 0.1])
 colormap(cmocean('balance'))
+hold on
+plot(M3.Time, M3.Pressure, 'k', 'LineWidth', 1.5)
 
 save('../../../../Kelp_data/data/2024_PROCESSED_DATA/M3/L0/ADCP/ADCP_M3_L0_10min.mat', '-struct', "M3")

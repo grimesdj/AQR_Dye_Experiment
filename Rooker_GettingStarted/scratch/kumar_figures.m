@@ -29,7 +29,7 @@ fname = "ADCP_" + mooring + "_L0_10min.mat";
 % end
 
 % load vel EOF
-savestr = mooring + "_EOF.mat";
+savestr = mooring + "_EOF_depth_coords.mat";
 path = fullfile(fpath, '..', '..', 'L1', 'ADCP');
 if exist(fullfile(path, savestr), 'file')
     VEOF(mooring_ID) = load(fullfile(path, savestr));
@@ -37,42 +37,121 @@ end
 end
 %% Make Figures
 
+% need to put velocities on depth grid!
+
+figure("Position", [2250 30 750 1000])
 H = arrayfun(@(x) x.dz(1), TEOF);
-rowH = H/sum(H);
+rowScale = H;
+Ncols = 3;
+ax = scaled_figure(rowScale,Ncols);
 
-lM  = 0.08;
-rM  = 0.03;
-tM  = 0.03;
-bM  = 0.07;
-gap = 0.03;
 
-pW = 1 - lM - rM - 2*gap;
-colW = pW/3;
+% M1 Velocity EOF mode 1
+axes(ax(1, 1))
+plot(abs(VEOF(1).EOFs(:, 1)), VEOF(1).dz, 'k-s', 'LineWidth', 2)
+grid minor
+axis ij
 
-pH = 1 - tM - bM - gap*(length(H)-1);
+% M1 Temp variablilty
+axes(ax(1, 3))
+phi = TEOF(1).EC(:, 1);
+A   = TEOF(1).EOFs(:, 1);
+S = phi * A';
+sig = std(S, [], 1);
+plot(sig, TEOF(1).dz, 'r-s', 'LineWidth', 2)
+grid minor
+axis ij
 
-y = 1 - tM;
+% M3 Velocity
+axes(ax(2, 1))
+plot(abs(VEOF(2).EOFs(:, 1)), VEOF(2).dz, 'k-s', 'LineWidth', 2)
+grid minor
+axis ij
 
-for i = 1:4
+% M2 Temp variablilty
+axes(ax(2, 3))
+phi = TEOF(2).EC(:, 1);
+A   = TEOF(2).EOFs(:, 1);
+S = phi * A';
+sig = std(S, [], 1);
+plot(sig, TEOF(2).dz, 'r-s', 'LineWidth', 2)
+grid minor
+axis ij
 
-    h = pH * rowH(i);
-    y = y - h;
+% M3 Velocity
+axes(ax(3, 1))
+plot(abs(VEOF(3).EOFs(:, 1)), VEOF(3).dz, 'k-s', 'LineWidth', 2)
+grid minor
+axis ij
 
-    for j = 1:3
+% M3 Temp variablilty
+axes(ax(3, 3))
+phi = TEOF(3).EC(:, 1);
+A   = TEOF(3).EOFs(:, 1);
+S = phi * A';
+sig = std(S, [], 1);
+plot(sig, TEOF(3).dz, 'r-s', 'LineWidth', 2)
+grid minor
+axis ij
 
-        x = lM + (j-1) * (colW+gap);
+% M4 Vel
+ % no data
 
-        ax(i, j) = axes('Position',[x y colW h]);
+% M4 Temp variablilty
+axes(ax(4, 3))
+phi = TEOF(4).EC(:, 1);
+A   = TEOF(4).EOFs(:, 1);
+S = phi * A';
+sig = std(S, [], 1);
+plot(sig, TEOF(4).dz, 'r-s', 'LineWidth', 2)
+grid minor
+axis ij
 
-        % plot here
-        Y = Temp(i).Temp_grid';
-        Tbar = mean(Y, 1);
-        plot(Tbar, TEOF(i).dz)
-        grid minor
-        axis ij
+for rows = 1:length(H)
+    for cols = [1 3]
+
+        linkaxes(ax(rows, [1 3]), 'y')
+        linkaxes(ax(1:3, cols), 'x')
+       
     end
-    y = y-gap;
 end
+
+
+% rowH = H/sum(H);
+% 
+% lM  = 0.08;
+% rM  = 0.03;
+% tM  = 0.03;
+% bM  = 0.07;
+% gap = 0.03;
+% 
+% pW = 1 - lM - rM - 2*gap;
+% colW = pW/3;
+% 
+% pH = 1 - tM - bM - gap*(length(H)-1);
+% 
+% y = 1 - tM;
+% 
+% for i = 1:4
+% 
+%     h = pH * rowH(i);
+%     y = y - h;
+% 
+%     for j = 1:3
+% 
+%         x = lM + (j-1) * (colW+gap);
+% 
+%         ax(i, j) = axes('Position',[x y colW h]);
+% 
+%         % plot here
+%         Y = Temp(i).Temp_grid';
+%         Tbar = mean(Y, 1);
+%         plot(Tbar, TEOF(i).dz)
+%         grid minor
+%         axis ij
+%     end
+%     y = y-gap;
+% end
 
 
 

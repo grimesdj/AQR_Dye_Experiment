@@ -67,7 +67,7 @@ msk = ~isnan(M.Temperature);
 Temp = M.Temperature(msk);
 sig = sig(msk);
 t_grid = t_grid(msk);
-
+keyboard
 % interpolate to regular grid
 disp('interpolating to F...')
 F = scatteredInterpolant(t_grid(:), sig(:), Temp(:), 'linear', 'nearest');

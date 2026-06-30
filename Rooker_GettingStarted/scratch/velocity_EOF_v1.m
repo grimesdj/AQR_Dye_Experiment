@@ -31,70 +31,41 @@ for i = 1:length(fields)
 end
 
 %% Grid data
-%[t_grid, z_grid] = meshgrid(M.Time, M.bin_mab);
+[t_grid, z_grid] = meshgrid(M.Time, M.bin_mab);
 
-% bin mab
-dz = 0:0.5:nanmean(M.Pressure);
+h = M.Pressure;
+h = fillmissing(h, 'spline');
+dum = zeros(size(z_grid));
+dum(2:end+1, :) = z_grid;
+z_grid = dum;
 
-% depth from pressure
-h = fillmissing(M.Pressure, 'linear');
-h = h(:)';
+%sig = z_grid./h;
+sig = -1 * z_grid + nanmean(h);
+sig(1, :) = max(M.Pressure);
+%dz = max(sig(1, :)):0.1:0.8;
+dz = ceil(max(sig(2,:))):-.3:1;
+%U = fillmissing(M.Velocity_North, "linear" , 2, 'EndValues','nearest');
+M.Velocity_North = fillmissing(M.Velocity_North, 'linear', 2, 'EndValues','none');
+o = zeros(size(z_grid));
+o(2:end, :) = M.Velocity_North;
+M.Velocity_North = o;
 
-% depth matrix
-bin_mab = [0;M.bin_mab(:)];
-depth = h - M.bin_mab(:);
+o = zeros(size(z_grid));
+o(2:end, :) = t_grid;
+o(1, :) = t_grid(1, :);
+t_grid = o;
 
-% Interpolate
-Nt = length(M.Time);
-Nz = length(dz);
+msk = ~isnan(M.Velocity_North);
+U = M.Velocity_North(msk);
+sig = sig(msk);
+t_grid = t_grid(msk);
 
-
-Vel_grid = zeros(Nz, Nt); % this interpolation needs to be finished
-
-for t = 1:Nt
-    z_t = depth(:,t);        % depth at time t
-    u_t = M.Velocity_North(:,t);
-
-    if nnz(good) > 2
-        Vel_grid(:,t) = interp1(z_t(good), u_t(good), dz, 'linear', NaN);
-    end
-end
-
+% interpolate
+F = scatteredInterpolant(t_grid(:), sig(:), U(:), 'linear', 'nearest');
+[Tq, Zq] = meshgrid(M.Time, dz);
+Vel_grid = F(Tq, Zq);
+% plot mean Profiles
 keyboard
-
-% h = M.Pressure;
-% h = fillmissing(h, 'spline');
-% dum = zeros(size(z_grid));
-% dum(2:end+1, :) = z_grid;
-% z_grid = dum;
-% 
-% %sig = z_grid./h;
-% sig = -1 * z_grid + nanmean(h);
-% sig(1, :) = max(M.Pressure);
-% %dz = max(sig(1, :)):0.1:0.8;
-% dz = ceil(max(sig(2,:))):-.3:1;
-% %U = fillmissing(M.Velocity_North, "linear" , 2, 'EndValues','nearest');
-% M.Velocity_North = fillmissing(M.Velocity_North, 'linear', 2, 'EndValues','none');
-% o = zeros(size(z_grid));
-% o(2:end, :) = M.Velocity_North;
-% M.Velocity_North = o;
-% 
-% o = zeros(size(z_grid));
-% o(2:end, :) = t_grid;
-% o(1, :) = t_grid(1, :);
-% t_grid = o;
-% 
-% msk = ~isnan(M.Velocity_North);
-% U = M.Velocity_North(msk);
-% sig = sig(msk);
-% t_grid = t_grid(msk);
-% 
-% % interpolate
-% F = scatteredInterpolant(t_grid(:), sig(:), U(:), 'linear', 'nearest');
-% [Tq, Zq] = meshgrid(M.Time, dz);
-% Vel_grid = F(Tq, Zq);
-% % plot mean Profiles
-% keyboard
 mean_profile = nanmean(Vel_grid, 2);
 std_profile = nanstd(Vel_grid,[], 2);
 
