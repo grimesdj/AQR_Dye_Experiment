@@ -47,10 +47,12 @@ ax = scaled_figure(rowScale,Ncols);
 
 
 % M1 Velocity EOF mode 1
-axes(ax(1, 1))
+axes(ax(1, 1));
 plot(abs(VEOF(1).EOFs(:, 1)), VEOF(1).dz, 'k-s', 'LineWidth', 2)
 grid minor
 axis ij
+xticks([])
+
 
 % M1 Temp variablilty
 axes(ax(1, 3))
@@ -61,12 +63,15 @@ sig = std(S, [], 1);
 plot(sig, TEOF(1).dz, 'r-s', 'LineWidth', 2)
 grid minor
 axis ij
+yticks([])
+xticks([])
 
-% M3 Velocity
+% M2 Velocity
 axes(ax(2, 1))
 plot(abs(VEOF(2).EOFs(:, 1)), VEOF(2).dz, 'k-s', 'LineWidth', 2)
 grid minor
 axis ij
+xticks([])
 
 % M2 Temp variablilty
 axes(ax(2, 3))
@@ -77,12 +82,15 @@ sig = std(S, [], 1);
 plot(sig, TEOF(2).dz, 'r-s', 'LineWidth', 2)
 grid minor
 axis ij
+yticks([])
+xticks([])
 
 % M3 Velocity
 axes(ax(3, 1))
 plot(abs(VEOF(3).EOFs(:, 1)), VEOF(3).dz, 'k-s', 'LineWidth', 2)
 grid minor
 axis ij
+xticks([])
 
 % M3 Temp variablilty
 axes(ax(3, 3))
@@ -93,6 +101,8 @@ sig = std(S, [], 1);
 plot(sig, TEOF(3).dz, 'r-s', 'LineWidth', 2)
 grid minor
 axis ij
+yticks([])
+xticks([])
 
 % M4 Vel
  % no data
@@ -106,6 +116,7 @@ sig = std(S, [], 1);
 plot(sig, TEOF(4).dz, 'r-s', 'LineWidth', 2)
 grid minor
 axis ij
+yticks([])
 
 for rows = 1:length(H)
     for cols = [1 3]
@@ -115,6 +126,11 @@ for rows = 1:length(H)
        
     end
 end
+
+ylabel(ax(:, 1), '$h$ [m]', 'Interpreter','latex')
+xlabel(ax(end, 1), '$U_{EOF1}$', 'Interpreter','latex')
+xlabel(ax(end, 3), '$\sigma_{T}(^{\circ}C)$', 'Interpreter','latex')
+
 
 
 % rowH = H/sum(H);

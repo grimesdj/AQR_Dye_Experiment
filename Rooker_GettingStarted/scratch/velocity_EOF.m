@@ -31,36 +31,36 @@ for i = 1:length(fields)
 end
 
 %% Grid data
-%[t_grid, z_grid] = meshgrid(M.Time, M.bin_mab);
 
-% bin mab
-dz = 0:0.5:nanmean(M.Pressure);
+% original reference
+hbar = nanmean(M.Pressure); % mean depth
+bin_dep = hbar - M.bin_mab; % each bin at mean depth
+bin_dep = [hbar; bin_dep]; % add bottom 0 bin
+o = M.Velocity_North(1, :);%zeros(1, length(M.Time));
+U = [o;M.Velocity_North]; % add 0 velocity at seafloor
 
-% depth from pressure
-h = fillmissing(M.Pressure, 'linear');
-h = h(:)';
+% reference grid
+[t_grid, z_grid] = meshgrid(M.Time, bin_dep);
 
-% depth matrix
-bin_mab = [0;M.bin_mab(:)];
-depth = h - M.bin_mab(:);
+% clear nans
+mask = ~isnan(U);
+U = U(mask);
+t_grid = t_grid(mask);
+z_grid = z_grid(mask);
 
-% Interpolate
-Nt = length(M.Time);
-Nz = length(dz);
+% interpolate to a surface
+F = scatteredInterpolant(t_grid(:), z_grid(:), U(:), 'linear', 'nearest');
 
+% query grid
+z_max = max(bin_dep);
+z_min = hbar - min(M.Pressure);
+step = 0.5;
+dz = z_min+2:step:z_max;
+[Tq, Zq] = meshgrid(M.Time, dz);
 
-Vel_grid = zeros(Nz, Nt); % this interpolation needs to be finished
+% Eval at query grid
+Vel_grid = F(Tq, Zq);
 
-for t = 1:Nt
-    z_t = depth(:,t);        % depth at time t
-    u_t = M.Velocity_North(:,t);
-
-    if nnz(good) > 2
-        Vel_grid(:,t) = interp1(z_t(good), u_t(good), dz, 'linear', NaN);
-    end
-end
-
-keyboard
 
 % h = M.Pressure;
 % h = fillmissing(h, 'spline');
@@ -119,6 +119,25 @@ grid minor
 Vel_grid = fillmissing(Vel_grid, 'linear', 2, 'EndValues','nearest');
 Y = Vel_grid';
 [L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], 1);
+
+% barotropic spectra
+figure
+w = 720;
+window = hamming(w);
+noverlap = round(w*(2/3));
+nfft = [];
+fs = 1/600;
+[pxx,f, pxxc] = pwelch(Barotropic,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
+semilogx(f, pxx, 'LineWidth', 1)
+hold on
+semilogx(f, pxxc, 'k--', 'LineWidth', 0.5)
+grid on
+title(sprintf('%s Barotropic Spectra', mooring))
+xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
+xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
+xline(1/(21.2 * 3600), 'g--', 'Label', 'intertial tide')
+
+
 
 % FOV
 FOV = L/sum(L);
@@ -198,6 +217,7 @@ for modenum = 1:2
     semilogx(f(3:end), pxxc(3:end, :), 'm--', 'LineWidth', 0.25, 'DisplayName','95% Confidence')
     xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
     xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
+    xline(1/(21.2*3600), 'g--', 'Label', 'Interial Tide')
     title('Velocity EC Spectrum')
     grid minor
     legend

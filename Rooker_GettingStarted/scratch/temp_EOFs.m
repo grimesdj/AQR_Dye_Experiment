@@ -47,6 +47,7 @@ grid on
 title(sprintf('%s Barotropic Spectra', mooring))
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
 xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
+xline(1/(21.2*3600), 'g--', 'Label', 'Interial Tide')
 
 % variance explained
 FOV = L/sum(L);
