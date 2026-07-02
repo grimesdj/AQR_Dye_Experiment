@@ -4,7 +4,7 @@ clear all
 close all
 
 %% Load
-mooring_ID = 3;
+mooring_ID = 1;
 moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
 mooring = moorings{mooring_ID};
 
@@ -118,6 +118,7 @@ grid minor
 
 Vel_grid = fillmissing(Vel_grid, 'linear', 2, 'EndValues','nearest');
 Y = Vel_grid';
+Y = bandpass(Y, [1/(48 * 3600) 1/(8 * 3600)], 1/600);
 [L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], 1);
 
 % barotropic spectra
@@ -222,3 +223,17 @@ for modenum = 1:2
     grid minor
     legend
 end
+
+
+
+sEOF1 = std(EC(:, 1)) * EOFs(:, 1);
+sEOF2 = std(EC(:, 2)) * EOFs(:, 2);
+figure, plot(mean_profile, dz, 'k', 'LineWidth', 1)
+axis square
+axis ij
+hold on, plot(mean_profile + sEOF1, dz, 'LineWidth', 1)
+hold on, plot(mean_profile - sEOF1, dz, 'LineWidth', 1)
+hold on, plot(mean_profile + sEOF1 + sEOF2, dz, 'LineWidth', 1)
+hold on, plot(mean_profile + sEOF1 - sEOF2, dz, 'LineWidth', 1)
+hold on, plot(mean_profile - sEOF1 - sEOF2, dz, 'LineWidth', 1)
+hold on, plot(mean_profile - sEOF1 + sEOF2, dz, 'LineWidth', 1)

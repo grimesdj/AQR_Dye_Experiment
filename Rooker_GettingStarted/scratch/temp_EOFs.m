@@ -27,11 +27,11 @@ load(fullfile(fpath, savestr))
 
 %% EOF
 Y = Temp_grid';
-%Y = bandpass(Y, [1/(13 * 3600) 1/(9 * 3600)], 1/600);
+Y = bandpass(Y, [1/(48 * 3600) 1/(8 * 3600)], 1/600);
 
 [L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], 0);
 
-% Barostropic spectra
+% Barotropic spectra
 Ybar_fig(mooring_ID) = figure;
 
 w = 720;
