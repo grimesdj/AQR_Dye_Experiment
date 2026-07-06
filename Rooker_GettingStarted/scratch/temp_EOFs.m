@@ -3,6 +3,20 @@
 clear all
 close all
 
+
+%% User Input data
+
+% bandpass range IN HOURS (BP = 0 means bandpass off, BP = 1 means bandpass on)
+BP = 0; 
+lower_bound = 48;
+upper_bound = 8;
+
+% remove barotropic? (0 for no, 1 for yes)
+rmBT = 0;
+
+
+
+
 % initialize
 FOV_fig = figure("Position", [2250 150 1000 800]);
 t1 = tiledlayout(2, 2);
@@ -27,9 +41,11 @@ load(fullfile(fpath, savestr))
 
 %% EOF
 Y = Temp_grid';
-Y = bandpass(Y, [1/(48 * 3600) 1/(8 * 3600)], 1/600);
+if BP
+    Y = bandpass(Y, [1/(lower_bound * 3600) 1/(upper_bound * 3600)], 1/600);
+end
 
-[L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], 0);
+[L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], rmBT);
 
 % Barotropic spectra
 Ybar_fig(mooring_ID) = figure;
@@ -86,7 +102,7 @@ plot(noise95,'r--','LineWidth',2)
 
 % consistent sign convention
 for i = 1:size(EOFs, 2)
-    if EOFs(end, i) > 0
+    if EOFs(1, i) < 0
         EOFs(:, i) = -1* EOFs(:,i);
         EC(:, i) = -1 * EC(:, i);
     end

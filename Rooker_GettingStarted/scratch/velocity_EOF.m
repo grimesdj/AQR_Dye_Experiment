@@ -3,9 +3,27 @@
 clear all
 close all
 
+%% User Input data
+
+% bandpass range IN HOURS (BP = 0 means bandpass off, BP = 1 means bandpass on)
+BP = 1; 
+lower_bound = 48;
+upper_bound = 8;
+
+% remove barotropic? (0 for no, 1 for yes)
+rmBT = 1;
+
+% initialize
+FOV_fig = figure("Position", [2250 150 1000 800]);
+t1 = tiledlayout(2, 2);
+
+EOF_fig = figure("Position", [2250 150 1000 800]);
+t2 = tiledlayout(2, 2);
+
+
+moorings = {'M1', 'M2', 'M3'};
+for mooring_ID = 1:length(moorings)
 %% Load
-mooring_ID = 1;
-moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
 mooring = moorings{mooring_ID};
 
 % ADCP
@@ -36,8 +54,8 @@ end
 hbar = nanmean(M.Pressure); % mean depth
 bin_dep = hbar - M.bin_mab; % each bin at mean depth
 bin_dep = [hbar; bin_dep]; % add bottom 0 bin
-o = M.Velocity_North(1, :);%zeros(1, length(M.Time));
-U = [o;M.Velocity_North]; % add 0 velocity at seafloor
+o = M.Velocity_East(1, :);%zeros(1, length(M.Time));
+U = [o;M.Velocity_East]; % add 0 velocity at seafloor
 
 % reference grid
 [t_grid, z_grid] = meshgrid(M.Time, bin_dep);
@@ -62,39 +80,7 @@ dz = z_min+2:step:z_max;
 Vel_grid = F(Tq, Zq);
 
 
-% h = M.Pressure;
-% h = fillmissing(h, 'spline');
-% dum = zeros(size(z_grid));
-% dum(2:end+1, :) = z_grid;
-% z_grid = dum;
-% 
-% %sig = z_grid./h;
-% sig = -1 * z_grid + nanmean(h);
-% sig(1, :) = max(M.Pressure);
-% %dz = max(sig(1, :)):0.1:0.8;
-% dz = ceil(max(sig(2,:))):-.3:1;
-% %U = fillmissing(M.Velocity_North, "linear" , 2, 'EndValues','nearest');
-% M.Velocity_North = fillmissing(M.Velocity_North, 'linear', 2, 'EndValues','none');
-% o = zeros(size(z_grid));
-% o(2:end, :) = M.Velocity_North;
-% M.Velocity_North = o;
-% 
-% o = zeros(size(z_grid));
-% o(2:end, :) = t_grid;
-% o(1, :) = t_grid(1, :);
-% t_grid = o;
-% 
-% msk = ~isnan(M.Velocity_North);
-% U = M.Velocity_North(msk);
-% sig = sig(msk);
-% t_grid = t_grid(msk);
-% 
-% % interpolate
-% F = scatteredInterpolant(t_grid(:), sig(:), U(:), 'linear', 'nearest');
-% [Tq, Zq] = meshgrid(M.Time, dz);
-% Vel_grid = F(Tq, Zq);
-% % plot mean Profiles
-% keyboard
+% mean prfiles
 mean_profile = nanmean(Vel_grid, 2);
 std_profile = nanstd(Vel_grid,[], 2);
 
@@ -102,24 +88,45 @@ figure
 subplot(1, 2, 1);
 plot(mean_profile, dz,'-s', 'LineWidth', 2)
 xlabel('$u$ [m/s]', 'Interpreter','latex')
-ylabel('$z/h$', 'Interpreter','latex')
+ylabel('$h$ [m]', 'Interpreter','latex')
 set(gca, 'FontSize', 18)
 title('Mean Profile')
 grid minor
+axis ij
 
 subplot(1, 2, 2);
 plot(std_profile, dz, '-s', 'LineWidth', 2)
 xlabel('$u$ [m/s]', 'Interpreter','latex')
-ylabel('$z/h$', 'Interpreter','latex')
+ylabel('$h$ [m]', 'Interpreter','latex')
 set(gca, 'FontSize', 18)
-title('Std Profile')
+title('$\sigma$ Profile', 'Interpreter','latex')
 grid minor
+axis ij
 %% EOF
 
 Vel_grid = fillmissing(Vel_grid, 'linear', 2, 'EndValues','nearest');
 Y = Vel_grid';
-Y = bandpass(Y, [1/(48 * 3600) 1/(8 * 3600)], 1/600);
-[L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], 1);
+if BP
+    Y = bandpass(Y, [1/(lower_bound * 3600) 1/(upper_bound * 3600)], 1/600);
+end
+
+[L, EOFs, EC, Error, Skill,lam, Barotropic] = EOF(Y, [], rmBT);
+
+% FOV BT vs BC
+
+% Velocities
+U  = Y;
+UBT = Barotropic;
+UBC = U - UBT;
+
+% Variance
+V = sum(var(U, 0, 1));
+VBT = sum(var(UBT, 0, 1));
+VBC = sum(var(UBC, 0, 1));
+
+% FOV
+FBT = VBT/V;
+FBC = VBC/V;
 
 % barotropic spectra
 figure
@@ -142,7 +149,8 @@ xline(1/(21.2 * 3600), 'g--', 'Label', 'intertial tide')
 
 % FOV
 FOV = L/sum(L);
-figure
+figure(FOV_fig)
+nexttile
 plot(FOV, 'ko-', 'LineWidth', 2, 'MarkerSize', 10, 'MarkerFaceColor','black')
 ylabel('FOV')
 xlabel('Mode #')
@@ -150,6 +158,8 @@ set(gca, 'FontSize', 18)
 axis square
 grid minor
 ylim([0 1])
+title(sprintf('%s', mooring))
+
 
 % monte-carlo noise floor
 N = size(Y,1);
@@ -170,7 +180,6 @@ end
 noise95 = prctile(F,95);
 hold on
 plot(noise95,'r--','LineWidth',2)
-legend('FOV', 'MC Noise Floor')
 
 
 %% plot modes
@@ -183,23 +192,25 @@ for i = 1:size(EOFs, 2)
     end
 end
 
-figure
+figure(EOF_fig)
+nexttile
 plot(EOFs(:, 1), dz, 'k', 'LineWidth', 2)
 hold on
 plot(EOFs(:, 2), dz, 'r', 'LineWidth', 2)
 %plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
 axis square
-ylabel('$z/h$', 'Interpreter','latex')
+ylabel('$h$ [m]', 'Interpreter','latex')
 xlabel('$\mathrm{m}^2/\mathrm{s}^2$', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
-legend('1st mode', '2nd mode', 'Location','eastoutside')
 grid minor
+axis ij
+title(sprintf('%s', mooring))
 
 %% save
 savestr = mooring + "_EOF_depth_coords.mat";
 fpath = fullfile(fpath, '..', '..', 'L1', 'ADCP');
 save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam','Barotropic', 'dz')
-
+save(fullfile(fpath, mooring + "_10min_gridded_East.mat"), 'Tq', 'Zq', 'Vel_grid')
 
 
 figure
@@ -237,3 +248,33 @@ hold on, plot(mean_profile + sEOF1 + sEOF2, dz, 'LineWidth', 1)
 hold on, plot(mean_profile + sEOF1 - sEOF2, dz, 'LineWidth', 1)
 hold on, plot(mean_profile - sEOF1 - sEOF2, dz, 'LineWidth', 1)
 hold on, plot(mean_profile - sEOF1 + sEOF2, dz, 'LineWidth', 1)
+
+%% Variance Bar Plot
+FM1 = FBC * FOV(1);
+Fnoise = FBC - FM1;
+
+variance(mooring_ID, :) = [FBT FM1 Fnoise] .* V;
+
+
+end
+
+figure(FOV_fig)
+lgd = legend('Fraction of Variance', 'MC White Noise Floor');
+lgd.Layout.Tile = 4;
+lgd.NumColumns = 1;
+
+figure(EOF_fig)
+lgd = legend('1st Mode', '2nd Mode');%, '3rd Mode');
+lgd.Layout.Tile = 4;
+lgd.NumColumns = 1;
+
+
+
+
+%% save variance data
+save('../../../../Kelp_data/data/2024_PROCESSED_DATA/Velocity_Variance_East', 'variance');
+
+
+
+
+
