@@ -1,7 +1,7 @@
 %% Variance Bar Plot
 
 clear all
-close all
+%close all
 
 sites = 1:3;
 

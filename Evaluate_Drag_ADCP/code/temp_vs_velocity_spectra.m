@@ -41,8 +41,6 @@ path = fullfile(fpath, '..', '..', 'L1', 'ADCP');
     end
 
 
-
-
 %% Spectra
 
 % M1
@@ -132,7 +130,6 @@ yline(Ccrit, 'r--', 'Label', 'Significance Threshold')
 set(gca, 'FontSize', 14)
 ylim([0 1])
 
-
 % phase
 phase = angle(Pxy);
 %phase(Cxy < Ccrit) = NaN;
@@ -167,6 +164,7 @@ set(gca, 'FontSize', 14)
 
 
 linkaxes([ax1 ax2 ax3], 'x')
+
 %xlim([1/(40 * 3600) 1/(8 * 3600)])
 
 %% Spectra of raw

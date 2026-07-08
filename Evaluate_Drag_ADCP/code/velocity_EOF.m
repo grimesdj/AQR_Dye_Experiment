@@ -25,6 +25,17 @@ t3 = tiledlayout(2, 2);
 EOF_fig(2) = figure("Position", [2250 150 1000 800]);
 t4 = tiledlayout(2, 2);
 
+Spectra_fig(1, 1) = figure;
+t5 = tiledlayout(2, 2);
+
+Spectra_fig(2, 1) = figure;
+t6 = tiledlayout(2, 2);
+
+Spectra_fig(1, 2) = figure;
+t7 = tiledlayout(2, 2);
+
+Spectra_fig(2, 2) = figure;
+t8 = tiledlayout(2, 2);
 
 moorings = {'M1', 'M2', 'M3'};
 for mooring_ID = 1:length(moorings)
@@ -76,9 +87,9 @@ noverlap = round(w*(2/3));
 nfft = [];
 fs = 1/600;
 [pxx,f, pxxc] = pwelch(Barotropic,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
-semilogx(f, pxx, 'LineWidth', 1)
+loglog(f, pxx, 'LineWidth', 1)
 hold on
-semilogx(f, pxxc, 'k--', 'LineWidth', 0.5)
+loglog(f, pxxc, 'k--', 'LineWidth', 0.5)
 grid on
 title(sprintf('%s %s Barotropic Spectra', mooring, direction))
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
@@ -154,9 +165,8 @@ fpath = fullfile(fpath, '..', '..', 'L1', 'ADCP');
 save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam','Barotropic', 'dz')
 
 
-
-figure
 for modenum = 1:2
+    figure(Spectra_fig(d, modenum))
     x = EC(:, modenum);
     w = 720;
     window = hamming(w);
@@ -165,17 +175,19 @@ for modenum = 1:2
     fs = 1/600;
     [pxx,f, pxxc] = pwelch(x,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
     
-    subplot(2, 1, modenum)
-    semilogx(f(3:end), pxx(3:end), 'k', 'LineWidth', 1, 'DisplayName', sprintf('Mode %d', modenum))
+    nexttile
+    loglog(f(3:end), pxx(3:end), 'k', 'LineWidth', 1, 'DisplayName', sprintf('Mode %d', modenum))
     hold on
-    semilogx(f(3:end), pxxc(3:end, :), 'm--', 'LineWidth', 0.25, 'DisplayName','95% Confidence')
+    loglog(f(3:end), pxxc(3:end, :), 'm--', 'LineWidth', 0.25, 'DisplayName','95% Confidence')
     xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
     xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
-    xline(1/(21.2*3600), 'g--', 'Label', 'Interial Tide')
+    %xline(1/(21.2*3600), 'g--', 'Label', 'Interial Tide')
     title(sprintf('%s Velocity EC Spectrum %s', direction, mooring))
     grid minor
-    legend
+    set(gca, 'FontSize', 16)
 end
+
+
 
 
 
@@ -219,6 +231,41 @@ figure(EOF_fig(2))
 lgd = legend('1st Mode', '2nd Mode');%, '3rd Mode');
 lgd.Layout.Tile = 4;
 lgd.NumColumns = 1;
+
+figure(Spectra_fig(1, 1))
+ax  = findall(gcf, 'Type', 'axes');
+ylims = vertcat(ax.YLim); 
+ymax = max(ylims(:,2));
+set(ax, 'YLim', [0 ymax])
+lgd = legend('Mode 1 Spectra', '95% Confidence');
+lgd.Layout.Tile = 4;
+
+figure(Spectra_fig(1, 2))
+ax  = findall(gcf, 'Type', 'axes');
+ylims = vertcat(ax.YLim); 
+ymax = max(ylims(:,2));
+set(ax, 'YLim', [0 ymax])
+lgd = legend('Mode 2 Spectra', '95% Confidence');
+lgd.Layout.Tile = 4;
+
+figure(Spectra_fig(2, 1))
+ax  = findall(gcf, 'Type', 'axes');
+ylims = vertcat(ax.YLim); 
+ymax = max(ylims(:,2));
+set(ax, 'YLim', [0 ymax])
+lgd = legend('Mode 1 Spectra', '95% Confidence');
+lgd.Layout.Tile = 4;
+
+figure(Spectra_fig(2, 2))
+ax  = findall(gcf, 'Type', 'axes');
+ylims = vertcat(ax.YLim); 
+ymax = max(ylims(:,2));
+set(ax, 'YLim', [0 ymax])
+lgd = legend('Mode 2 Spectra', '95% Confidence');
+lgd.Layout.Tile = 4;
+
+
+
 
 %% save variance data
 variance_U = variance.U;

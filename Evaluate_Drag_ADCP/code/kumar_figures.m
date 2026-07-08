@@ -21,10 +21,9 @@ TEOF(mooring_ID) = load(fullfile(fpath, savestr));
 
 % ADCP
 fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'data', '2024_PROCESSED_DATA', mooring, 'L1', 'ADCP');
-fname = mooring + "_10min_gridded";
+fname = mooring + "_10min_gridded_PCA";
 if exist(fullfile(fpath), 'dir')
-    Vel.(mooring).North = load(fullfile(fpath,fname + "_North.mat"));
-    Vel.(mooring).East = load(fullfile(fpath,fname + "_East.mat"));
+    Vel.(mooring) = load(fullfile(fpath,fname));
 else
     %
 end
@@ -182,6 +181,15 @@ plot(Tbar, TEOF(1).dz, 'k-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(1), 'on')
 title('M1')
+ylabel('$h$ [m]', 'Interpreter','latex')
+set(ax(1), 'FontSize', 16)
+dTdz(1) = mean(-diff(Tbar)./diff(TEOF(1).dz));
+text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+    "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(1)), ...
+    'Interpreter','latex', ...
+    'FontSize', 16, ...
+    'EdgeColor', 'black', ...
+    'Color', 'red')
 
 % M2
 axes(ax(2))
@@ -191,6 +199,14 @@ plot(Tbar, TEOF(2).dz, 'k-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(2), 'on')
 title('M2')
+set(ax(2), 'FontSize', 16)
+dTdz(2) = mean(-diff(Tbar)./diff(TEOF(2).dz));
+text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+    "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(2)), ...
+    'Interpreter','latex', ...
+    'FontSize', 16, ...
+    'EdgeColor', 'black', ...
+    'Color', 'red')
 
 % M3
 axes(ax(3))
@@ -200,6 +216,14 @@ plot(Tbar, TEOF(3).dz, 'k-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(3), 'on')
 title('M3')
+set(ax(3), 'FontSize', 16)
+dTdz(3) = mean(-diff(Tbar)./diff(TEOF(3).dz));
+text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+    "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(3)), ...
+    'Interpreter','latex', ...
+    'FontSize', 16, ...
+    'EdgeColor', 'black', ...
+    'Color', 'red')
 
 % M4
 axes(ax(4))
@@ -209,7 +233,17 @@ plot(Tbar, TEOF(4).dz, 'k-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(4), 'on')
 title('M4')
+set(ax(4), 'FontSize', 16)
+dTdz(4) = mean(-diff(Tbar)./diff(TEOF(4).dz));
+text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+    "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(4)), ...
+    'Interpreter','latex', ...
+    'FontSize', 16, ...
+    'EdgeColor', 'black', ...
+    'Color', 'red')
 
+sgtitle('$\mu$ Temperature Profile', 'Interpreter', 'latex')
+xlabel(ax, '$^{\circ}$C', 'Interpreter','latex')
 
 % std temperature profile
 figure
@@ -223,6 +257,7 @@ plot(Tbar, TEOF(1).dz, 'k-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(1), 'on')
 title('M1')
+ylabel('$h$ [m]', 'Interpreter','latex')
 
 % M2
 axes(ax(2))
@@ -251,6 +286,9 @@ axis ij
 grid(ax(4), 'on')
 title('M4')
 
+sgtitle('Temperature $\sigma$ Profile', 'Interpreter', 'latex')
+set(ax, 'Fontsize', 16)
+xlabel(ax, '$^{\circ}$C', 'Interpreter','latex')
 
 
 
@@ -261,9 +299,9 @@ ax = scaled_figure(H(1:3), 1, 0.1, 0.1, 0.1, 0.05, 1);
 
 % M1
 axes(ax(1))
-N = Vel.M1.North.Vel_grid;
+N = Vel.M1.V_grid;
 N = mean(N, 2);
-E = Vel.M1.East.Vel_grid;
+E = Vel.M1.U_grid;
 E = mean(E, 2);
 plot(N, VEOF(1).dz, 'k-s', 'LineWidth', 1.5)
 hold on
@@ -271,14 +309,17 @@ plot(E, VEOF(1).dz, 'r-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(1), 'minor')
 xline(0, 'k--', 'LineWidth', 1)
-xlim([-0.05 0.05])
+xlim([-0.03 0.03])
 title('M1')
+ylabel('$h$ [m]', 'Interpreter','latex')
+legend('Cross-Shore', 'Alongshore', 'Location','southoutside')
+
 
 % M2
 axes(ax(2))
-N = Vel.M2.North.Vel_grid;
+N = Vel.M2.V_grid;
 N = mean(N, 2);
-E = Vel.M2.East.Vel_grid;
+E = Vel.M2.U_grid;
 E = mean(E, 2);
 plot(N, VEOF(2).dz, 'k-s', 'LineWidth', 1.5)
 hold on
@@ -286,14 +327,14 @@ plot(E, VEOF(2).dz, 'r-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(2), 'minor')
 xline(0, 'k--', 'LineWidth', 1)
-xlim([-0.05 0.05])
+xlim([-0.03 0.03])
 title('M2')
 
 % M3
 axes(ax(3))
-N = Vel.M3.North.Vel_grid;
+N = Vel.M3.V_grid;
 N = mean(N, 2);
-E = Vel.M3.East.Vel_grid;
+E = Vel.M3.U_grid;
 E = mean(E, 2);
 plot(N, VEOF(3).dz, 'k-s', 'LineWidth', 1.5)
 hold on
@@ -301,8 +342,13 @@ plot(E, VEOF(3).dz, 'r-s', 'LineWidth', 1.5)
 axis ij
 grid(ax(3), 'minor')
 xline(0, 'k--', 'LineWidth', 1)
-xlim([-0.05 0.05])
+xlim([-0.03 0.03])
 title('M3')
+
+sgtitle('$\mu$ Velocity Profile', 'Interpreter', 'latex')
+set(ax, 'Fontsize', 16)
+xlabel(ax, '$\bar{\mathrm{U}}$ [m/s]', 'Interpreter','latex')
+
 
 % std velocity profile
 figure
@@ -310,9 +356,9 @@ ax = scaled_figure(H(1:3), 1, 0.1, 0.1, 0.1, 0.05, 1);
 
 % M1
 axes(ax(1))
-N = Vel.M1.North.Vel_grid;
+N = Vel.M1.V_grid;
 N = std(N, [], 2);
-E = Vel.M1.East.Vel_grid;
+E = Vel.M1.U_grid;
 E = std(E, [], 2);
 plot(N, VEOF(1).dz, 'k-s', 'LineWidth', 1.5)
 hold on
@@ -321,12 +367,14 @@ axis ij
 grid(ax(1), 'minor')
 xline(0, 'k--', 'LineWidth', 1)
 title('M1')
+ylabel('$h$ [m]', 'Interpreter','latex')
+legend('Cross-Shore', 'Alongshore', 'Location','southoutside')
 
 % M2
 axes(ax(2))
-N = Vel.M2.North.Vel_grid;
+N = Vel.M2.V_grid;
 N = std(N, [], 2);
-E = Vel.M2.East.Vel_grid;
+E = Vel.M2.U_grid;
 E = std(E, [], 2);
 plot(N, VEOF(2).dz, 'k-s', 'LineWidth', 1.5)
 hold on
@@ -338,9 +386,9 @@ title('M2')
 
 % M3
 axes(ax(3))
-N = Vel.M3.North.Vel_grid;
+N = Vel.M3.V_grid;
 N = std(N, [], 2);
-E = Vel.M3.East.Vel_grid;
+E = Vel.M3.U_grid;
 E = std(E, [], 2);
 plot(N, VEOF(3).dz, 'k-s', 'LineWidth', 1.5)
 hold on
@@ -349,6 +397,17 @@ axis ij
 grid(ax(3), 'minor')
 xline(0, 'k--', 'LineWidth', 1)
 title('M3')
+
+sgtitle('Velocity $\sigma$ Profile', 'Interpreter', 'latex')
+set(ax, 'Fontsize', 16)
+xlabel(ax, '$\sigma_{\mathrm{U}}$ [m/s]', 'Interpreter','latex')
+xlim(ax, [0 .1])
+
+
+
+
+
+
 
 return
 

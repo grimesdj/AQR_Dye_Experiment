@@ -32,12 +32,8 @@ end
 
 [N, M] = size(Y);
 
-% remove mean
-Tbar = repmat(mean(Y,1),N,1);
-Y = Y - Tbar;
-
-% detrend
-Y = detrend(Y);
+% remove time mean
+Y = Y - mean(Y, 1);
 
 if BT
     % remove barotropic mode
@@ -49,6 +45,11 @@ if BT
 else
     Barotropic = zeros(size(Y));
 end
+
+
+% detrend
+Y = detrend(Y);
+
 
 if nargin <2 || isempty(num)
     [C, lam, EOFs] = svd(Y,0);% first M EOFs 
