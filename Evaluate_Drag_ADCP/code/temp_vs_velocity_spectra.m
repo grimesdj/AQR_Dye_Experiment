@@ -34,7 +34,7 @@ end
 
 
 % load vel EOF
-savestr = mooring + "_EOF_depth_coords_V.mat";
+savestr = mooring + "_EOF_depth_coords_U.mat";
 path = fullfile(fpath, '..', '..', 'L1', 'ADCP');
     if exist(fullfile(path, savestr), 'file')
         VEOF = load(fullfile(path, savestr));
