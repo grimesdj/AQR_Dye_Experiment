@@ -245,6 +245,84 @@ text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
 sgtitle('$\mu$ Temperature Profile', 'Interpreter', 'latex')
 xlabel(ax, '$^{\circ}$C', 'Interpreter','latex')
 
+%% strat
+% mean temperature profile
+figure
+ax = scaled_figure(H(1:4), 1, 0.1, 0.1, 0.1, 0.05, 1);
+
+% M1
+axes(ax(1))
+Y = Temp(1).Temp_grid';
+Tbar = mean(Y, 1);
+plot(diff(Tbar)./diff(TEOF(1).dz), TEOF(1).dz(1:end-1), 'k-s', 'LineWidth', 1.5)
+axis ij
+grid(ax(1), 'on')
+title('M1')
+ylabel('$h$ [m]', 'Interpreter','latex')
+set(ax(1), 'FontSize', 16)
+dTdz(1) = mean(-diff(Tbar)./diff(TEOF(1).dz));
+% text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+%     "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(1)), ...
+%     'Interpreter','latex', ...
+%     'FontSize', 16, ...
+%     'EdgeColor', 'black', ...
+%     'Color', 'red')
+
+% M2
+axes(ax(2))
+Y = Temp(2).Temp_grid';
+Tbar = mean(Y, 1);
+plot(diff(Tbar)./diff(TEOF(2).dz), TEOF(2).dz(1:end-1), 'k-s', 'LineWidth', 1.5)
+axis ij
+grid(ax(2), 'on')
+title('M2')
+set(ax(2), 'FontSize', 16)
+dTdz(2) = mean(-diff(Tbar)./diff(TEOF(2).dz));
+% text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+%     "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(2)), ...
+%     'Interpreter','latex', ...
+%     'FontSize', 16, ...
+%     'EdgeColor', 'black', ...
+%     'Color', 'red')
+
+% M3
+axes(ax(3))
+Y = Temp(3).Temp_grid';
+Tbar = mean(Y, 1);
+plot(diff(Tbar)./diff(TEOF(3).dz), TEOF(3).dz(1:end-1), 'k-s', 'LineWidth', 1.5)
+axis ij
+grid(ax(3), 'on')
+title('M3')
+set(ax(3), 'FontSize', 16)
+dTdz(3) = mean(-diff(Tbar)./diff(TEOF(3).dz));
+% %text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+%     "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(3)), ...
+%     'Interpreter','latex', ...
+%     'FontSize', 16, ...
+%     'EdgeColor', 'black', ...
+%     'Color', 'red')
+
+% M4
+axes(ax(4))
+Y = Temp(4).Temp_grid';
+Tbar = mean(Y, 1);
+plot(diff(Tbar)./diff(TEOF(4).dz), TEOF(4).dz(1:end-1), 'k-s', 'LineWidth', 1.5)
+axis ij
+grid(ax(4), 'on')
+title('M4')
+set(ax(4), 'FontSize', 16)
+dTdz(4) = mean(-diff(Tbar)./diff(TEOF(4).dz));
+% %text(mean(Tbar) - std(Tbar), mean(TEOF(1).dz) - 2, ...
+%     "$\frac{\partial\bar{\mathrm{T}}}{\partial\mathrm{z}} =$" + sprintf('%.2f', dTdz(4)), ...
+%     'Interpreter','latex', ...
+%     'FontSize', 16, ...
+%     'EdgeColor', 'black', ...
+%     'Color', 'red')
+
+sgtitle('$\mu$ Temperature Profile', 'Interpreter', 'latex')
+xlabel(ax, '$^{\circ}$C', 'Interpreter','latex')
+%% end strat
+
 % std temperature profile
 figure
 ax = scaled_figure(H(1:4), 1, 0.1, 0.1, 0.1, 0.05, 1);

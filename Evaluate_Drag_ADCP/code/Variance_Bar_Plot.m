@@ -1,11 +1,11 @@
 %% Variance Bar Plot
 
 clear all
-%close all
+close all
 
 sites = 1:3;
 
-% Example data (replace with yours)
+
 load('../../../../Kelp_data/data/2024_PROCESSED_DATA/Velocity_Variance.mat');
 North = variance_V;
 East = variance_U;
@@ -17,7 +17,9 @@ EV = sum(East, 2);
 V = [EV NV];
 
 subplot(3, 1, 1);
-bar(sites, V, 'grouped')
+b = bar(sites, V, 'grouped');
+b(2).FaceColor = [0 0 0];
+b(1).FaceColor = [0.9 0.1 0];
 legend('Alongshore Variance', 'Cross-Shore Variance', 'Location','northeastoutside')
 xticks(sites)
 xticklabels([])
@@ -27,7 +29,10 @@ grid on
 ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','Rotation', 0)
 
 subplot(3, 1, 2);
-bar(East, 'stacked')
+b = bar(East, 'stacked');
+b(1).FaceColor = [0.0 0.2 0.2];
+b(2).FaceColor = [0.1 0.5 0.5];
+b(3).FaceColor = [0.2 0.8 0.8];
 legend('Barotropic Variance', 'Mode 1 BC Variance', 'BC Noise Variance', 'Location','northeastoutside')
 xticks(sites)
 xticklabels([])
@@ -37,7 +42,10 @@ grid on
 ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','Rotation', 0)
 
 subplot(3, 1, 3);
-bar(North, 'stacked')
+b = bar(North, 'stacked');
+b(1).FaceColor = [0.0 0.2 0.2];
+b(2).FaceColor = [0.1 0.5 0.5];
+b(3).FaceColor = [0.2 0.8 0.8];
 legend('Barotropic Variance', 'Mode 1 BC Variance', 'BC Noise Variance', 'Location','northeastoutside')
 xticks(sites)
 xticklabels({'M1', 'M2', 'M3'})
@@ -46,6 +54,9 @@ title('Cross-Shore Variance')
 grid on
 ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','Rotation', 0)
 
+%%export for poster
+fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+print(gcf, fullfile(fpath, 'variance_breakdown.png'), '-dpng', '-r600')
 return
 
 

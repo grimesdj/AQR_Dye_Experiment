@@ -34,7 +34,7 @@ end
 
 
 % load vel EOF
-savestr = mooring + "_EOF_depth_coords_U.mat";
+savestr = mooring + "_EOF_depth_coords_V.mat";
 path = fullfile(fpath, '..', '..', 'L1', 'ADCP');
     if exist(fullfile(path, savestr), 'file')
         VEOF = load(fullfile(path, savestr));
@@ -120,7 +120,7 @@ Ccrit = 1 - alpha^(1/(L-1));
 % plot coherence
 figure
 ax1 = subplot(3,1,1);
-semilogx(ax1, F,Cxy, 'LineWidth', 1)
+semilogx(ax1, F,movmean(Cxy, 3), 'LineWidth', 1)
 title(sprintf('Mode 1 Magnitude-Squared Coherence %s', mooring))
 
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
@@ -252,7 +252,7 @@ Ccrit = 1 - alpha^(1/(L-1));
 % plot coherence
 figure
 ax1 = subplot(3,1,1);
-semilogx(ax1, F,Cxy, 'LineWidth', 1)
+semilogx(ax1, F,movmean(Cxy, 3), 'LineWidth', 1)
 title(sprintf('Mode 2 Magnitude-Squared Coherence %s', mooring))
 
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)

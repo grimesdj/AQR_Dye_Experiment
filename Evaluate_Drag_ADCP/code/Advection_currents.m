@@ -198,7 +198,7 @@ WX = [x3(west)', x1(west)'];
 east = x1 > 0 & x3 > 0;
 EX = [x3(east)', x1(east)'];
 
-figure
+AS_redux = figure;
 plot(x3, x1, 'k.', 'MarkerSize', 10)
 xlabel('$\bar{U}_{\mathrm{M}3}$ [m/s]', 'Interpreter','latex')
 ylabel('$\bar{U}_{\mathrm{M}1}$ [m/s]', 'Interpreter','latex')
@@ -225,15 +225,15 @@ ylim([-.3 .3])
 xlim([-.3 .3])
 grid minor
 set(gca, 'FontSize', 18)
-text(mean(t) + std(t), mean(y)-2*std(y), sprintf('Em = %.2f', Em), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
-text(mean(t) + std(t), mean(y)-3*std(y), sprintf('Wm = %.2f', Wm), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
+text(mean(t) + std(t), mean(y)-2*std(y), sprintf('m_E = %.2f', Em), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
+text(mean(t) + std(t), mean(y)-3*std(y), sprintf('m_W = %.2f', Wm), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
 
 
 
 
 
 %% cross-shore
-figure
+CS_redux = figure;
 
 x1 = M1.V_grid(end-1, :);
 x2 = M2.V_grid(end-1, :);
@@ -250,10 +250,16 @@ t = linspace(-0.2, 0.2);
 y = m .* t;
 
 hold on
-plot(t, y, 'r--', 'LineWidth', 1.5)
+plot(t, y, 'r--', 'LineWidth', 2)
 axis square
 ylim([-.3 .3])
 xlim([-.3 .3])
 grid minor
 set(gca, 'FontSize', 18)
 text(mean(t) + std(t), mean(y)-2*std(y), sprintf('m = %.2f', m), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
+
+
+%% Export for Poster
+fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+print(AS_redux, fullfile(fpath, 'alongshore_current_reduction.png'), '-dpng', '-r600')
+print(CS_redux, fullfile(fpath, 'crossshore_current_reduction.png'), '-dpng', '-r600')

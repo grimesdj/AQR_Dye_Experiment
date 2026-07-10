@@ -37,7 +37,10 @@ t7 = tiledlayout(2, 2);
 Spectra_fig(2, 2) = figure;
 t8 = tiledlayout(2, 2);
 
-moorings = {'M1', 'M2', 'M3'};
+BT_fig = figure;
+
+
+moorings = {'M1'}%, 'M2', 'M3'};
 for mooring_ID = 1:length(moorings)
 %% Load
 mooring = moorings{mooring_ID};
@@ -80,22 +83,23 @@ FBT = VBT/V;
 FBC = VBC/V;
 
 % barotropic spectra
-figure
+figure(BT_fig)
 w = 720;
 window = hamming(w);
 noverlap = round(w*(2/3));
 nfft = [];
 fs = 1/600;
 [pxx,f, pxxc] = pwelch(Barotropic,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
-loglog(f, pxx, 'LineWidth', 1)
+%subplot(2, 1, d)
+loglog(f, pxx,'-', 'LineWidth', 2)
 hold on
-loglog(f, pxxc, 'k--', 'LineWidth', 0.5)
+%loglog(f, pxxc, 'k--', 'LineWidth', 0.5)
 grid on
 title(sprintf('%s %s Barotropic Spectra', mooring, direction))
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
 xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
 xline(1/(21.2 * 3600), 'g--', 'Label', 'intertial tide')
-
+ylim([0 10^2])
 
 
 % FOV
