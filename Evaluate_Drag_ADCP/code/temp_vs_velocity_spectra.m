@@ -184,7 +184,8 @@ A = TEOF.EC(:, 2);
 phi = TEOF.EOFs(:,2);
 TBC = A * phi';
 %BT = mean(Temp(1).Temp_grid, 1);
-TBC = TBC(:, end-1);
+num = length(phi);
+idx = round(num/2);
 %TBC = TBC - BT';
 TBC = detrend(TBC);
 
@@ -211,8 +212,7 @@ set(gca, 'FontSize', 14)
 A = VEOF.EC(:, 2);
 phi = VEOF.EOFs(:,2);
 VBC = A * phi';
-num = length(phi);
-idx = round(num/2);
+BC = VBC(:, end-1);
 VBC = VBC(:, idx);
 
 subplot(2, 1, 2)
@@ -299,10 +299,5 @@ linkaxes([ax1 ax2 ax3], 'x')
 
 end
 
-%% Spectra of raw
+%% compare inside and outside temp spectra 
 
-Vel = Vel(1).Velocity_North;
-Temp = Temp(1).Temp_grid;
-
-Vel = Vel(1, :); % bottom vel
-Temp = Temp(:, idx);

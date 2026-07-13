@@ -40,7 +40,7 @@ t8 = tiledlayout(2, 2);
 BT_fig = figure;
 
 
-moorings = {'M1'}%, 'M2', 'M3'};
+moorings = {'M1', 'M2', 'M3'};
 for mooring_ID = 1:length(moorings)
 %% Load
 mooring = moorings{mooring_ID};

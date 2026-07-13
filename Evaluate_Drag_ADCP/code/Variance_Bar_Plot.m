@@ -30,9 +30,12 @@ ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','
 
 subplot(3, 1, 2);
 b = bar(East, 'stacked');
-b(1).FaceColor = [0.0 0.2 0.2];
-b(2).FaceColor = [0.1 0.5 0.5];
-b(3).FaceColor = [0.2 0.8 0.8];
+cmap = cmocean('haline');
+step = floor(size(cmap, 1)/3);
+c = cmap(1:step:end, :);
+b(1).FaceColor = c(1, :);
+b(2).FaceColor = c(2, :);
+b(3).FaceColor = c(3, :);
 legend('Barotropic Variance', 'Mode 1 BC Variance', 'BC Noise Variance', 'Location','northeastoutside')
 xticks(sites)
 xticklabels([])
@@ -43,9 +46,9 @@ ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','
 
 subplot(3, 1, 3);
 b = bar(North, 'stacked');
-b(1).FaceColor = [0.0 0.2 0.2];
-b(2).FaceColor = [0.1 0.5 0.5];
-b(3).FaceColor = [0.2 0.8 0.8];
+b(1).FaceColor = c(1, :);
+b(2).FaceColor = c(2, :);
+b(3).FaceColor = c(3, :);
 legend('Barotropic Variance', 'Mode 1 BC Variance', 'BC Noise Variance', 'Location','northeastoutside')
 xticks(sites)
 xticklabels({'M1', 'M2', 'M3'})

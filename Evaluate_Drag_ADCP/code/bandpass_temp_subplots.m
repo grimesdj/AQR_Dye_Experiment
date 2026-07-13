@@ -41,8 +41,8 @@ for i = 1:length(moorings)
 
     figure(spectra_fig)
     nexttile
-    [M.(mooring).pxx, M.(mooring).f] = pwelch(M.(mooring).U(:, 1), window, noverlap, nfft, fs);
-    loglog(M.(mooring).f, M.(mooring).pxx, 'k-', 'LineWidth', 2)
+    [pxx, f] = pwelch(M.(mooring).U(:, 1), window, noverlap, nfft, fs);
+    loglog(f, pxx, 'k-', 'LineWidth', 2)
     hold on
     grid on
     title(sprintf('%s', mooring))
@@ -275,7 +275,7 @@ grid minor
 xline(0, 'k--')
 xl = xlim;
 xm = max(abs(xl));
-xlim([-xm xm])
+xlim([-0.5 0.5])
 legend('M4 --> M1', 'M4 --> M2', 'M4 --> M3', 'Location', 'eastoutside')
 set(gca, "FontSize", 18)
 xlabel('$\Delta\sigma_T$', 'Interpreter', 'latex')
@@ -305,7 +305,7 @@ grid minor
 xline(0, 'k--')
 xl = xlim;
 xm = max(abs(xl));
-xlim([-xm xm])
+xlim([-0.5 0.5])
 legend('M4 --> M1', 'M4 --> M2', 'M4 --> M3', 'Location', 'eastoutside')
 set(gca, "FontSize", 18)
 xlabel('$\Delta\sigma_T$', 'Interpreter', 'latex')
@@ -335,7 +335,7 @@ grid minor
 xline(0, 'k--')
 xl = xlim;
 xm = max(abs(xl));
-xlim([-xm xm])
+xlim([-0.5 0.5])
 legend('M4 --> M1', 'M4 --> M2', 'M4 --> M3', 'Location', 'eastoutside')
 set(gca, "FontSize", 18)
 xlabel('$\Delta\sigma_T$', 'Interpreter', 'latex')
@@ -365,7 +365,7 @@ grid minor
 xline(0, 'k--')
 xl = xlim;
 xm = max(abs(xl));
-xlim([-xm xm])
+xlim([-0.5 0.5])
 legend('M4 --> M1', 'M4 --> M2', 'M4 --> M3', 'Location', 'eastoutside')
 set(gca, "FontSize", 18)
 xlabel('$\Delta\sigma_T$', 'Interpreter', 'latex')
@@ -395,7 +395,7 @@ grid minor
 xline(0, 'k--')
 xl = xlim;
 xm = max(abs(xl));
-xlim([-xm xm])
+xlim([-0.5 0.5])
 legend('M4 --> M1', 'M4 --> M2', 'M4 --> M3', 'Location', 'eastoutside')
 set(gca, "FontSize", 18)
 xlabel('$\Delta\sigma_T$', 'Interpreter', 'latex')
@@ -425,7 +425,7 @@ grid minor
 xline(0, 'k--')
 xl = xlim;
 xm = max(abs(xl));
-xlim([-xm xm])
+xlim([-0.5 0.5])
 legend('M4 --> M1', 'M4 --> M2', 'M4 --> M3', 'Location', 'eastoutside')
 set(gca, "FontSize", 18)
 xlabel('$\Delta\sigma_T$', 'Interpreter', 'latex')
@@ -437,27 +437,86 @@ cmap = cmocean('haline');
 step = floor(size(cmap, 1)./5);
 c = cmap(1:step:end, :);
 figure
+subplot(5, 1, 1)
+hold on
 plot(M4M1_ST, dz, '--', 'color', c(1, :), 'LineWidth', 2.5)
 hold on
 hST = plot(M4M2_ST, dz, '-', 'color', c(1, :), 'LineWidth', 2.5, 'DisplayName', 'Subtidal');
 plot(M4M3_ST, dz, '-.', 'color', c(1, :), 'LineWidth', 2.5)
+axis ij
+axis square
+grid minor
+xline(0, 'r--', 'LineWidth', 1)
+xl = xlim;
+xm = max(abs(xl));
+xlim([-0.5 0.5])
+ylabel('$h$ [m]', 'Interpreter','latex')
+xticklabels([])
 
+%set(gca, "FontSize", 18)
+
+subplot(5, 1, 2)
+hold on
 plot(M4M1_DU, dz, '--', 'color', c(2, :), 'LineWidth', 2.5)
 hDU = plot(M4M2_DU, dz, '-', 'color', c(2, :), 'LineWidth', 2.5, 'DisplayName', 'Diurnal');
 plot(M4M3_DU, dz, '-.', 'color', c(2, :), 'LineWidth', 2.5)
+axis ij
+axis square
+grid minor
+xline(0, 'r--', 'LineWidth', 1)
+xl = xlim;
+xm = max(abs(xl));
+xlim([-0.5 0.5])
+ylabel('$h$ [m]', 'Interpreter','latex')
+xticklabels([])
 
+%set(gca, "FontSize", 18)
+
+subplot(5, 1, 3)
+hold on
 plot(M4M1_SD, dz, '--', 'color', c(3, :), 'LineWidth', 2.5)
 hSD = plot(M4M2_SD, dz, '-', 'color', c(3, :), 'LineWidth', 2.5, 'DisplayName', 'Semidiurnal');
 plot(M4M3_SD, dz, '-.', 'color', c(3, :), 'LineWidth', 2.5)
+axis ij
+axis square
+grid minor
+xline(0, 'r--', 'LineWidth', 1)
+xl = xlim;
+xm = max(abs(xl));
+xlim([-0.5 0.5])
+ylabel('$h$ [m]', 'Interpreter','latex')
+xticklabels([])
 
+%set(gca, "FontSize", 18)
+
+subplot(5, 1, 4)
+hold on
 plot(M4M1_MH, dz, '--', 'color', c(4, :), 'LineWidth', 2.5)
 hMH = plot(M4M2_MH, dz, '-', 'color', c(4, :), 'LineWidth', 2.5, 'DisplayName', 'Mid-High');
 plot(M4M3_MH, dz, '-.', 'color', c(4, :), 'LineWidth', 2.5)
+axis ij
+axis square
+grid minor
+xline(0, 'r--', 'LineWidth', 1)
+xl = xlim;
+xm = max(abs(xl));
+xlim([-0.5 0.5])
+ylabel('$h$ [m]', 'Interpreter','latex')
+xticklabels([])
 
+%set(gca, "FontSize", 18)
+
+subplot(5, 1, 5)
+hold on
 plot(M4M1_HF, dz, '--', 'color', c(5, :), 'LineWidth', 2.5)
 hHF = plot(M4M2_HF, dz, '-', 'color', c(5, :), 'LineWidth', 2.5, 'DisplayName', 'High-Frequency');
 plot(M4M3_HF, dz, '-.', 'color', c(5, :), 'LineWidth', 2.5)
 ax1 = gca;
+axis ij
+axis square
+
+
+%set(gca, "FontSize", 18)
 
 % plot hidden
 ax2 = axes;
@@ -468,7 +527,7 @@ hM2 = plot(0, 0, 'k-', 'LineWidth', 2.5, 'DisplayName', 'M2');
 hM3 = plot(0, 0, 'k-.', 'LineWidth', 2.5, 'DisplayName', 'M3');
 axis ij
 axis square
-set(gca, "FontSize", 18)
+%set(gca, "FontSize", 18)
 ax2.Visible = 'off';
 
 axes(ax1);
@@ -478,64 +537,14 @@ grid minor
 xline(0, 'r--', 'LineWidth', 1)
 xl = xlim;
 xm = max(abs(xl));
-xlim([-xm xm])
+xlim([-0.5 0.5])
 lgd = legend([hST hDU hSD hMH hHF], 'Location', 'eastoutside');
-lgd.Position = [0.700 0.5000 0.1500 0.200];
+lgd.Position = [0.5500 0.5000 0.100 0.150];
 lgd2 = legend(ax2, [hM1 hM2 hM3], 'Location','southeastoutside');
-lgd2.Position = [0.700 0.3500 0.100 0.1500];
-set(gca, "FontSize", 18)
+lgd2.Position = [0.5600 0.400 0.0500 0.100];
+%set(gca, "FontSize", 18)
 xlabel('$\frac{\sigma_T(z)}{\sigma_{T_0}(z)} - 1$', 'Interpreter', 'latex')
 ylabel('$h$ [m]', 'Interpreter','latex')
 
 fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
-%print(gcf, fullfile(fpath, 'std_reduction.png'), '-dpng', '-r600')
-
-%% Depth-Average Reductions
-% idx = round(length(M4M1_ST)/2);
-% 
-% M4M1(1) =  M4M1_ST(idx);
-% M4M1(2) =  M4M1_DU(idx);
-% M4M1(3) =  M4M1_SD(idx);
-% M4M1(4) =  M4M1_MH(idx);
-% M4M1(5) =  M4M1_HF(idx);
-% 
-% idx = round(length(M4M2_ST)/2);
-% 
-% M4M2(1) =  M4M2_ST(idx);
-% M4M2(2) =  M4M2_DU(idx);
-% M4M2(3) =  M4M2_SD(idx);
-% M4M2(4) =  M4M2_MH(idx);
-% M4M2(5) =  M4M2_HF(idx);
-% 
-% idx = round(length(M4M2_ST)/2);
-% 
-% M4M3(1) =  M4M3_ST(idx);
-% M4M3(2) =  M4M3_DU(idx);
-% M4M3(3) =  M4M3_SD(idx);
-% M4M3(4) =  M4M3_MH(idx);
-% M4M3(5) =  M4M3_HF(idx);
-
-
-M4M1(1) = mean(M4M1_ST);
-M4M1(2) = mean(M4M1_DU);
-M4M1(3) = mean(M4M1_SD);
-M4M1(4) = mean(M4M1_MH);
-M4M1(5) = mean(M4M1_HF);
-
-M4M2(1) = mean(M4M2_ST);
-M4M2(2) = mean(M4M2_DU);
-M4M2(3) = mean(M4M2_SD);
-M4M2(4) = mean(M4M2_MH);
-M4M2(5) = mean(M4M2_HF);
-
-M4M3(1) = mean(M4M3_ST);
-M4M3(2) = mean(M4M3_DU);
-M4M3(3) = mean(M4M3_SD);
-M4M3(4) = mean(M4M3_MH);
-M4M3(5) = mean(M4M3_HF);
-
-figure
-plot(M4M1, '-s', 'LineWidth', 2)
-hold on
-plot(M4M2, '-s', 'LineWidth', 2)
-plot(M4M3, '-s', 'LineWidth', 2)
+print(gcf, fullfile(fpath, 'std_reduction_subplots.png'), '-dpng', '-r600')
