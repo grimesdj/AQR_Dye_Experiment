@@ -34,7 +34,7 @@ end
 
 
 % load vel EOF
-savestr = mooring + "_EOF_depth_coords_V.mat";
+savestr = mooring + "_EOF_depth_coords_U.mat";
 path = fullfile(fpath, '..', '..', 'L1', 'ADCP');
     if exist(fullfile(path, savestr), 'file')
         VEOF = load(fullfile(path, savestr));
@@ -49,12 +49,14 @@ path = fullfile(fpath, '..', '..', 'L1', 'ADCP');
 A = TEOF.EC(:, 1);
 phi = TEOF.EOFs(:, 1);
 TBC = A * phi';
+TBC = VEOF.Barotropic; % getting bartropic instead of temp
 %BT = mean(Temp(mooring_ID).Temp_grid, 1);
-std_prof = std(TBC);
-idx = find(std_prof==max(std_prof), 1);
+num = length(phi);
+idx = round(num/2);
 TBC = TBC(:, idx);
 %TBC = TBC - BT';
 TBC = detrend(TBC);
+
 
 psd_fig = figure;
 subplot(2, 1, 1)
@@ -78,9 +80,8 @@ set(gca, 'FontSize', 14)
 A = VEOF.EC(:, 1);
 phi = VEOF.EOFs(:,1);
 VBC = A * phi';
-std_prof = std(VBC);
-idx = find(std_prof==max(std_prof), 1);
-VBC = VBC(:, idx);
+
+VBC = VBC(:, end-1);
 
 subplot(2, 1, 2)
 [pxx,f, pxxc] = pwelch(VBC,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
@@ -123,11 +124,11 @@ ax1 = subplot(2,1,1);
 semilogx(ax1, F,movmean(Cxy, 3), 'k', 'LineWidth', 2)
 title(sprintf('Mode 1 Magnitude-Squared Coherence %s', mooring))
 
-xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1, 'FontSize', 18, 'LabelOrientation','horizontal', 'LabelHorizontalAlignment','left')
-xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1, 'FontSize', 18, 'LabelOrientation','horizontal', 'LabelVerticalAlignment','bottom', 'LabelHorizontalAlignment','right')
+xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1, 'FontSize', 16, 'LabelOrientation','horizontal', 'LabelHorizontalAlignment','left')
+xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1, 'FontSize', 16, 'LabelOrientation','horizontal', 'LabelVerticalAlignment','bottom', 'LabelHorizontalAlignment','right')
 %xline(1/(21.2 * 3600), 'g--', 'Label', 'intertial tide')
-yline(Ccrit, 'r--', 'Label', 'Significance Threshold', 'LineWidth', 1, 'FontSize', 18, 'LabelHorizontalAlignment','left')
-set(gca, 'FontSize', 18)
+yline(Ccrit, 'r--', 'Label', 'Significance Threshold', 'LineWidth', 1, 'FontSize', 16, 'LabelHorizontalAlignment','left')
+set(gca, 'FontSize', 14)
 ylim([0 1])
 
 % phase
@@ -149,7 +150,7 @@ yticks([-pi, -pi/2, 0, pi/2, pi])
 yticklabels({'$-\pi$', '$-\frac{\pi}{2}$', '$0$', '$\frac{\pi}{2}$','$\pi$'})
 ax2.TickLabelInterpreter = "latex";
 %ax2.YTickLabelRotation = 90;
-set(gca, 'FontSize', 18)
+set(gca, 'FontSize', 14)
 
 % ax3 = subplot(3,1,3);
 % loglog(ax3, F,abs(Pxy), 'LineWidth', 1)

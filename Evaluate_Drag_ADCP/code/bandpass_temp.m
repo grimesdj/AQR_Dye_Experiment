@@ -534,8 +534,36 @@ M4M3(3) = mean(M4M3_SD);
 M4M3(4) = mean(M4M3_MH);
 M4M3(5) = mean(M4M3_HF);
 
-figure
-plot(M4M1, '-s', 'LineWidth', 2)
+M4M1 = M4M1*100;
+M4M2 = M4M2*100;
+M4M3 = M4M3*100;
+
+
+step = floor(length(cmap)/3);
+c = cmap(1:step:end, :);
+
+fl = [0 fp];
+fh = [fp fs];
+xis = mean([fl;fh]);
+
+figure('Position', [0 0 1500 500])
+semilogx(xis, M4M1, '-s', 'LineWidth', 3, 'markersize', 8, 'color', c(1, :))
 hold on
-plot(M4M2, '-s', 'LineWidth', 2)
-plot(M4M3, '-s', 'LineWidth', 2)
+semilogx(xis, M4M2, '-s', 'LineWidth', 3, 'markersize', 8, 'color', c(2, :))
+semilogx(xis, M4M3, '-s', 'LineWidth', 3,  'markersize', 8, 'color', c(3, :))
+set(gca, 'Fontsize', 18)
+grid minor
+yline(0, 'k--', 'linewidth', 1.5)
+%xline(1/86400)
+%xline(2/86400)
+
+legend('M1', 'M2', 'M3', 'location', 'northwest')
+ylabel('$\%\Delta\bar{\sigma}_T$', ...
+    'Interpreter', 'latex', ...
+    'Rotation', 0)
+xlabel('$f$ [Hz]', 'interpreter', 'latex')
+
+
+% export fig
+fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+print(gcf, fullfile(fpath, 'std_change.png'), '-dpng', '-r600')

@@ -173,8 +173,8 @@ x1 = mean(M1.U_grid(:, :), 1);
 x3 = mean(M3.U_grid(:, 1:end-1), 1);
 
 plot(x3, x1, 'k.', 'MarkerSize', 10)
-xlabel('$\bar{U}_{\mathrm{M}3}$ [m/s]', 'Interpreter','latex')
-ylabel('$\bar{U}_{\mathrm{M}1}$ [m/s]', 'Interpreter','latex')
+xlabel('$U_{\mathrm{M}3}$ [m/s]', 'Interpreter','latex')
+ylabel('$U_{\mathrm{M}1}$ [m/s]', 'Interpreter','latex')
 
 X = [x3' x1'];
 coeff = pca(X);
@@ -186,10 +186,10 @@ y = m .* t;
 hold on
 plot(t, y, 'r--', 'LineWidth', 1.5)
 axis square
-ylim([-.3 .3])
-xlim([-.3 .3])
-grid minor
-set(gca, 'FontSize', 18)
+ylim([-.2 .2])
+xlim([-.2 .2])
+%grid minor
+set(gca, 'FontSize', 20)
 text(mean(t) + std(t), mean(y)-2*std(y), sprintf('m = %.2f', m), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
 
 % try again but seperate east and west
@@ -200,9 +200,11 @@ east = x1 > 0 & x3 > 0;
 EX = [x3(east)', x1(east)'];
 
 AS_redux = figure;
-plot(x3, x1, 'k.', 'MarkerSize', 10)
-xlabel('$\bar{U}_{\mathrm{M}3}$ [m/s]', 'Interpreter','latex')
-ylabel('$\bar{U}_{\mathrm{M}1}$ [m/s]', 'Interpreter','latex')
+plot(x3, x1, 'k.', 'MarkerSize', 20)
+xlabel('$U_{\mathrm{M}3}$ [m/s]', 'Interpreter','latex')
+ylabel('$U_{\mathrm{M}1}$ [m/s]', 'Interpreter','latex')
+xticks([-0.2:0.1:0.2])
+yticks([-0.2:0.1:0.2])
 
 coeff = pca(EX);
 v = coeff(:, 1);
@@ -218,14 +220,14 @@ Wt = linspace(-0.2, 0);
 Wy = Wt' .*v';
 
 hold on
-plot(Ey(:,1), Ey(:,2), 'r--', 'LineWidth', 2)
-plot(Wy(:, 1), Wy(:, 2), 'r--', 'LineWidth', 2)
+plot(Ey(:,1), Ey(:,2), 'r--', 'LineWidth', 2.5)
+plot(Wy(:, 1), Wy(:, 2), 'r--', 'LineWidth', 2.5)
 
 axis square
-ylim([-.3 .3])
-xlim([-.3 .3])
-grid minor
-set(gca, 'FontSize', 18)
+ylim([-.2 .2])
+xlim([-.2 .2])
+%grid minor
+set(gca, 'FontSize', 20)
 text(mean(t) + std(t), mean(y)-2*std(y), sprintf('m_E = %.2f', Em), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
 text(mean(t) + std(t), mean(y)-3*std(y), sprintf('m_W = %.2f', Wm), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
 
@@ -239,9 +241,12 @@ CS_redux = figure;
 x1 = M1.V_grid(end-1, :);
 x2 = M2.V_grid(end-1, :);
 
-plot(x1, x2, 'k.', 'MarkerSize', 10)
-xlabel('$\bar{V}_{\mathrm{M}1}$ [m/s]', 'Interpreter','latex')
-ylabel('$\bar{V}_{\mathrm{M}2}$ [m/s]', 'Interpreter','latex')
+plot(x1, x2, 'k.', 'MarkerSize', 20)
+xlabel('$V_{\mathrm{M}1}$ [m/s]', 'Interpreter','latex')
+ylabel('$V_{\mathrm{M}2}$ [m/s]', 'Interpreter','latex')
+xticks([-0.2:0.1:0.2])
+yticks([-0.2:0.1:0.2])
+
 
 X = [x1' x2'];
 coeff = pca(X);
@@ -251,12 +256,12 @@ t = linspace(-0.2, 0.2);
 y = m .* t;
 
 hold on
-plot(t, y, 'r--', 'LineWidth', 2)
+plot(t, y, 'r--', 'LineWidth', 2.5)
 axis square
-ylim([-.3 .3])
-xlim([-.3 .3])
-grid minor
-set(gca, 'FontSize', 18)
+ylim([-.2 .2])
+xlim([-.2 .2])
+%grid minor
+set(gca, 'FontSize', 20)
 text(mean(t) + std(t), mean(y)-2*std(y), sprintf('m = %.2f', m), 'FontSize', 18, 'Color', 'red', 'EdgeColor', 'black', 'LineWidth', 1)
 
 

@@ -6,7 +6,7 @@ close all
 % bandpass range IN HOURS (BP = 0 means bandpass off, BP = 1 means bandpass on)
 BP = 0; 
 lower_bound = 48;
-upper_bound = 8;
+upper_bound = 10;
 
 % remove barotropic? (0 for no, 1 for yes)
 rmBT = 1;
@@ -166,7 +166,7 @@ sgtitle(sprintf('%s', direction))
 %% save
 savestr = mooring + "_EOF_depth_coords_" + direction + ".mat";
 fpath = fullfile(fpath, '..', '..', 'L1', 'ADCP');
-save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam','Barotropic', 'dz')
+%save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam','Barotropic', 'dz')
 
 
 for modenum = 1:2
@@ -282,3 +282,19 @@ end
 
 
 
+return
+figure(EOF_fig(1))
+ax  = findall(gcf, 'Type', 'axes');
+
+figure
+ax_new = axes;
+oj = copyobj(allchild(ax(end)), ax_new);
+uistack(oj(end), "top")
+axis square
+axis ij
+set(oj, 'LineWidth', 8)
+xticklabels([])
+yticklabels([])
+
+fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+print(gcf, fullfile(fpath, 'EOF_illustration.png'), '-dpng', '-r600')

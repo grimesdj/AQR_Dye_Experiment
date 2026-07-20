@@ -43,7 +43,7 @@ figure("Position", [2250 30 500 1000])
 H = arrayfun(@(x) x.dz(1), TEOF);
 rowScale = H;
 Ncols = 2;
-ax = scaled_figure(rowScale,Ncols);
+ax = scaled_figure(rowScale,Ncols, 0.1, 0.2);
 
 
 % M1 Velocity EOF mode 1
@@ -91,6 +91,7 @@ plot(abs(VEOF(3).EOFs(:, 1)), VEOF(3).dz, 'k-s', 'LineWidth', 2)
 grid(gca, 'minor')
 axis ij
 xticklabels([])
+xlabel('[-]')
 
 % M3 Temp variablilty
 axes(ax(3, 2))
@@ -105,7 +106,8 @@ xticklabels([])
 yticklabels([])
 
 % M4 Vel
- % no data
+M4v = ax(4, 1);
+M4v.Visible = 'off';
 
 % M4 Temp variablilty
 axes(ax(4, 2))
@@ -116,7 +118,7 @@ sig = std(S, [], 1);
 plot(sig, TEOF(4).dz, 'r-s', 'LineWidth', 2)
 grid(gca, 'minor')
 axis ij
-yticklabels([])
+%yticklabels([])
 
 for rows = 1:length(H)
     linkaxes(ax(rows, [1 2]), 'y')
@@ -126,10 +128,16 @@ for cols = [1 2]
 end
 
 ylabel(ax(:, 1), '$h$ [m]', 'Interpreter','latex')
-xlabel(ax(end, 1), '$U_{EOF1}$', 'Interpreter','latex')
-xlabel(ax(end, 2), '$\sigma_{T}(^{\circ}C)$', 'Interpreter','latex')
+ylabel(ax(end, 2), '$h$ [m]', 'Interpreter','latex')
+title(ax(1, 1), '$U_{EOF1}$', 'Interpreter','latex', 'fontsize', 16)
+title(ax(1, 2), '$\sigma_{T}$', 'Interpreter','latex', 'fontsize', 16)
+xlabel(ax(end, 2), '$[^{\circ}\mathrm{C}]$', 'Interpreter','latex')
+yticks(ax, [0 5 10 15])
+set(ax, 'FontSize', 14)
 
 
+fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+print(gcf, fullfile(fpath, 'Kumar_internal_wave.png'), '-dpng', '-r600')
 
 % rowH = H/sum(H);
 % 
