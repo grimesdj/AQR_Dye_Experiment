@@ -1,10 +1,15 @@
 clear all
 close all
 
-releaseNum = 1;
+releaseNum = 2;
 
 fin = "../../../Kelp_data/data/Release" + num2str(releaseNum) + "/L0/ADCP/AQD_ADCP.mat";
 aqd = load(fin);
+% 1) now load release CTD data
+fin = '../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat';
+load(fin,'R2')
+load(fin, 'release_times')
+
 %
 % do some smoothing
 dt_aqd = (aqd.Time(2)-aqd.Time(1))*86400;
@@ -58,7 +63,7 @@ fig.PaperSize=ps;
 fig.PaperPosition=[0 0 ps];
 %
 % x-tick locations/times
-xnum = datenum('July-03-2024 19:00:00') + [0:1:3]*3600/86400;
+xnum = datenum(datetime(release_times{releaseNum, 4})) + [0:1:3]*3600/86400;
 xstr = datestr(xnum,'HH:MM');
 %
 a1 = axes('units','centimeters','position',ppos1);
@@ -89,22 +94,19 @@ annotation('textbox','units','centimeters','Position',[xm*2/3 ym+.5*ph ph/2 xm/4
 %
 %
 %
-% 1) now load release CTD data
-fin = '../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat';
-load(fin,'ADCP1')
 Tmap = [13:0.5:15.5];
 clrs = cmocean('thermal',length(Tmap));
 %
-ctdTime = ADCP1.Time';
+ctdTime = R2.Time';
 dt_ctd  = (ctdTime(2)-ctdTime(1))*86400;
-ctdTemp = ADCP1.Temperature;
+ctdTemp = R2.Temperature;
 %
 Nt     = round(5*60/dt_ctd); if ~mod(Nt, 2), Nt=Nt+1; end
 ft     = hamming(Nt); ft = ft./sum(ft);
 ctdTemp = conv2(ctdTemp,ft,'same');
 ctdTemp = ctdTemp(Nt:end-Nt,:)';
 ctdTime = ctdTime(Nt:end-Nt);
-ctdZ    = ADCP1.mab';
+ctdZ    = R2.mab';
 % $$$ tmp = figure;
 % $$$ [cont, dum] = contour(ADCP1.Time',ADCP1.mab',ADCP1.Temperature',Tmap);
 % $$$ close(tmp);
@@ -135,6 +137,11 @@ c1 = axes('units','centimeters','position',cbpos1);
 imagesc(0,Tmap,reshape(clrs,length(Tmap),1,3))
 xlabel(c1,'~~~~~[$^\circ$C]','interpreter','latex')
 set(c1,'ticklabelinterpreter','latex','yaxislocation','right','xaxislocation','top','xtick',[],'tickdir','out','ydir','normal')
+
+RStart = datenum(datetime(release_times{releaseNum, 4}));
+REnd = datenum(datetime(release_times{releaseNum, 5}))+5/24;
+
+xlim([a1 a2], [RStart REnd])
 
 figname = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/figures/Release1/Release_ADCP_CTD_overlay.pdf';
 exportgraphics(fig,figname)

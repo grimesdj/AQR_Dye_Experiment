@@ -3,7 +3,7 @@
 % 2) estimate dT/dz, then low-pass filter (10-hrs) to (T_lp, dTdz_lp)
 % 3) estimate z' = (T-T_lp)/dTdz_lp;
 % 4) plot timeseries of z' at depth with largest mean(dTdz_lp); or mid-water column
-rootDir = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/2024_PROCESSED_DATA/';
+rootDir = '../../../Kelp_data/data/2024_PROCESSED_DATA/';
 Salinity = 33.6;
 g = 9.81;
 for jj = 1:4
