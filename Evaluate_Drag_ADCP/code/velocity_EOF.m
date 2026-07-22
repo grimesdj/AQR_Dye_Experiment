@@ -282,19 +282,31 @@ end
 
 
 
-return
+%return
+cmap = cmocean('haline');
+cl = size(cmap, 1);
+id = round(cl/4);
+c = cmap(id, :);
+
 figure(EOF_fig(1))
 ax  = findall(gcf, 'Type', 'axes');
 
 figure
-ax_new = axes;
-oj = copyobj(allchild(ax(end)), ax_new);
-uistack(oj(end), "top")
+m1 = EOFs(:, 1);
+plot(m1, dz, 'r', 'LineWidth', 8)
+Bt = mean(Barotropic, 1)*1e18;
+hold on
+plot(Bt, dz, 'k', 'LineWidth', 8)
+Tp = m1 + Bt;
+plot(Tp, dz, '-', 'LineWidth', 8, 'Color', c)
 axis square
 axis ij
-set(oj, 'LineWidth', 8)
+xline(0, '--k', 'LineWidth', 3, 'label', '$u = 0$', 'Interpreter','latex', 'LabelOrientation','horizontal', 'FontSize', 16)
 xticklabels([])
 yticklabels([])
+legend('Baroclinic Flow', 'Barotropic Flow', 'Actual Flow', 'Location', 'southeast', 'fontSize', 20)
+
+
 
 fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
 print(gcf, fullfile(fpath, 'EOF_illustration.png'), '-dpng', '-r600')

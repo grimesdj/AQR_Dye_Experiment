@@ -76,6 +76,8 @@ for i = 1:length(moor_fields)
     end
 end
 
+muP = nanmean(M.Pressure);
+D = muP - Y;
 
 %% Plot Velocity
 [Xq, Yq] = meshgrid(X, Y);
@@ -84,22 +86,58 @@ Vq = interp2(Time, M.bin_mab, M.Velocity_North, Xq, Yq);
 fprintf('plot Velocity...\n')
 vel_fig(mooring_ID) = figure;
 a1 = axes('Position',[0.1229 0.1801 0.7327 0.7449]);
-img = imagesc(X, Y, Vq);
+img = imagesc(X, D, Vq);
 mask = ~isnan(Vq);
 set(img, "AlphaData", mask)
-set(gca, 'YDir', 'normal')
+%set(gca, 'YDir', 'normal')
 colormap(cmocean('balance'))
 cmax = max(std(M.Velocity_North, 'omitmissing'));
 clim([-0.1 0.1])
-cb = colorbar;
-ylabel('Meters above bottom')
-ylabel(cb, 'North Velocity, [m/s]')
+%cb = colorbar;
+ylabel('Depth [m]')
+%ylabel(cb, 'North Velocity, [m/s]')
 set(gca, 'FontSize', 18)
 Rstart = datenum(datetime('03-Jul-2024 18:00:00'));
 Rend = datenum(datetime('03-Jul-2024 23:00:00'));
 xlim([Rstart Rend]);
-ylim([0 12.5])
+ylim([0 ceil(max(D))])
 drawnow
+
+%% vel colorbar
+ax = gca;
+cl = clim;
+% position of main axes
+axPos = ax.Position;
+
+% inset location (top right)
+cbW = 0.02;
+cbH = axPos(4)/2.1;
+cbX = axPos(1)+axPos(3)+cbW+0.01;
+cbY = axPos(2)+axPos(4)-cbH;
+
+velCB = axes('Position',[cbX cbY cbW cbH]);
+
+cmap = cmocean('balance');
+l = linspace(cl(1), cl(2),256);
+o = [1 1];
+cim = o' * l;
+
+imagesc(o, l, cim')
+set(velCB,...
+    'YDir','normal',...
+    'XTick',[],...
+    'YAxisLocation','right')
+colormap(velCB,cmocean('balance'))
+ylabel(velCB,'$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]$', 'Interpreter','latex', 'Rotation', 0)
+set(velCB, 'FontSize', 18)
+axes(a1)
+%% release coords
+
+
+
+
+
+%yline(1, 'k--', 'LineWidth', 1.5, 'Label', 'Dye Release Level', 'FontSize', 18)
 
 % if mooring_ID == 1
 %     % have to manually fix Temp for now
@@ -132,8 +170,8 @@ d = P + b;
 d = interp1(Time, d, X);
 
 % grid Temp
-[t_grid, z_grid] = meshgrid(X, M.Temperature_mab);
-z_grid(1, :) = d;
+[t_grid, z_grid] = meshgrid(X, muP - M.Temperature_mab);
+z_grid(1, :) = muP-d;
 
 %Tq = interp2(t_grid, z_grid, M.Temperature, Xq, Yq);
 
@@ -145,9 +183,9 @@ hold on
 % Tvec = minT:maxT;
 Tstd = round(std(M.Temperature, [], "all"));
 Tbar = round(mean(M.Temperature, 'all'));
-minT = Tbar - Tstd;
-maxT = Tbar + Tstd;
-Tvec = minT:0.5:maxT;
+minT = Tbar - 2*Tstd;
+maxT = Tbar + 1;%*Tstd;
+Tvec = minT:maxT;
 
 
 cm = cmocean('themral');
@@ -157,31 +195,68 @@ cstep = 1:step:clen;
 cm = cm(cstep, :);
 for ib = 1:length(Tvec)
     fprintf('adding %d C contour...\n', Tvec(ib))
-    contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 2.5, 'DisplayName', [sprintf('%.1f ', Tvec(ib)) '$^\circ$C'])
+    contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 5, 'DisplayName', [sprintf('%.1f ', Tvec(ib)) '$^\circ$C'])
     drawnow
 end
+
+%% temp colorbar
+cbY = axPos(2);
+
+tmpCB = axes('Position',[cbX cbY cbW cbH]);
+
+
+l = Tvec;
+o = [1 1];
+cim = o' * l;
+
+imagesc(o, l, cim')
+set(tmpCB,...
+    'YDir','normal',...
+    'XTick',[],...
+    'YAxisLocation','right')
+colormap(tmpCB,cm)
+ylabel(tmpCB,'$[^\circ$C]', 'Interpreter','latex', 'Rotation', 0)
+set(tmpCB, 'FontSize', 18)
+axes(a1)
+
 
 % c1 = colorbar;
 % c1.Location = 'north';
 % c1.Color = cmocean('Thermal');
 
-% add free surf
-fprintf('adding free surface...\n')
-plot(Time, M.Pressure, 'k', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
-lgd = legend;
-lgd.Interpreter = 'latex';
-lgd.NumColumns = 4;
+% % add free surf
+% fprintf('adding free surface...\n')
+% plot(Time, muP-M.Pressure, 'k', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
+% lgd = legend;
+% lgd.Interpreter = 'latex';
+% lgd.NumColumns = 4;
 
 % uGhhh date ticks
 ax = gca;
-ax.XTick = ceil(min(Time)):1/24:floor(max(Time));
+ax.XTick = floor(min(Time)):1/24:ceil(max(Time));
+yt = ax.YTick;
+ax.YTick = yt(1):2:yt(end);
 datetick('x','HH:MM','keeplimits', 'keepticks')
-xtickangle(315)
+xline(datenum('03-Jul-2024 21:00:00'), 'k--', 'LineWidth', 2)
+%xtickangle(315)
 
 
 %% Figure
 %print(gcf, '../Presentations/tea_06_12_2026/figures/Velocity_contoured', '-dpng', '-r600')
 %xlim
+
+
+
+
+
+
+% export fig
+fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+print(gcf, fullfile(fpath, 'M1_release_conditions.png'), '-dpng', '-r600')
+
+
+
+
 
 return
 %% z/h grid
