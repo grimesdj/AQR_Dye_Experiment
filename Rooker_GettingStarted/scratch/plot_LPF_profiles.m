@@ -9,7 +9,7 @@ ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
 for mooring_ID = 1
-moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
+moorings = {'M1', 'M2', 'M3'};
 mooring = moorings{mooring_ID};
 
 % ADCP
@@ -100,7 +100,8 @@ set(gca, 'FontSize', 18)
 Rstart = datenum(datetime('03-Jul-2024 18:00:00'));
 Rend = datenum(datetime('03-Jul-2024 23:00:00'));
 xlim([Rstart Rend]);
-ylim([0 ceil(max(D))])
+yl = [0 ceil(max(D))];
+ylim(yl)
 drawnow
 
 %% vel colorbar
@@ -132,8 +133,6 @@ ylabel(velCB,'$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]$', 'Interpreter','late
 set(velCB, 'FontSize', 18)
 axes(a1)
 %% release coords
-
-
 
 
 
@@ -240,6 +239,10 @@ datetick('x','HH:MM','keeplimits', 'keepticks')
 xline(datenum('03-Jul-2024 21:00:00'), 'k--', 'LineWidth', 2)
 %xtickangle(315)
 
+dyeTime = [datenum('03-Jul-2024 18:38:00');datenum('03-Jul-2024 19:52:00')];
+dyeDep = muP-1 * [1 1];
+plot(dyeTime, dyeDep, 'm-o', 'LineWidth', 5, 'MarkerFaceColor','m', 'MarkerEdgeColor', 'k', 'MarkerSize', 10)
+text(dyeTime(end), dyeDep(end)-0.7, 'Dye Release', 'FontSize', 18, 'Color', 'm', 'BackgroundColor', [1 1 1])
 
 %% Figure
 %print(gcf, '../Presentations/tea_06_12_2026/figures/Velocity_contoured', '-dpng', '-r600')
