@@ -105,11 +105,11 @@ for i = 1:length(moorings)
 
     %% std profiles
 
-    M.(mooring).UST_std = std(M.(mooring).UST, [], 1);
-    M.(mooring).UDU_std = std(M.(mooring).UDU, [], 1);
-    M.(mooring).USD_std = std(M.(mooring).USD, [], 1);
-    M.(mooring).UMH_std = std(M.(mooring).UMH, [], 1);
-    M.(mooring).UHF_std = std(M.(mooring).UHF, [], 1);
+    M.(mooring).UST_std = var(M.(mooring).UST, [], 1);
+    M.(mooring).UDU_std = var(M.(mooring).UDU, [], 1);
+    M.(mooring).USD_std = var(M.(mooring).USD, [], 1);
+    M.(mooring).UMH_std = var(M.(mooring).UMH, [], 1);
+    M.(mooring).UHF_std = var(M.(mooring).UHF, [], 1);
 
     %% compare std profiles at each band
     figure(std_fig);
@@ -534,9 +534,9 @@ M4M3(3) = mean(M4M3_SD);
 M4M3(4) = mean(M4M3_MH);
 M4M3(5) = mean(M4M3_HF);
 
-M4M1 = M4M1*100;
-M4M2 = M4M2*100;
-M4M3 = M4M3*100;
+% M4M1 = M4M1*100;
+% M4M2 = M4M2*100;
+% M4M3 = M4M3*100;
 
 
 step = floor(length(cmap)/3);
@@ -547,20 +547,21 @@ fh = [fp fs];
 xis = mean([fl;fh]);
 
 figure('Position', [0 0 1500 500])
-semilogx(xis, M4M1, '-s', 'LineWidth', 3, 'markersize', 8, 'color', c(1, :))
+semilogx(xis, M4M1, '-s', 'LineWidth', 5, 'markersize', 8, 'color', c(1, :))
 hold on
-semilogx(xis, M4M2, '-s', 'LineWidth', 3, 'markersize', 8, 'color', c(2, :))
-semilogx(xis, M4M3, '-s', 'LineWidth', 3,  'markersize', 8, 'color', c(3, :))
-set(gca, 'Fontsize', 18)
+semilogx(xis, M4M2, '-s', 'LineWidth', 5, 'markersize', 8, 'color', c(2, :))
+semilogx(xis, M4M3, '-s', 'LineWidth', 5,  'markersize', 8, 'color', c(3, :))
+set(gca, 'Fontsize', 20)
 grid minor
-yline(0, 'k--', 'linewidth', 1.5)
+yline(0, 'k--', 'linewidth', 2)
 %xline(1/86400)
 %xline(2/86400)
+xline(1/(21*3600), 'r-', 'LineWidth', 3, 'label', 'Inertial Frequency', 'LabelVerticalAlignment','top', 'LabelOrientation','horizontal', 'FontSize', 18)
+
 
 legend('M1', 'M2', 'M3', 'location', 'northwest')
-ylabel('$\%\Delta\bar{\sigma}_T$', ...
-    'Interpreter', 'latex', ...
-    'Rotation', 0)
+ylabel('$\Delta\bar{\sigma}^2_T$', ...
+    'Interpreter', 'latex')
 xlabel('$f$ [Hz]', 'interpreter', 'latex')
 
 
