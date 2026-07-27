@@ -8,7 +8,7 @@ ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
-for mooring_ID = 1
+for mooring_ID = 1:3
 moorings = {'M1', 'M2', 'M3'};
 mooring = moorings{mooring_ID};
 
@@ -56,7 +56,10 @@ ADCP_temp = fillmissing(M.Temperature, 'linear');
 % common time
 fprintf('interpolating to common grid...\n')
 Time = M.Time;
-X = Time(1):1/3600:Time(end);
+Rstart = datenum(datetime('11-Jul-2024 15:00:00'));
+Rend = datenum(datetime('12-Jul-2024 02:00:00'));
+
+X = Rstart:1/3600:Rend;
 Y = M.bin_mab(1):0.01:M.bin_mab(end)';
 moor_fields = fieldnames(Moor);
 for i = 1:length(moor_fields)
@@ -97,8 +100,8 @@ clim([-0.1 0.1])
 ylabel('Depth [m]')
 %ylabel(cb, 'North Velocity, [m/s]')
 set(gca, 'FontSize', 18)
-Rstart = datenum(datetime('03-Jul-2024 18:00:00'));
-Rend = datenum(datetime('03-Jul-2024 23:00:00'));
+% Rstart = datenum(datetime('03-Jul-2024 18:00:00'));
+% Rend = datenum(datetime('03-Jul-2024 23:00:00'));
 xlim([Rstart Rend]);
 yl = [0 ceil(max(D))];
 ylim(yl)
@@ -166,7 +169,9 @@ top_mab = M.Temperature_mab(1);
 P = M.Pressure;
 b = top_mab;
 d = P + b;
-d = interp1(Time, d, X);
+if length(d)~=length(X)
+    d = interp1(Time, d, X);
+end
 
 % grid Temp
 [t_grid, z_grid] = meshgrid(X, muP - M.Temperature_mab);
@@ -177,21 +182,22 @@ z_grid(1, :) = muP-d;
 % add Temp contours
 fprintf('add Temp contours...\n')
 hold on
-% minT = ceil(min(M.Temperature, [], 'all'));
-% maxT = floor(max(M.Temperature, [], 'all'));
+minT = floor(min(M.Temperature, [], 'all'));
+maxT = floor(max(M.Temperature, [], 'all'));
 % Tvec = minT:maxT;
-Tstd = round(std(M.Temperature, [], "all"));
-Tbar = round(mean(M.Temperature, 'all'));
-minT = Tbar - 2*Tstd;
-maxT = Tbar + 1;%*Tstd;
-Tvec = minT:maxT;
+% Tstd = round(std(M.Temperature, [], "all"));
+% Tbar = round(mean(M.Temperature, 'all'));
+% minT = Tbar - 2*Tstd;
+% maxT = Tbar + 1;%*Tstd;
+
+Tvec = minT:0.25:maxT;
 
 
-cm = cmocean('themral');
-clen = size(cm, 1);
-step = floor(clen/length(Tvec));
-cstep = 1:step:clen;
-cm = cm(cstep, :);
+cm = cmocean('thermal', length(Tvec));
+% clen = size(cm, 1);
+% step = floor(clen/length(Tvec));
+% cstep = 1:step:clen;
+% cm = cm(cstep, :);
 for ib = 1:length(Tvec)
     fprintf('adding %d C contour...\n', Tvec(ib))
     contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 5, 'DisplayName', [sprintf('%.1f ', Tvec(ib)) '$^\circ$C'])
@@ -206,9 +212,9 @@ tmpCB = axes('Position',[cbX cbY cbW cbH]);
 
 l = Tvec;
 o = [1 1];
-cim = o' * l;
+cim = reshape(cm, length(Tvec), 1, 3);
 
-imagesc(o, l, cim')
+imagesc(0, l, cim)
 set(tmpCB,...
     'YDir','normal',...
     'XTick',[],...
@@ -260,8 +266,7 @@ print(gcf, fullfile(fpath, 'M1_release_conditions.png'), '-dpng', '-r600')
 
 
 
-
-return
+continue
 %% z/h grid
 sig = z_grid./M.Pressure;
 dz = min(sig(end-1, :)):0.1:min(sig(1, :));
@@ -302,6 +307,8 @@ hold on
 
 
 end
+
+return
 
 title(ax1, '$\mu$ Profile', 'Interpreter','latex', 'FontSize', 20)
 xlabel(ax1, '$^\circ$C', 'Interpreter','latex')
