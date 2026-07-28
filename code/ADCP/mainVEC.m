@@ -18,11 +18,11 @@ clear all
 close all
 
 % Release number
-releasenum = 2; 
+releasenum = 1; 
 release = string(releasenum);
 
 % Does the signal need to be unwrapped?
-unwrap = 0; % 1 for unwrap, 0 for not unwrap
+unwrap = 1; % 1 for unwrap, 0 for not unwrap
 
 
 

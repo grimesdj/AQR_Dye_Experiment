@@ -166,7 +166,7 @@ sgtitle(sprintf('%s', direction))
 %% save
 savestr = mooring + "_EOF_depth_coords_" + direction + ".mat";
 fpath = fullfile(fpath, '..', '..', 'L1', 'ADCP');
-%save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam','Barotropic', 'dz')
+save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam','Barotropic', 'dz')
 
 
 for modenum = 1:2

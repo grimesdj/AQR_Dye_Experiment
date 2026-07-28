@@ -7,7 +7,7 @@ close all
 %% User Input data
 
 % bandpass range IN HOURS (BP = 0 means bandpass off, BP = 1 means bandpass on)
-BP = 1; 
+BP = 0; 
 lower_bound = 1;
 upper_bound = 10/60;
 
@@ -164,7 +164,7 @@ grid minor
 
 %% save
 savestr = mooring + "_EOF.mat";
-%save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam', 'Barotropic', 'dz')
+save(fullfile(fpath, savestr), 'L', 'EOFs', 'EC', 'Error', 'Skill','lam', 'Barotropic', 'dz')
 
 % store in struct
 Data(mooring_ID).L = L;

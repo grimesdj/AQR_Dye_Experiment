@@ -2,6 +2,7 @@ clear all
 close all
 
 %% User Input Data
+addpath('../../code/')
 releasenum = 2; % Enter Release number here ( remember to change line 22 to HR for R1 and not HR for R23
 release = string(releasenum);
 unwrap = 0; % 1 for unwrap, 0 for not unwrap
