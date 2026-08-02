@@ -8,7 +8,7 @@ ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
-for mooring_ID = 1:3
+for mooring_ID = 1
 moorings = {'M1', 'M2', 'M3'};
 mooring = moorings{mooring_ID};
 
@@ -19,6 +19,7 @@ fname = "ADCP_" + mooring + "_L0_10min.mat";
 M = load(fullfile(fpath,fname));
 %M.Config = load(fullfile(fpath, filesep, "ADCP_" + mooring + "_config.mat"));
 
+%M.bin_mab = M.bin_mab - 0.5; I wonder if HAB is correct?
 
 % Mooring
 mpath = fullfile(fpath, '..', '..', 'L1', "mooring_" + mooring + ".mat");
@@ -56,8 +57,8 @@ ADCP_temp = fillmissing(M.Temperature, 'linear');
 % common time
 fprintf('interpolating to common grid...\n')
 Time = M.Time;
-Rstart = datenum(datetime('11-Jul-2024 15:00:00'));
-Rend = datenum(datetime('12-Jul-2024 02:00:00'));
+Rstart = datenum(datetime('03-Jul-2024 18:00:00'));
+Rend = datenum(datetime('03-Jul-2024 23:00:00'));
 
 X = Rstart:1/3600:Rend;
 Y = M.bin_mab(1):0.01:M.bin_mab(end)';
@@ -165,7 +166,7 @@ M.Temperature_mab = [dum ; 0];
 top_T = M.Temperature(1, :);
 top_mab = M.Temperature_mab(1);
 
-% top sensor is floating
+% top sensor is floating (>_<)
 P = M.Pressure;
 b = top_mab;
 d = P + b;
@@ -190,7 +191,7 @@ maxT = floor(max(M.Temperature, [], 'all'));
 % minT = Tbar - 2*Tstd;
 % maxT = Tbar + 1;%*Tstd;
 
-Tvec = minT:0.25:maxT;
+Tvec = minT:maxT;
 
 
 cm = cmocean('thermal', length(Tvec));
