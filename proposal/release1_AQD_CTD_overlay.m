@@ -1,6 +1,9 @@
 clear all
 close all
-fin = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/Summer2025/Rooker/Release1/L0/KELP1_AquadoppHR_L0.mat';
+
+releaseNum = 1;
+
+fin = "../../../Kelp_data/data/Release" + num2str(releaseNum) + "/L0/ADCP/AQD_ADCP.mat";
 aqd = load(fin);
 %
 % do some smoothing
@@ -8,8 +11,8 @@ dt_aqd = (aqd.Time(2)-aqd.Time(1))*86400;
 dz_aqd = aqd.Config.binSize;
 zbins  = aqd.Config.blank+[1:aqd.Config.Nbins]*aqd.Config.binSize;
 %
-Nt     = round(5*60/dt_aqd); if iseven(Nt), Nt=Nt+1; end
-Nz     = round(0.1/dz_aqd);  if iseven(Nz), Nz=Nz+1; end
+Nt     = round(5*60/dt_aqd); if ~mod(Nt, 2), Nt=Nt+1; end
+Nz     = round(0.1/dz_aqd);  if ~mod(Nz, 2), Nz=Nz+1; end
 %
 ft     = hamming(Nt); ft = ft./sum(ft);
 fz     = hamming(Nz); fz = fz./sum(fz);
@@ -87,7 +90,7 @@ annotation('textbox','units','centimeters','Position',[xm*2/3 ym+.5*ph ph/2 xm/4
 %
 %
 % 1) now load release CTD data
-fin = '/Users/derekgrimes/OneDriveUNCW/KELP-vingilote/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat';
+fin = '../../../Kelp_data/data/2024_PROCESSED_DATA/DyeReleaseLanderData.mat';
 load(fin,'ADCP1')
 Tmap = [13:0.5:15.5];
 clrs = cmocean('thermal',length(Tmap));
@@ -96,7 +99,7 @@ ctdTime = ADCP1.Time';
 dt_ctd  = (ctdTime(2)-ctdTime(1))*86400;
 ctdTemp = ADCP1.Temperature;
 %
-Nt     = round(5*60/dt_ctd); if iseven(Nt), Nt=Nt+1; end
+Nt     = round(5*60/dt_ctd); if ~mod(Nt, 2), Nt=Nt+1; end
 ft     = hamming(Nt); ft = ft./sum(ft);
 ctdTemp = conv2(ctdTemp,ft,'same');
 ctdTemp = ctdTemp(Nt:end-Nt,:)';

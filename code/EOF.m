@@ -25,7 +25,7 @@ function [L, EOFs, EC, Error, Skill,lam] = EOF( Y , num );
 [N, M] = size(Y);
 
 % remove mean
-Y = Y - repmat(mean(Y,1),N,1);
+Y = Y - repmat(mean(Y,1, 'omitmissing'),N,1);
 
 % detrend
 Y = detrend(Y);

@@ -11,7 +11,7 @@
 %       depTime = start and end times of deployment
 %       
 
-addpath 'C:\Users\jkr6136\OneDrive - UNC-Wilmington\Kelp_repo\AQR_Dye_Experiment\code'
+addpath '../../../../Kelp_repo/AQR_Dye_Experiment/code'
 
 
 clear all

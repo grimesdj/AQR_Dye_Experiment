@@ -8,8 +8,8 @@ ax1 = subplot(1, 2, 1);
 ax2 = subplot(1, 2, 2);
 strat_fig = figure;
 
-for mooring_ID = 1:3
-moorings = {'M1', 'M2', 'M3'}; % M3 doesnt have ADCP data yet
+for mooring_ID = 1
+moorings = {'M1', 'M2', 'M3'};
 mooring = moorings{mooring_ID};
 
 % ADCP
@@ -19,6 +19,7 @@ fname = "ADCP_" + mooring + "_L0_10min.mat";
 M = load(fullfile(fpath,fname));
 %M.Config = load(fullfile(fpath, filesep, "ADCP_" + mooring + "_config.mat"));
 
+%M.bin_mab = M.bin_mab - 0.5; I wonder if HAB is correct?
 
 % Mooring
 mpath = fullfile(fpath, '..', '..', 'L1', "mooring_" + mooring + ".mat");
@@ -56,6 +57,11 @@ ADCP_temp = fillmissing(M.Temperature, 'linear');
 % common time
 fprintf('interpolating to common grid...\n')
 Time = M.Time;
+Rstart = datenum(datetime('03-Jul-2024 18:00:00'));
+Rend = datenum(datetime('03-Jul-2024 23:00:00'));
+
+X = Rstart:1/3600:Rend;
+Y = M.bin_mab(1):0.01:M.bin_mab(end)';
 moor_fields = fieldnames(Moor);
 for i = 1:length(moor_fields)
     field = moor_fields{i};
@@ -63,9 +69,9 @@ for i = 1:length(moor_fields)
     if ~strcmp(field, 'Time') && ~isempty(dum)
         if size(dum, 2) == size(Moor.Time, 2)
             if isvector(dum)
-                tmp = interp1(Moor.Time, dum, Time);
+                tmp = interp1(Moor.Time, dum, X);
             else
-                tmp = interp1(Moor.Time, dum', Time)';
+                tmp = interp1(Moor.Time, dum', X)';
             end
         else
             tmp = dum;
@@ -74,25 +80,67 @@ for i = 1:length(moor_fields)
     end
 end
 
+muP = nanmean(M.Pressure);
+D = muP - Y;
 
 %% Plot Velocity
+[Xq, Yq] = meshgrid(X, Y);
+Vq = interp2(Time, M.bin_mab, M.Velocity_North, Xq, Yq);
+
 fprintf('plot Velocity...\n')
 vel_fig(mooring_ID) = figure;
-img = imagesc(Time, M.bin_mab, M.Velocity_North);
-mask = ~isnan(M.Velocity_North);
+a1 = axes('Position',[0.1229 0.1801 0.7327 0.7449]);
+img = imagesc(X, D, Vq);
+mask = ~isnan(Vq);
 set(img, "AlphaData", mask)
-set(gca, 'YDir', 'normal')
+%set(gca, 'YDir', 'normal')
 colormap(cmocean('balance'))
 cmax = max(std(M.Velocity_North, 'omitmissing'));
 clim([-0.1 0.1])
-cb = colorbar;
-ylabel('Meters above bottom')
-ylabel(cb, 'North Velocity, [m/s]')
+%cb = colorbar;
+ylabel('Depth [m]')
+%ylabel(cb, 'North Velocity, [m/s]')
 set(gca, 'FontSize', 18)
-xlim([739449.8349759484   739451.6397798342])
-ylim([0 12.5])
+% Rstart = datenum(datetime('03-Jul-2024 18:00:00'));
+% Rend = datenum(datetime('03-Jul-2024 23:00:00'));
+xlim([Rstart Rend]);
+yl = [0 ceil(max(D))];
+ylim(yl)
 drawnow
 
+%% vel colorbar
+ax = gca;
+cl = clim;
+% position of main axes
+axPos = ax.Position;
+
+% inset location (top right)
+cbW = 0.02;
+cbH = axPos(4)/2.1;
+cbX = axPos(1)+axPos(3)+cbW+0.01;
+cbY = axPos(2)+axPos(4)-cbH;
+
+velCB = axes('Position',[cbX cbY cbW cbH]);
+
+cmap = cmocean('balance');
+l = linspace(cl(1), cl(2),256);
+o = [1 1];
+cim = o' * l;
+
+imagesc(o, l, cim')
+set(velCB,...
+    'YDir','normal',...
+    'XTick',[],...
+    'YAxisLocation','right')
+colormap(velCB,cmocean('balance'))
+ylabel(velCB,'$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]$', 'Interpreter','latex', 'Rotation', 0)
+set(velCB, 'FontSize', 18)
+axes(a1)
+%% release coords
+
+
+
+%yline(1, 'k--', 'LineWidth', 1.5, 'Label', 'Dye Release Level', 'FontSize', 18)
 
 % if mooring_ID == 1
 %     % have to manually fix Temp for now
@@ -109,7 +157,8 @@ drawnow
 
 % add ADCP temp to bottom
 dum = M.Temperature;
-M.Temperature = [dum ; ADCP_temp];
+tmp = interp1(Time, ADCP_temp, X);
+M.Temperature = [dum ; tmp];
 dum = M.Temperature_mab;
 M.Temperature_mab = [dum ; 0];
 
@@ -117,53 +166,108 @@ M.Temperature_mab = [dum ; 0];
 top_T = M.Temperature(1, :);
 top_mab = M.Temperature_mab(1);
 
-% top sensor is floating
+% top sensor is floating (>_<)
 P = M.Pressure;
 b = top_mab;
 d = P + b;
+if length(d)~=length(X)
+    d = interp1(Time, d, X);
+end
 
 % grid Temp
-[t_grid, z_grid] = meshgrid(Time, M.Temperature_mab);
-z_grid(1, :) = d;
+[t_grid, z_grid] = meshgrid(X, muP - M.Temperature_mab);
+z_grid(1, :) = muP-d;
 
-
+%Tq = interp2(t_grid, z_grid, M.Temperature, Xq, Yq);
 
 % add Temp contours
 fprintf('add Temp contours...\n')
 hold on
-minT = ceil(min(M.Temperature, [], 'all'));
+minT = floor(min(M.Temperature, [], 'all'));
 maxT = floor(max(M.Temperature, [], 'all'));
+% Tvec = minT:maxT;
+% Tstd = round(std(M.Temperature, [], "all"));
+% Tbar = round(mean(M.Temperature, 'all'));
+% minT = Tbar - 2*Tstd;
+% maxT = Tbar + 1;%*Tstd;
+
 Tvec = minT:maxT;
 
-cm = cmocean('haline');
-clen = size(cm, 1);
-step = floor(clen/length(Tvec));
-cstep = 1:step:clen;
-cm = cm(cstep, :);
+
+cm = cmocean('thermal', length(Tvec));
+% clen = size(cm, 1);
+% step = floor(clen/length(Tvec));
+% cstep = 1:step:clen;
+% cm = cm(cstep, :);
 for ib = 1:length(Tvec)
     fprintf('adding %d C contour...\n', Tvec(ib))
-    contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 2.5, 'DisplayName', [sprintf('%d ', Tvec(ib)) '$^\circ$C'])
+    contour(t_grid, z_grid, M.Temperature, [Tvec(ib) Tvec(ib)], 'EdgeColor',cm(ib, :), 'LineWidth', 5, 'DisplayName', [sprintf('%.1f ', Tvec(ib)) '$^\circ$C'])
     drawnow
 end
 
-% add free surf
-fprintf('adding free surface...\n')
-plot(Time, M.Pressure, 'b', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
-lgd = legend;
-lgd.Interpreter = 'latex';
-lgd.NumColumns = 4;
+%% temp colorbar
+cbY = axPos(2);
+
+tmpCB = axes('Position',[cbX cbY cbW cbH]);
+
+
+l = Tvec;
+o = [1 1];
+cim = reshape(cm, length(Tvec), 1, 3);
+
+imagesc(0, l, cim)
+set(tmpCB,...
+    'YDir','normal',...
+    'XTick',[],...
+    'YAxisLocation','right')
+colormap(tmpCB,cm)
+ylabel(tmpCB,'$[^\circ$C]', 'Interpreter','latex', 'Rotation', 0)
+set(tmpCB, 'FontSize', 18)
+axes(a1)
+
+
+% c1 = colorbar;
+% c1.Location = 'north';
+% c1.Color = cmocean('Thermal');
+
+% % add free surf
+% fprintf('adding free surface...\n')
+% plot(Time, muP-M.Pressure, 'k', 'LineWidth', 2.5, 'DisplayName', 'Free Surface')
+% lgd = legend;
+% lgd.Interpreter = 'latex';
+% lgd.NumColumns = 4;
 
 % uGhhh date ticks
 ax = gca;
-ax.XTick = min(Time):1/12:max(Time);
-datetick('x','HH:MM mm/dd','keeplimits', 'keepticks')
-xtickangle(315)
+ax.XTick = floor(min(Time)):1/24:ceil(max(Time));
+yt = ax.YTick;
+ax.YTick = yt(1):2:yt(end);
+datetick('x','HH:MM','keeplimits', 'keepticks')
+xline(datenum('03-Jul-2024 21:00:00'), 'k--', 'LineWidth', 2)
+%xtickangle(315)
 
+dyeTime = [datenum('03-Jul-2024 18:38:00');datenum('03-Jul-2024 19:52:00')];
+dyeDep = muP-1 * [1 1];
+plot(dyeTime, dyeDep, 'm-o', 'LineWidth', 5, 'MarkerFaceColor','m', 'MarkerEdgeColor', 'k', 'MarkerSize', 10)
+text(dyeTime(end), dyeDep(end)-0.7, 'Dye Release', 'FontSize', 18, 'Color', 'm', 'BackgroundColor', [1 1 1])
 
 %% Figure
 %print(gcf, '../Presentations/tea_06_12_2026/figures/Velocity_contoured', '-dpng', '-r600')
 %xlim
 
+
+
+
+
+
+% export fig
+fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+print(gcf, fullfile(fpath, 'M1_release_conditions.png'), '-dpng', '-r600')
+
+
+
+
+continue
 %% z/h grid
 sig = z_grid./M.Pressure;
 dz = min(sig(end-1, :)):0.1:min(sig(1, :));
@@ -190,7 +294,22 @@ hold(ax2, "on")
 figure(strat_fig)
 plot(diff(mean_profile), dz(1:end-1), '-s', 'LineWidth', 2)
 hold on
+
+
+
+%% PSD
+
+
+
+
+
+
+
+
+
 end
+
+return
 
 title(ax1, '$\mu$ Profile', 'Interpreter','latex', 'FontSize', 20)
 xlabel(ax1, '$^\circ$C', 'Interpreter','latex')
@@ -216,8 +335,21 @@ grid minor
 ylabel('Relative Depth z/h')
 xlabel('$^\circ$C/m', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
+axis square
 
 
+
+
+
+
+
+
+
+
+
+
+
+return
 %% Export Figs
 print(prof_fig, '../../../../Kelp_data/Summer2025/Rooker/figures/mooring_avg_and_std_profiles.png', '-dpng', '-r600')
 print(vel_fig(1), '../../../../Kelp_data/Summer2025/Rooker/figures/M1_velocity_and_temp.png', '-dpng', '-r600')
