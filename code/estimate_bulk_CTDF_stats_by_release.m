@@ -223,10 +223,10 @@ S3 = sqrt(S3);
  S3(1), S3(4), theta3]
 %
 figure,
-plot(-dTdp_T1avg,sqrt(S1(1)*S1(4)),'*k',-dTdp_T2avg,sqrt(S2(1)*S2(4)),'*r',-dTdp_T3avg,sqrt(S3(1)*S3(4)),'*b',...
+p0  = plot(-dTdp_T1avg,sqrt(S1(1)*S1(4)),'*k',-dTdp_T2avg,sqrt(S2(1)*S2(4)),'*r',-dTdp_T3avg,sqrt(S3(1)*S3(4)),'*b',...
      -dTdp_T1avg,S1(1),'^k',-dTdp_T2avg,S2(1),'xr',-dTdp_T3avg,S3(1),'xb',...
-     -dTdp_T1avg,S1(4),'xk',-dTdp_T2avg,S2(4),'^r',-dTdp_T3avg,S3(4),'^b')
-leg = legend( '$\sqrt{\lambda_x\lambda_y}$','$\lambda_x$','$\lambda_y$');
+     -dTdp_T1avg,S1(4),'xk',-dTdp_T2avg,S2(4),'^r',-dTdp_T3avg,S3(4),'^b');
+leg = legend([p0(1) p0(4) p0(7) p0(2) p0(3)],{ 'R1: $\sqrt{\lambda_x\lambda_y}$','R1: $\lambda_x$','R1: $\lambda_y$','R2: $\sqrt{\lambda_x\lambda_y}$','R3: $\sqrt{\lambda_x\lambda_y}$'}, 'location','southeast');
 set(leg,'interpreter','latex')
 xlabel('$dT/dz$ [C/m]','interpreter','latex')
 ylabel('$\lambda_{x,y}$ [m]','interpreter','latex')

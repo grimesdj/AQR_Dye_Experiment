@@ -70,7 +70,21 @@ rawFiles        = strvcat(fin,Release1GPS);
 %
 % interpolate downcasts to uniform grid
 [time_grid,latitude_grid,longitude_grid,pres_grid,dye_grid,temp_grid,cond_grid] = interpolate_CTDF_downcasts(time,pres,temp,cond,dye,gps);
-%
+
+% $$$ %% Debugging
+% $$$ return
+% $$$ figure, geoscatter(latitude_grid,longitude_grid,10,time_grid,'filled'),geobasemap('satellite')
+% $$$ colormap(cmocean('thermal'))
+% $$$ 
+% $$$ idx = find(cinfo.Target.LongitudeData==cinfo.Position(2) & cinfo.Target.LatitudeData==cinfo.Position(1));
+% $$$ datestr(time_grid(idx))
+% $$$ 
+% $$$ Lat = [34+28.1196/60       34+28.1163/60];
+% $$$ Lon = [-(120+7.6710/60)  -(120+7.656/60)];
+% $$$ hold on
+% $$$ geoplot(Lat,Lon,'ro')
+% $$$ %%
+
 % archive raw and gridded data
 save(fout,'time','cond','temp','pres','dye_raw','dye','rawFiles','gps','time_grid','pres_grid','temp_grid','cond_grid','dye_grid','latitude_grid','longitude_grid','pres0')
 %

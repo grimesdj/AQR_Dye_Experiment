@@ -20,10 +20,11 @@ for jj  = 1:length(files)
     pres_grid = repmat(pres_grid,1,size(temp_grid,2));
 % $$$     figure, scatter(dye,pres, 10,temp,'filled')
 % $$$     figure, plot(temp,dye_raw,'.')
-    %
-    [dye_sort,srt] = sort(dye_grid(:),'ascend');
-    temp_sort = temp_grid(srt);
-    pres_sort = pres_grid(srt);
+%
+    idx = find(pres_grid>=0.25);
+    [dye_sort,srt] = sort(dye_grid(idx),'ascend');
+    temp_sort = temp_grid(idx(srt));
+    pres_sort = pres_grid(idx(srt));
     [cm,conc] = make_DYE_colormap([0 8],1);
     %    
     figure,
@@ -43,9 +44,10 @@ for jj  = 1:length(files)
     exportgraphics(gcf,figname)
     %    
     %
+    idx = find(pres_grid>=1.0);    
     figure,
     ax1 = subplot(2,1,1);
-    scatter(datetime(time_grid(:),'convertfrom','datenum'),pres_grid(:),20,log2(dye_grid(:)),'filled'),
+    scatter(datetime(time_grid(idx),'convertfrom','datenum'),pres_grid(idx),20,log2(dye_grid(idx)),'filled'),
     set(ax1,'ydir','reverse','ticklabelinterpreter','latex'), colormap(ax1,cm), caxis(ax1,[0 8]),
     ylabel('Depth [m]','interpreter','latex')
     cb1=colorbar;
@@ -54,13 +56,15 @@ for jj  = 1:length(files)
     ylabel(cb1,'Dye [ppb]','interpreter','latex')
     yline(ax1,8,'--r','linewidth',2)       
     ax2 = subplot(2,1,2);
-    scatter(datetime(time_grid(:),'convertfrom','datenum'),pres_grid(:),20,temp_grid(:),'filled'),
+    scatter(datetime(time_grid(idx),'convertfrom','datenum'),pres_grid(idx),20,temp_grid(idx),'filled'),
     ylabel('Depth [m]','interpreter','latex')
     set(ax2,'ydir','reverse','ticklabelinterpreter','latex'),
     colormap(ax2,cmocean('thermal')), caxis(ax2,[12 19])
     cb2 = colorbar; set(cb2,'ticklabelinterpreter','latex')
     ylabel(cb2,'Temp [C]','interpreter','latex')       
     yline(ax2,8,'--r','linewidth',2)
+    linkaxes([ax1 ax2],'xy')
+    set(ax2,'ylim',[0 12])
     figname = [figdir,sprintf('%d_depth_time_scatter_vs_dye_temp_colormaps.png',ctdSerialNumber)];
     exportgraphics(gcf,figname)
     %

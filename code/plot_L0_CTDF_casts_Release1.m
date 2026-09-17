@@ -10,6 +10,11 @@ dataDir  = sprintf('%s/data/Release%d/',rootDir,releaseNumber);
 L0Dir    = [dataDir,filesep,'L0',];
 fileRoot = sprintf('%d*.mat',ctdSerialNumber);
 files    = dir([L0Dir,filesep,fileRoot]);
+%
+latlim = [34.4667 34.4718];
+lonlim = [-120.1324 -120.1246];
+[A, R, ATT] = readBasemapImage("satellite", latlim, lonlim, 12);
+%
 for jj  = 1:length(files)
     SN  = split(files(jj).name,'_');
     fin= [L0Dir,filesep,SN{1},'_L0.mat'];
@@ -63,6 +68,8 @@ for jj  = 1:length(files)
     cb2 = colorbar; set(cb2,'ticklabelinterpreter','latex')
     ylabel(cb2,'Temp [C]','interpreter','latex')       
     yline(ax2,8,'--r','linewidth',2)
+    linkaxes([ax1 ax2],'xy')
+    set(ax2,'ylim',[0 12])
     figname = [figdir,sprintf('%d_depth_time_scatter_vs_dye_temp_colormaps.png',ctdSerialNumber)];
     exportgraphics(gcf,figname)
     %
@@ -104,7 +111,7 @@ for jj  = 1:length(files)
     geoplot(lat_early,lon_early,'--k',lat_late,lon_late,'--k','linewidth',1.5)
     colormap(cm), caxis([0 8])
     geobasemap('satellite')
-    geolimits([34.4667 34.4718],[-120.1324 -120.1246])
+    geolimits(latlim,lonlim)
     %
     ax = axes('position',[0.8 0.3 0.03 0.2]);
     imagesc(0,2.^conc,reshape(cm,256,1,3))
@@ -112,6 +119,7 @@ for jj  = 1:length(files)
     set(ax,'ydir','normal','xtick',[],'ticklabelinterpreter','latex','xcolor','w','ycolor','w','fontsize',16)
     figname = [figdir,sprintf('%d_depth_avg_dye_vs_latitude_longitude.png',ctdSerialNumber)];
     exportgraphics(gcf,figname)
+    savefig(gcf,fignam(1:end-4))
     %
 % $$$     dx = mean(gradient(x_grid(1,early)));
 % $$$     dp = mean(gradient(pres_grid(:,1)));    
