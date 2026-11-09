@@ -17,6 +17,16 @@ NV = sum(North, 2);
 EV = sum(East, 2);
 V = [EV NV];
 
+figure
+quiver(0, variance_U)
+
+
+
+
+
+
+
+return
 subplot(3, 1, 1);
 b = bar(sites, V, 'grouped');
 b(2).FaceColor = [0 0 0];

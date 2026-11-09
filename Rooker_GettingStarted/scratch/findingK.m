@@ -46,6 +46,16 @@ set(h_img, 'HandleVisibility', 'off')
 hold on, contour(datenum(CTD1.time_grid(:,1:lim)), CTD1.pres_grid, CTD1.temp_grid(:,1:lim), [Tminus Tplus], 'LineWidth', 1.5, 'LineColor', 'r')
 hold on, contour(datenum(CTD1.time_grid(:,1:lim)), CTD1.pres_grid, CTD1.temp_grid(:,1:lim), [Tbar Tbar], 'LineWidth', 1.5, 'LineColor', 'g')
 datetick('x', 'keeplimits')
+colormap(cmocean('amp'))
+
+figure, 
+h_img = imagesc(datenum(CTD1.time_grid(:,1:lim)), CTD1.pres_grid, CTD1.temp_grid(:,1:lim));
+set(h_img, 'HandleVisibility', 'off')
+hold on, contour(datenum(CTD1.time_grid(:,1:lim)), CTD1.pres_grid, CTD1.temp_grid(:,1:lim), [Tminus Tplus], 'LineWidth', 1.5, 'LineColor', 'r')
+hold on, contour(datenum(CTD1.time_grid(:,1:lim)), CTD1.pres_grid, CTD1.temp_grid(:,1:lim), [Tbar Tbar], 'LineWidth', 1.5, 'LineColor', 'g')
+datetick('x', 'keeplimits')
+colormap(cmocean('thermal'))
+
 
 % 
  CTD1.dye_grid(find(CTD1.temp_grid(:,1:lim)>=Tplus | CTD1.temp_grid(:,1:lim)<=Tminus)) = NaN;

@@ -282,7 +282,7 @@ end
 
 
 
-%return
+return
 cmap = cmocean('haline');
 cl = size(cmap, 1);
 id = round(cl/4);
