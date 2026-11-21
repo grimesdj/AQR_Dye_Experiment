@@ -17,8 +17,8 @@ NV = sum(North, 2);
 EV = sum(East, 2);
 V = [EV NV];
 
-figure
-quiver(0, variance_U)
+%figure
+%quiver(0, variance_U)
 
 
 
@@ -26,7 +26,6 @@ quiver(0, variance_U)
 
 
 
-return
 subplot(3, 1, 1);
 b = bar(sites, V, 'grouped');
 b(2).FaceColor = [0 0 0];
@@ -35,7 +34,7 @@ legend('Alongshore Variance', 'Cross-Shore Variance', 'Location','northeastoutsi
 xticks(sites)
 xticklabels([])
 set(gca, 'Fontsize', 18)
-title('Total Variance', 'FontSize', 18)
+title('Total $\sigma^2$', 'FontSize', 18, Interpreter='latex')
 grid on
 axis square
 ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','Rotation', 0)
@@ -54,7 +53,7 @@ legend('Barotropic Variance', 'Mode 1 BC Variance', 'BC Noise Variance', 'Locati
 xticks(sites)
 xticklabels([])
 set(gca, 'Fontsize', 18)
-title('Alongshore Variance', 'FontSize', 18)
+title('Alongshore $\sigma^2$', 'FontSize', 18, Interpreter='latex')
 grid on
 axis square
 ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','Rotation', 0)
@@ -69,7 +68,7 @@ legend('Barotropic Variance', 'Mode 1 BC Variance', 'BC Noise Variance', 'Locati
 xticks(sites)
 xticklabels({'M1', 'M2', 'M3'})
 set(gca, 'Fontsize', 18)
-title('Cross-Shore Variance', 'FontSize', 18)
+title('Cross-Shore $\sigma^2$', 'FontSize', 18, Interpreter='latex')
 grid on
 axis square
 ylabel('$\left[\frac{\mathrm{m}}{\mathrm{s}}\right]^2$', 'Interpreter','latex','Rotation', 0)
@@ -78,7 +77,7 @@ yticks([0:0.005:0.01])
 
 %%export for poster
 fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
-print(gcf, fullfile(fpath, 'variance_breakdown.png'), '-dpng', '-r600')
+%print(gcf, fullfile(fpath, 'variance_breakdown.png'), '-dpng', '-r600')
 return
 
 

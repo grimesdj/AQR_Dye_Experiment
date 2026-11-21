@@ -155,8 +155,8 @@ for i = 1:3
         'EdgeColor', 'k', ...
         'LineWidth', 1.5)
 
-    sgtitle(name{i})
-    fpath = fullfile('..', 'figures');
+    %sgtitle(name{i})
+    fpath = fullfile('..','..','..','..', 'Kelp_data', 'Summer2025', 'Rooker', 'figures'   );
     exportgraphics(gcf, fullfile(fpath, sprintf('%s_scatter.png', name{i})), 'Resolution',600)
 end
 
@@ -164,9 +164,9 @@ end
 
 
 return 
-sgtitle(fig(1), 'Depth Averaged')
-sgtitle(fig(2), '~1 MAB')
-sgtitle(fig(3), 'Near Surface')
+%sgtitle(fig(1), 'Depth Averaged')
+%sgtitle(fig(2), '~1 MAB')
+%sgtitle(fig(3), 'Near Surface')
 
 
 fpath = fullfile('..', 'figures');

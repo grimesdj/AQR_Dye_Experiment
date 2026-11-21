@@ -91,7 +91,7 @@ nfft = [];
 fs = 1/600;
 [pxx,f, pxxc] = pwelch(Barotropic,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
 %subplot(2, 1, d)
-loglog(f, pxx,'-', 'LineWidth', 2)
+loglog(f, pxx,'-', 'LineWidth', 3)
 hold on
 %loglog(f, pxxc, 'k--', 'LineWidth', 0.5)
 grid on
@@ -106,7 +106,7 @@ ylim([0 10^2])
 FOV = L/sum(L);
 figure(FOV_fig(d))
 nexttile
-plot(FOV, 'ko-', 'LineWidth', 2, 'MarkerSize', 10, 'MarkerFaceColor','black')
+plot(FOV, 'ko-', 'LineWidth', 3, 'MarkerSize', 10, 'MarkerFaceColor','black')
 ylabel('FOV')
 xlabel('Mode #')
 set(gca, 'FontSize', 18)
@@ -114,7 +114,7 @@ axis square
 grid minor
 ylim([0 1])
 title(sprintf('%s', mooring))
-sgtitle(sprintf('%s', direction))
+%sgtitle(sprintf('%s', direction))
 
 
 % monte-carlo noise floor
@@ -150,18 +150,18 @@ end
 
 figure(EOF_fig(d))
 nexttile
-plot(EOFs(:, 1), dz, 'k', 'LineWidth', 2)
+plot(EOFs(:, 1), dz, 'k', 'LineWidth', 3)
 hold on
-plot(EOFs(:, 2), dz, 'r', 'LineWidth', 2)
-%plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
+plot(EOFs(:, 2), dz, 'r', 'LineWidth', 3)
+%plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 3)
 axis square
 ylabel('$h$ [m]', 'Interpreter','latex')
-xlabel('$\mathrm{m}^2/\mathrm{s}^2$', 'Interpreter', 'latex')
+xlabel('[-]')
 set(gca, 'FontSize', 18)
 grid minor
 axis ij
 title(sprintf('%s', mooring))
-sgtitle(sprintf('%s', direction))
+%sgtitle(sprintf('%s', direction))
 
 %% save
 savestr = mooring + "_EOF_depth_coords_" + direction + ".mat";
@@ -279,6 +279,14 @@ save('../../../../Kelp_data/data/2024_PROCESSED_DATA/Velocity_Variance', 'varian
 
 end
 
+%% figures
+
+fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'Summer2025','Rooker', 'figures');
+exportgraphics(EOF_fig(1), fullfile(fpath, 'vel_EOF_U.png'), 'Resolution',600)
+exportgraphics(EOF_fig(2), fullfile(fpath, 'vel_EOF_V.png'), 'Resolution',600)
+exportgraphics(FOV_fig(1), fullfile(fpath, 'vel_FOV_U.png'), 'Resolution',600)
+exportgraphics(FOV_fig(2), fullfile(fpath, 'vel_FOV_V.png'), 'Resolution',600)
+
 
 
 
@@ -307,6 +315,6 @@ yticklabels([])
 legend('Baroclinic Flow', 'Barotropic Flow', 'Actual Flow', 'Location', 'southeast', 'fontSize', 20)
 
 
-
-fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
-print(gcf, fullfile(fpath, 'EOF_illustration.png'), '-dpng', '-r600')
+% 
+% fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
+% print(gcf, fullfile(fpath, 'EOF_illustration.png'), '-dpng', '-r600')

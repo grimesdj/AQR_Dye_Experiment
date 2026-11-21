@@ -121,12 +121,12 @@ Ccrit = 1 - alpha^(1/(L-1));
 figure
 ax1 = subplot(2,1,1);
 semilogx(ax1, F,movmean(Cxy, 3), 'k', 'LineWidth', 2)
-title(sprintf('Mode 1 Magnitude-Squared Coherence %s', mooring))
-
+%title(sprintf('Mode 1 Magnitude-Squared Coherence %s', mooring))
+xticklabels([])
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1, 'FontSize', 18, 'LabelOrientation','horizontal', 'LabelHorizontalAlignment','left')
 xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1, 'FontSize', 18, 'LabelOrientation','horizontal', 'LabelVerticalAlignment','bottom', 'LabelHorizontalAlignment','right')
 %xline(1/(21.2 * 3600), 'g--', 'Label', 'intertial tide')
-yline(Ccrit, 'r--', 'Label', 'Significance Threshold', 'LineWidth', 1, 'FontSize', 18, 'LabelHorizontalAlignment','left')
+yline(Ccrit, 'r--', 'Label', '', 'LineWidth', 1, 'FontSize', 18, 'LabelHorizontalAlignment','left')
 set(gca, 'FontSize', 18)
 ylim([0 1])
 
@@ -137,9 +137,9 @@ phase = angle(Pxy);
 ax2 = subplot(2,1,2);
 semilogx(ax2, F, movmean(phase, 3), 'k', 'LineWidth', 2)
 
-xlabel('Hz')
+xlabel('$f$ [Hz]', 'Interpreter','latex')
 ylabel('\theta(f)')
-title('Cross Spectrum Phase')
+%title('Cross Spectrum Phase')
 
 xline(1/86400, 'b--','LineWidth', 1)
 xline(2/86400, 'b--','LineWidth', 1)
@@ -166,8 +166,8 @@ set(gca, 'FontSize', 18)
 linkaxes([ax1 ax2], 'x')
 
 
-fpath = fullfile('..', '..', '..', '..', 'Documents', 'YCSECA', '2026', 'figures');
-print(gcf, fullfile(fpath, mooring + "_t_v_coherence.png"), '-dpng', '-r600')
+fpath = fullfile('..', 'figures');
+exportgraphics(gcf, fullfile(fpath, mooring + "_t_v_coherence.png"), 'Resolution', 600)
 
 
 %xlim([1/(40 * 3600) 1/(8 * 3600)])

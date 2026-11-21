@@ -14,9 +14,6 @@ upper_bound = 10/60;
 % remove barotropic? (0 for no, 1 for yes)
 rmBT = 0;
 
-
-
-
 % initialize
 FOV_fig = figure("Position", [2250 150 1000 800]);
 t1 = tiledlayout(2, 2);
@@ -56,9 +53,9 @@ noverlap = round(w*(2/3));
 nfft = [];
 fs = 1/600;
 [pxx,f, pxxc] = pwelch(Barotropic,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
-semilogx(f, pxx, 'LineWidth', 1)
+loglog(f, pxx, 'LineWidth', 1)
 hold on
-semilogx(f, pxxc, 'k--', 'LineWidth', 0.5)
+loglog(f, pxxc, 'k--', 'LineWidth', 0.5)
 grid on
 title(sprintf('%s Barotropic Spectra', mooring))
 xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
@@ -69,7 +66,7 @@ xline(1/(21.2*3600), 'g--', 'Label', 'Interial Tide')
 FOV = L/sum(L);
 figure(FOV_fig)
 nexttile
-plot(FOV, 'ko-', 'LineWidth', 2, 'MarkerSize', 10, 'MarkerFaceColor','black')
+plot(FOV, 'ko-', 'LineWidth', 3, 'MarkerSize', 10, 'MarkerFaceColor','black')
 ylabel('FOV')
 xlabel('Mode #')
 set(gca, 'FontSize', 18)
@@ -96,7 +93,7 @@ end
 
 noise95 = prctile(F,95);
 hold on
-plot(noise95,'r--','LineWidth',2)
+plot(noise95,'r--','LineWidth',3)
 %text(mean(1:length(noise95)), mean(noise95) + 0.25*std(FOV), 'White Noise Floor', 'Color', 'r', 'EdgeColor', 'k')
 
 
@@ -111,14 +108,14 @@ end
 % first three EOFs
 figure(EOF_fig)
 nexttile
-plot(EOFs(:, 1), dz, 'k', 'LineWidth', 2)
+plot(EOFs(:, 1), dz, 'k', 'LineWidth', 3)
 hold on
-plot(EOFs(:, 2), dz, 'r--', 'LineWidth', 2)
-%plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 2)
+plot(EOFs(:, 2), dz, 'r--', 'LineWidth', 3)
+%plot(EOFs(:, 3), dz, 'k--', 'LineWidth', 3)
 axis ij
 axis square
-ylabel('Depth [m]')
-xlabel('$^\circ\mathrm{C}^2$', 'Interpreter', 'latex')
+ylabel('$h$ [m]', 'Interpreter', 'latex')
+xlabel('[-]')
 set(gca, 'FontSize', 18)
 title(sprintf('%s', mooring), 'FontSize', 18)
 grid minor
@@ -135,9 +132,9 @@ for modenum = 1:2
     [pxx,f, pxxc] = pwelch(x,window,noverlap,nfft,fs, 'ConfidenceLevel', 0.95);
     
     nexttile
-    semilogx(f(3:end), pxx(3:end), 'k', 'LineWidth', 1, 'DisplayName', sprintf('Mode %d', modenum))
+    loglog(f(3:end), pxx(3:end), 'k', 'LineWidth', 1, 'DisplayName', sprintf('Mode %d', modenum))
     hold on
-    semilogx(f(3:end), pxxc(3:end, :), 'm--', 'LineWidth', 0.25, 'DisplayName','95% Confidence')
+    loglog(f(3:end), pxxc(3:end, :), 'm--', 'LineWidth', 0.25, 'DisplayName','95% Confidence')
     xline(1/86400, 'b--', 'label', 'Diurnal', 'LineWidth', 1)
     xline(2/86400, 'b--', 'label', 'Semi-Diurnal', 'LineWidth', 1)
     %legend(sprintf('Mode %d', modenum), '95% Confidence')
@@ -153,10 +150,10 @@ Prof = ECC * EOFF';
 sss = std(Prof, [], 1);
 
 std_fig(mooring_ID) = figure;
-plot(sss, dz, 'k-s', 'LineWidth', 2)
+plot(sss, dz, 'k-s', 'LineWidth', 3)
 axis ij
 axis square
-ylabel('Depth [m]')
+ylabel('$h$ [m]', 'Interpreter', 'latex')
 xlabel('$^\circ\mathrm{C}$', 'Interpreter', 'latex')
 set(gca, 'FontSize', 18)
 title(sprintf('%s Mode 1 Standard Deviation', mooring), 'FontSize', 18)
@@ -216,14 +213,14 @@ modes(j) = figure;
 for i = 1:length(Data)
     EOFs    = Data(i).EOFs;
     dz      = Data(i).dz;
-    plot(EOFs(:, j), dz, '-s', 'LineWidth', 2, 'DisplayName', moorings{i})
+    plot(EOFs(:, j), dz, '-s', 'LineWidth', 3, 'DisplayName', moorings{i})
     hold on
 end
 
 axis ij
 axis square
-ylabel('Depth [m]')
-xlabel('$^\circ\mathrm{C}^2$', 'Interpreter', 'latex')
+ylabel('$h$ [m]', 'Interpreter', 'latex')
+xlabel('[-]')
 set(gca, 'FontSize', 18)
 xlim([-0.5 0.5])
 title(sprintf('Mode %d EOF', j))
@@ -232,26 +229,25 @@ end
 
 
 
-return
 
 
 
 %% Figures
 fpath = fullfile('..', '..', '..', '..', 'Kelp_data', 'Summer2025','Rooker', 'figures');
-print(FOV_fig, fullfile(fpath, 'FOV_fig.png'), '-dpng' ,'-r600')
-print(EOF_fig, fullfile(fpath, 'EOF_fig.png'), '-dpng' ,'-r600')
-print(Spectra_fig(1), fullfile(fpath, 'Spectra_fig_mode_1.png'), '-dpng' ,'-r600')
-print(Spectra_fig(2), fullfile(fpath, 'Spectra_fig_mode_2.png'), '-dpng' ,'-r600')
+exportgraphics(FOV_fig, fullfile(fpath, 'temp_FOV_fig.png'), 'Resolution',600)
+exportgraphics(EOF_fig, fullfile(fpath, 'temp_EOF_fig.png'), 'Resolution' , 600)
+exportgraphics(Spectra_fig(1), fullfile(fpath, 'temp_Spectra_fig_mode_1.png'), 'Resolution' , 600)
+exportgraphics(Spectra_fig(2), fullfile(fpath, 'temp_Spectra_fig_mode_2.png'), 'Resolution' , 600)
 
-print(modes(1), fullfile(fpath, 'modes_fig_1.png'), '-dpng', '-r600')
-print(modes(2), fullfile(fpath, 'modes_fig_2.png'), '-dpng', '-r600')
+exportgraphics(modes(1), fullfile(fpath, 'temp_modes_fig_1.png'), 'Resolution' , 600)
+exportgraphics(modes(2), fullfile(fpath, 'temp_modes_fig_2.png'), 'Resolution' , 600)
 
-print(Ybar_fig(1), fullfile(fpath, 'barotropic_spectra_M1.png'), '-dpng', '-r600')
-print(Ybar_fig(2), fullfile(fpath, 'barotropic_spectra_M2.png'), '-dpng', '-r600')
-print(Ybar_fig(3), fullfile(fpath, 'barotropic_spectra_M3.png'), '-dpng', '-r600')
-print(Ybar_fig(4), fullfile(fpath, 'barotropic_spectra_M4.png'), '-dpng', '-r600')
+exportgraphics(Ybar_fig(1), fullfile(fpath, 'temp_barotropic_spectra_M1.png'), 'Resolution' , 600)
+exportgraphics(Ybar_fig(2), fullfile(fpath, 'temp_barotropic_spectra_M2.png'), 'Resolution' , 600)
+exportgraphics(Ybar_fig(3), fullfile(fpath, 'temp_barotropic_spectra_M3.png'), 'Resolution' , 600)
+exportgraphics(Ybar_fig(4), fullfile(fpath, 'temp_barotropic_spectra_M4.png'), 'Resolution' , 600)
 
-print(std_fig(1), fullfile(fpath, 'std_Temp_profile_mode1_M1.png'), '-dpng', '-r600')
-print(std_fig(2), fullfile(fpath, 'std_Temp_profile_mode1_M2.png'), '-dpng', '-r600')
-print(std_fig(3), fullfile(fpath, 'std_Temp_profile_mode1_M3.png'), '-dpng', '-r600')
-print(std_fig(4), fullfile(fpath, 'std_Temp_profile_mode1_M4.png'), '-dpng', '-r600')
+exportgraphics(std_fig(1), fullfile(fpath, 'std_Temp_profile_mode1_M1.png'), 'Resolution' , 600)
+exportgraphics(std_fig(2), fullfile(fpath, 'std_Temp_profile_mode1_M2.png'), 'Resolution' , 600)
+exportgraphics(std_fig(3), fullfile(fpath, 'std_Temp_profile_mode1_M3.png'), 'Resolution' , 600)
+exportgraphics(std_fig(4), fullfile(fpath, 'std_Temp_profile_mode1_M4.png'), 'Resolution' , 600)
